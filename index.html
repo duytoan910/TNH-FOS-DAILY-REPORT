@@ -293,6 +293,23 @@
             color: #fff;
             text-decoration: line-through;
         }
+        .fos-name-btn.name-mismatch {
+            background-color: var(--accent-red);
+            border-color: var(--accent-red);
+            color: #fff;
+        }
+
+        .edit-fos-btn {
+            background-color: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #fff;
+            border-radius: 0 !important;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        .edit-fos-btn:hover {
+            opacity: 1;
+        }
 
         .delete-fos-btn {
             background-color: var(--accent-red);
@@ -341,6 +358,14 @@
             background-color: var(--scrollbar-thumb);
             border-radius: 10px;
         }
+
+        #suaBaoCaoModal .form-label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            display: block;
+        }
         
         /* --- Settings Dropdown & Submenu CSS --- */
         .settings-container {
@@ -375,6 +400,19 @@
             display: none;
         }
         .dropdown-submenu:hover > .dropdown-menu { display: block; }
+
+        /* Mobile Responsive Fix */
+        @media (max-width: 576px) {
+            .settings-container {
+                top: 1rem;
+                right: 0.5rem;
+            }
+            h1.main-title {
+                max-width: calc(100% - 60px);
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
     </style>
 </head>
 <body class="py-4">
@@ -384,6 +422,12 @@
         <div class="dropdown">
             <i class="bi bi-gear-fill" id="settings-btn" data-bs-toggle="dropdown" aria-expanded="false" title="Cài đặt"></i>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settings-btn">
+                <li>
+                    <a class="dropdown-item" id="random-theme-btn" href="#">
+                        <i class="bi bi-shuffle me-2"></i>Giao diện ngẫu nhiên
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
                 <li class="dropdown-submenu">
                     <a class="dropdown-item" href="#">
                         <i class="bi bi-palette-fill me-2"></i>Thay đổi giao diện
@@ -431,7 +475,7 @@
                                 <i class="bi bi-clipboard"></i> Sao chép
                             </button>
                         </div>
-                        <textarea id="bao-cao-ket-qua" class="form-control" rows="12" readonly></textarea>
+                        <textarea id="bao-cao-ket-qua" class="form-control" rows="8" readonly></textarea>
                     </div>
                 </div>
             </div>
@@ -440,7 +484,7 @@
 
     <!-- Modal Thêm FOS -->
     <div class="modal fade" id="themFosModal" tabindex="-1" aria-labelledby="themFosModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title fs-5" id="themFosModalLabel">Thêm FOS Mới</h1>
@@ -475,7 +519,7 @@
     
     <!-- Modal Dán Báo Cáo -->
     <div class="modal fade" id="danBaoCaoModal" tabindex="-1" aria-labelledby="danBaoCaoModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title fs-5" id="danBaoCaoModalLabel">Báo cáo của...</h1>
@@ -490,6 +534,69 @@
                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                  <button type="button" class="btn btn-primary" id="luu-bao-cao-btn">Lưu (Enter)</button>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Sửa Báo Cáo -->
+    <div class="modal fade" id="suaBaoCaoModal" tabindex="-1" aria-labelledby="suaBaoCaoModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="suaBaoCaoModalLabel">
+                <span id="suaBaoCaoModalTitleText">Chỉnh sửa báo cáo...</span>
+            </h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-center mb-3 fs-6">Tổng MC (ngày): <strong id="mc-edit-display" style="color: var(--accent-blue);">0</strong></p>
+            <form id="sua-bao-cao-form">
+                <div class="row g-3">
+                    <!-- Cột Trái -->
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <label for="ntb-edit-modal" class="form-label">NTB</label>
+                            <input type="number" class="form-control" id="ntb-edit-modal" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="etb-edit-modal" class="form-label">ETB</label>
+                            <input type="number" class="form-control" id="etb-edit-modal" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="pos-edit-modal" class="form-label">Pos</label>
+                            <input type="number" class="form-control" id="pos-edit-modal" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="saleapp-edit-modal" class="form-label" title="SL nhập saleapp">SL nhập saleapp</label>
+                            <input type="number" class="form-control" id="saleapp-edit-modal" min="0">
+                        </div>
+                    </div>
+                    <!-- Cột Phải -->
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <label for="cskh-edit-modal" class="form-label" title="SL gọi chăm sóc KH">SL gọi chăm sóc KH</label>
+                            <input type="number" class="form-control" id="cskh-edit-modal" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="ca-edit-modal" class="form-label">CA</label>
+                            <input type="number" class="form-control" id="ca-edit-modal" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="soundbox-edit-modal" class="form-label">Soundbox</label>
+                            <input type="number" class="form-control" id="soundbox-edit-modal" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="rf-edit-modal" class="form-label" title="RF Thẻ/Mycash/Shopcash">RF Thẻ/Mycash/Shopcash</label>
+                            <input type="number" class="form-control" id="rf-edit-modal" min="0">
+                        </div>
+                    </div>
+                </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <button type="button" class="btn btn-primary" id="luu-sua-bao-cao-btn">Lưu thay đổi</button>
           </div>
         </div>
       </div>
@@ -532,7 +639,7 @@
                 }
             };
             
-            const applyAndSaveTheme = (themeClass) => {
+            const applyTheme = (themeClass) => {
                  // Remove any existing theme class
                 const classes = $('body').attr('class').split(' ');
                 for (let cls of classes) {
@@ -541,25 +648,40 @@
                     }
                 }
                 $('body').addClass(themeClass);
-                localStorage.setItem('appTheme', themeClass);
             };
 
-            // On load, apply saved theme or default
-            const savedTheme = localStorage.getItem('appTheme') || 'theme-ios18-light';
-            applyAndSaveTheme(savedTheme);
+            const saveThemePreference = (preference) => {
+                localStorage.setItem('appTheme', preference);
+            };
+            
+            const applyRandomTheme = () => {
+                const themeKeys = Object.keys(themes);
+                const randomThemeKey = themeKeys[Math.floor(Math.random() * themeKeys.length)];
+                const randomMode = Math.random() < 0.5 ? 'light' : 'dark';
+                const randomThemeClass = `theme-${randomThemeKey}-${randomMode}`;
+                applyTheme(randomThemeClass);
+            };
 
+            const initializeTheme = () => {
+                const savedPreference = localStorage.getItem('appTheme') || 'theme-ios18-light';
+                if (savedPreference === 'random') {
+                    applyRandomTheme();
+                } else {
+                    applyTheme(savedPreference);
+                }
+            };
 
             // --- KHỞI TẠO DỮ LIỆU VÀ GIAO DIỆN ---
             let danhSachFOS = [
-                { ten: 'Toàn', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50 },
-                { ten: 'Giang', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50 },
-                { ten: 'Đặng', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40 },
-                { ten: 'Lâm', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40 },
-                { ten: 'Đan', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50 },
-                { ten: 'Tuyến', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40 },
-                { ten: 'Quế', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40 },
-                { ten: 'Linh', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40 },
-                { ten: 'Vy', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40 }
+                { ten: 'Toàn', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50, kiemTraTen: null },
+                { ten: 'Giang', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50, kiemTraTen: null },
+                { ten: 'Đặng', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null },
+                { ten: 'Lâm', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null },
+                { ten: 'Đan', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50, kiemTraTen: null },
+                { ten: 'Tuyến', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null },
+                { ten: 'Quế', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null },
+                { ten: 'Linh', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null },
+                { ten: 'Vy', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null }
             ];
             
             let fosHienTai = null;
@@ -567,13 +689,16 @@
             const $fosListArea = $('#fos-list-area');
             const themFosModal = new bootstrap.Modal('#themFosModal');
             const danBaoCaoModal = new bootstrap.Modal('#danBaoCaoModal');
+            const suaBaoCaoModal = new bootstrap.Modal('#suaBaoCaoModal');
             const danBaoCaoModalEl = document.getElementById('danBaoCaoModal');
 
             const veLaiDanhSachFOS = () => {
                 let html = '<div class="row g-2">';
                 danhSachFOS.forEach(fos => {
                     let btnClass = '';
-                    if (fos.trangThai === 'Đã báo cáo') {
+                    if (fos.kiemTraTen === false) {
+                        btnClass = 'name-mismatch';
+                    } else if (fos.trangThai === 'Đã báo cáo') {
                         btnClass = 'reported';
                     } else if (fos.trangThai === 'Off') {
                         btnClass = 'off';
@@ -584,6 +709,9 @@
                             <div class="input-group">
                                 <button class="btn fos-name-btn ${btnClass}" data-fos-name="${fos.ten}">
                                     ${fos.ten}
+                                </button>
+                                <button class="btn edit-fos-btn" data-fos-name="${fos.ten}" title="Sửa báo cáo của ${fos.ten}">
+                                    <i class="bi bi-pencil-fill"></i>
                                 </button>
                                 <button class="btn delete-fos-btn" data-fos-name="${fos.ten}" title="Xóa ${fos.ten}">
                                     <i class="bi bi-trash3-fill"></i>
@@ -605,17 +733,35 @@
             };
             
             const layGiaTri = (noiDung, tuKhoa) => {
-                const regex = new RegExp(tuKhoa + '\\s*[: ]\\s*(\\d+)', 'i');
-                const match = noiDung.match(regex);
-                return match ? parseInt(match[1], 10) : 0;
+                const keywords = Array.isArray(tuKhoa) ? tuKhoa : [tuKhoa];
+                for (const key of keywords) {
+                    const escapedKey = key.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                    const regex = new RegExp(escapedKey + '\\s*[: ]\\s*(\\d+)', 'i');
+                    const match = noiDung.match(regex);
+                    if (match) return parseInt(match[1], 10);
+                }
+                return 0;
             };
+            
+            const kiemTraTenNhanVien = (fosData, noiDungBaoCao) => {
+                if (!noiDungBaoCao.trim()) {
+                    fosData.kiemTraTen = null; // Nếu báo cáo trống, không kiểm tra, reset trạng thái
+                    return;
+                }
+                const tenDaEscape = fosData.ten.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                // Kiểm tra tên ở đầu chuỗi, có thể có chữ "Fos" đằng trước, không phân biệt hoa thường
+                const regex = new RegExp(`^(fos\\s+)?${tenDaEscape}\\b`, 'i');
+                
+                fosData.kiemTraTen = regex.test(noiDungBaoCao.trim());
+            };
+
 
             const taoBaoCao = () => {
                 const tenQuanLy = 'TNH';
                 const ngayBaoCao = dinhDangNgay(new Date());
                 
                 let tongFOS = danhSachFOS.length;
-                let tongMC = 0, tongNTB = 0, tongETB = 0, tongAE = 0, activeFOS = 0, tongPosThucHien = 0;
+                let tongMC = 0, tongNTB = 0, tongETB = 0, activeFOS = 0, tongPosThucHien = 0;
                 
                 const posChiTieu = tongFOS * 3;
                 let chiTietFOS = [];
@@ -635,14 +781,10 @@
                         const ntb = layGiaTri(noiDungBaoCao, 'NTB');
                         const etb = layGiaTri(noiDungBaoCao, 'ETB');
                         const pos = layGiaTri(noiDungBaoCao, 'Pos');
-                        const aeRegex = new RegExp('AE\\+\\s*:\\s*(\\d+)', 'i');
-                        const aeMatch = noiDungBaoCao.match(aeRegex);
-                        const ae = aeMatch ? parseInt(aeMatch[1], 10) : 0;
 
                         tongMC += mc;
                         tongNTB += ntb;
                         tongETB += etb;
-                        tongAE += ae;
                         tongPosThucHien += pos;
                         
                         const tongNgay = ntb + etb;
@@ -659,7 +801,7 @@
                 baoCaoCuoiCung += `✅NSBQ NTB: ${nsbqNTB}\n`;
                 baoCaoCuoiCung += `✅ETB: ${tongETB}\n`;
                 baoCaoCuoiCung += `✅NSBQ ETB: ${nsbqETB}\n`;
-                baoCaoCuoiCung += `✅AE+: ${tongAE}\n`;
+                baoCaoCuoiCung += `✅AE+: ${tongNTB}\n`;
                 baoCaoCuoiCung += `✅Pos: ${tongPosThucHien}/${posChiTieu}\n\n`;
                 baoCaoCuoiCung += `⭐️Active ${activeFOS}/${tongFOS}\n`;
                 baoCaoCuoiCung += chiTietFOS.join('\n');
@@ -675,7 +817,15 @@
                 e.stopPropagation();
                 const theme = $(this).data('theme');
                 const mode = $(this).data('mode');
-                applyAndSaveTheme(`theme-${theme}-${mode}`);
+                const themeClass = `theme-${theme}-${mode}`;
+                applyTheme(themeClass);
+                saveThemePreference(themeClass);
+            });
+            
+            $('#random-theme-btn').on('click', function(e) {
+                e.preventDefault();
+                saveThemePreference('random');
+                applyRandomTheme();
             });
 
             $('#luu-fos-btn').on('click', function() {
@@ -684,7 +834,7 @@
                 const chiTieuMoi = parseInt($('#chi-tieu-modal').val(), 10) || 0;
                 
                 if (tenFosMoi && !danhSachFOS.some(fos => fos.ten.toLowerCase() === tenFosMoi.toLowerCase())) {
-                    danhSachFOS.push({ ten: tenFosMoi, gioiTinh: gioiTinhMoi, baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: chiTieuMoi });
+                    danhSachFOS.push({ ten: tenFosMoi, gioiTinh: gioiTinhMoi, baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: chiTieuMoi, kiemTraTen: null });
                     veLaiDanhSachFOS(); 
                     themFosModal.hide();
                     $('#them-fos-form')[0].reset();
@@ -727,8 +877,10 @@
             $('#luu-bao-cao-btn').on('click', function() {
                 const fosData = danhSachFOS.find(fos => fos.ten === fosHienTai);
                 if (fosData) {
-                    fosData.baoCao = $('#noi-dung-bao-cao-modal').val();
+                    const noiDungBaoCao = $('#noi-dung-bao-cao-modal').val();
+                    fosData.baoCao = noiDungBaoCao;
                     fosData.trangThai = 'Đã báo cáo';
+                    kiemTraTenNhanVien(fosData, noiDungBaoCao); // Kiểm tra tên
                     veLaiDanhSachFOS();
                     danBaoCaoModal.hide();
                 }
@@ -746,10 +898,87 @@
                 if (fosData) {
                     fosData.baoCao = $('#noi-dung-bao-cao-modal').val(); 
                     fosData.trangThai = 'Off';
+                    fosData.kiemTraTen = null; // Khi OFF thì không cần check tên
                     veLaiDanhSachFOS();
                     danBaoCaoModal.hide();
                 }
             });
+
+            $fosListArea.on('click', '.edit-fos-btn', function() {
+                fosHienTai = $(this).data('fos-name');
+                const fosData = danhSachFOS.find(fos => fos.ten === fosHienTai);
+                if (fosData) {
+                    $('#suaBaoCaoModalTitleText').text(`Chỉnh sửa báo cáo của ${fosHienTai}`);
+                    const noiDungBaoCao = fosData.baoCao;
+                    
+                    const ntb = layGiaTri(noiDungBaoCao, 'NTB');
+                    const etb = layGiaTri(noiDungBaoCao, 'ETB');
+
+                    $('#mc-edit-display').text(ntb + etb);
+                    $('#ntb-edit-modal').val(ntb);
+                    $('#etb-edit-modal').val(etb);
+                    $('#pos-edit-modal').val(layGiaTri(noiDungBaoCao, 'Pos'));
+                    $('#saleapp-edit-modal').val(layGiaTri(noiDungBaoCao, ['Saleapp', 'SL nhập saleapp']));
+                    $('#cskh-edit-modal').val(layGiaTri(noiDungBaoCao, ['CSKH', 'SL gọi chăm sóc KH']));
+                    $('#ca-edit-modal').val(layGiaTri(noiDungBaoCao, 'CA'));
+                    $('#soundbox-edit-modal').val(layGiaTri(noiDungBaoCao, 'Soundbox'));
+                    $('#rf-edit-modal').val(layGiaTri(noiDungBaoCao, ['RF', 'RF Thẻ/Mycash/Shopcash']));
+                    
+                    suaBaoCaoModal.show();
+                }
+            });
+
+            $('#sua-bao-cao-form').on('input', '#ntb-edit-modal, #etb-edit-modal', function() {
+                const ntb = parseInt($('#ntb-edit-modal').val(), 10) || 0;
+                const etb = parseInt($('#etb-edit-modal').val(), 10) || 0;
+                $('#mc-edit-display').text(ntb + etb);
+            });
+            
+             $('#sua-bao-cao-form').on('keydown', function(e) {
+                if (e.key === 'Enter' && e.target.tagName.toLowerCase() !== 'textarea') {
+                    e.preventDefault();
+                    $('#luu-sua-bao-cao-btn').click();
+                }
+            });
+
+            $('#luu-sua-bao-cao-btn').on('click', function() {
+                const fosData = danhSachFOS.find(fos => fos.ten === fosHienTai);
+                if (fosData) {
+                    const ntb = $('#ntb-edit-modal').val() || 0;
+                    const etb = $('#etb-edit-modal').val() || 0;
+                    const mc = (parseInt(ntb, 10) || 0) + (parseInt(etb, 10) || 0);
+                    const pos = $('#pos-edit-modal').val() || 0;
+                    const saleapp = $('#saleapp-edit-modal').val() || 0;
+                    const cskh = $('#cskh-edit-modal').val() || 0;
+                    const ca = $('#ca-edit-modal').val() || 0;
+                    const soundbox = $('#soundbox-edit-modal').val() || 0;
+                    const rf = $('#rf-edit-modal').val() || 0;
+                    
+                    // Lấy lại MTD MC từ báo cáo cũ để không bị mất
+                    const mtd_mc = layGiaTri(fosData.baoCao, 'MTD MC');
+
+                    const baoCaoMoi = `Fos ${fosData.ten}\n` +
+                                     `Tổng MC: ${mc}\n` +
+                                     `NTB: ${ntb}\n` +
+                                     `ETB: ${etb}\n` +
+                                     `AE+: ${ntb}\n` +
+                                     `Pos: ${pos}\n` +
+                                     `Saleapp: ${saleapp}\n` +
+                                     `CSKH: ${cskh}\n` +
+                                     `CA: ${ca}\n` +
+                                     `Soundbox: ${soundbox}\n` +
+                                     `RF: ${rf}\n` +
+                                     `MTD MC: ${mtd_mc}`;
+
+                    fosData.baoCao = baoCaoMoi;
+                    fosData.trangThai = 'Đã báo cáo';
+                    kiemTraTenNhanVien(fosData, baoCaoMoi);
+                    
+                    veLaiDanhSachFOS();
+                    suaBaoCaoModal.hide();
+                }
+            });
+
 
             $('#tao-bao-cao-btn').on('click', taoBaoCao);
 
@@ -771,6 +1000,7 @@
 
             // --- CHẠY LẦN ĐẦU ---
             buildThemeMenu();
+            initializeTheme();
             veLaiDanhSachFOS();
         });
     </script>
