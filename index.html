@@ -459,11 +459,17 @@
                 </div>
                 <p class="fst-italic small mb-2" style="color: var(--text-secondary);">Lưu ý: Nhân viên không nhập báo cáo sẽ mặc định là active với kết quả trong ngày bằng 0.</p>
 
-                <div id="fos-list-area">
-                    <!-- Danh sách FOS sẽ được chèn vào đây -->
-                </div>
-                 <div class="d-grid mt-3">
-                    <button id="tao-bao-cao-btn" class="btn btn-primary btn-lg">Tạo Báo Cáo Tổng Hợp</button>
+                <div class="row g-2">
+                    <div class="col-12">
+                        <div id="fos-list-area">
+                            <!-- Danh sách FOS sẽ được chèn vào đây -->
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-grid mt-2">
+                            <button id="tao-bao-cao-btn" class="btn btn-primary btn-lg">Tạo Báo Cáo Tổng Hợp</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -477,7 +483,7 @@
                                 Báo cáo tổng hợp
                                 <i id="mtd-warning-icon" class="bi bi-exclamation-triangle-fill text-danger ms-2" style="display: none; cursor: pointer;" title="Cảnh báo sai MTD" data-bs-toggle="modal" data-bs-target="#mtdCanhBaoModal"></i>
                             </h5>
-                            <div>
+                            <div class="d-flex flex-shrink-0">
                                 <button id="xem-bao-cao-cu-btn" class="btn btn-sm btn-outline-secondary me-2">
                                     <i class="bi bi-calendar-check"></i> Xem hôm qua
                                 </button>
@@ -623,7 +629,7 @@
           </div>
           <div class="modal-body">
             <p>Dán toàn bộ nội dung báo cáo của các FOS vào đây. Hệ thống sẽ tự động tách và cập nhật cho từng người.</p>
-            <textarea id="noi-dung-nhieu-bao-cao-modal" class="form-control" rows="15" placeholder="Ví dụ:
+            <textarea id="noi-dung-nhieu-bao-cao-modal" class="form-control" rows="10" placeholder="Ví dụ:
 Fos Toàn báo cáo ngày...
 ...
 Fos Giang báo cáo ngày...
@@ -1140,18 +1146,27 @@ Fos Giang báo cáo ngày...
                     danBaoCaoModal.show();
                 }
             });
-
-            danBaoCaoModalEl.addEventListener('show.bs.modal', () => {
-                if (navigator.clipboard && navigator.clipboard.readText) {
+            
+            danBaoCaoModalEl.addEventListener('shown.bs.modal', () => {
+                const $textArea = $('#noi-dung-bao-cao-modal');
+                
+                // This event fires after the .fos-name-btn click handler has already populated the textarea
+                // with any existing report. We should only paste from clipboard if the report is empty.
+                if ($textArea.val().trim() === '' && navigator.clipboard && navigator.clipboard.readText) {
                     navigator.clipboard.readText().then(clipText => {
                         if (clipText) {
-                            $('#noi-dung-bao-cao-modal').val(clipText);
+                            $textArea.val(clipText);
                         }
-                    }).catch(err => {});
+                    }).catch(err => {
+                        console.info("Could not auto-paste from clipboard:", err);
+                    }).finally(() => {
+                        // Whether paste succeeded or not, focus and select.
+                        $textArea.focus().select();
+                    });
+                } else {
+                    // If not empty, or no clipboard access, just focus and select.
+                    $textArea.focus().select();
                 }
-            });
-            danBaoCaoModalEl.addEventListener('shown.bs.modal', () => {
-                $('#noi-dung-bao-cao-modal').focus().select();
             });
 
             $('#luu-bao-cao-btn').on('click', function() {
