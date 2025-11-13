@@ -427,7 +427,6 @@
                         <i class="bi bi-shuffle me-2"></i>Giao diện ngẫu nhiên
                     </a>
                 </li>
-                <li><hr class="dropdown-divider"></li>
                 <li class="dropdown-submenu">
                     <a class="dropdown-item" href="#">
                         <i class="bi bi-palette-fill me-2"></i>Thay đổi giao diện
@@ -435,6 +434,17 @@
                     <ul class="dropdown-menu">
                         <!-- Themes will be injected here by JS -->
                     </ul>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" id="save-data-btn" href="#">
+                        <i class="bi bi-save me-2"></i>Lưu dữ liệu (Backup)
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" id="load-data-btn" href="#">
+                        <i class="bi bi-folder2-open me-2"></i>Tải dữ liệu (Restore)
+                    </a>
                 </li>
             </ul>
         </div>
@@ -698,6 +708,8 @@ Fos Giang báo cáo ngày...
       </div>
     </div>
 
+    <!-- Hidden file input for loading data -->
+    <input type="file" id="load-data-input" accept=".txt" style="display: none;">
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -767,8 +779,63 @@ Fos Giang báo cáo ngày...
                 }
             };
 
+            // --- DATA PERSISTENCE ---
+            const luuDanhSachFOS = () => {
+                try {
+                    localStorage.setItem('fosListData', JSON.stringify(danhSachFOS));
+                } catch (e) {
+                    console.error("Lỗi khi lưu danh sách FOS:", e);
+                    alert("Không thể tự động lưu danh sách FOS. Bộ nhớ cục bộ có thể đã đầy.");
+                }
+            };
+
+            const taiDanhSachFOS = () => {
+                try {
+                    const data = localStorage.getItem('fosListData');
+                    return data ? JSON.parse(data) : null;
+                } catch (e) {
+                    console.error("Lỗi khi tải danh sách FOS:", e);
+                    return null;
+                }
+            };
+            
+            const luuBaoCao = (reportText, fosList) => {
+                const key = 'yesterdayReportData'; // Use a fixed key
+                const fosDataToStore = JSON.parse(JSON.stringify(fosList)); 
+                fosDataToStore.forEach(fos => {
+                    fos.mtdMC = layGiaTri(fos.baoCao, 'MTD MC');
+                });
+
+                const data = {
+                    reportText: reportText,
+                    fosData: fosDataToStore
+                };
+                
+                try {
+                    localStorage.setItem(key, JSON.stringify(data));
+                    console.log(`Báo cáo đã được lưu vào localStorage với key '${key}'.`);
+                } catch (e) {
+                    console.error("Lỗi khi lưu báo cáo:", e);
+                    alert("Không thể lưu báo cáo. Bộ nhớ cục bộ có thể đã đầy.");
+                }
+            };
+            
+            const taiBaoCaoHomQua = () => {
+                const key = 'yesterdayReportData'; // Use a fixed key
+                const dataString = localStorage.getItem(key);
+                if (dataString) {
+                    try {
+                        return JSON.parse(dataString);
+                    } catch (e) {
+                        console.error("Lỗi khi đọc báo cáo hôm qua:", e);
+                        return null;
+                    }
+                }
+                return null;
+            };
+
             // --- KHỞI TẠO DỮ LIỆU VÀ GIAO DIỆN ---
-            let danhSachFOS = [
+            let danhSachFOS = taiDanhSachFOS() || [
                 { ten: 'Toàn', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50, kiemTraTen: null },
                 { ten: 'Giang', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50, kiemTraTen: null },
                 { ten: 'Đặng', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null },
@@ -872,48 +939,6 @@ Fos Giang báo cáo ngày...
                 fosData.kiemTraTen = regex.test(noiDungBaoCao.trim());
             };
             
-            const luuBaoCao = (reportText, fosList) => {
-                const homNayISO = dinhDangNgayISO(new Date());
-                const key = `report_${homNayISO}`;
-
-                // Deep copy and add extracted MTD value for easier comparison later
-                const fosDataToStore = JSON.parse(JSON.stringify(fosList)); 
-                fosDataToStore.forEach(fos => {
-                    fos.mtdMC = layGiaTri(fos.baoCao, 'MTD MC');
-                });
-
-                const data = {
-                    reportText: reportText,
-                    fosData: fosDataToStore
-                };
-                
-                try {
-                    localStorage.setItem(key, JSON.stringify(data));
-                    console.log(`Báo cáo ngày ${homNayISO} đã được lưu vào localStorage.`);
-                } catch (e) {
-                    console.error("Lỗi khi lưu báo cáo:", e);
-                    alert("Không thể lưu báo cáo. Bộ nhớ cục bộ có thể đã đầy.");
-                }
-            };
-            
-            const taiBaoCaoHomQua = () => {
-                const homQua = new Date();
-                homQua.setDate(homQua.getDate() - 1);
-                const homQuaISO = dinhDangNgayISO(homQua);
-                const key = `report_${homQuaISO}`;
-                
-                const dataString = localStorage.getItem(key);
-                if (dataString) {
-                    try {
-                        return JSON.parse(dataString);
-                    } catch (e) {
-                        console.error("Lỗi khi đọc báo cáo hôm qua:", e);
-                        return null;
-                    }
-                }
-                return null;
-            };
-
             const kiemTraMTD = () => {
                 // Hide icon by default
                 $('#mtd-warning-icon').hide();
@@ -1081,9 +1106,10 @@ Fos Giang báo cáo ngày...
 
                 $('#bao-cao-ket-qua').val(baoCaoCuoiCung);
                 
-                // --- NEW FEATURES ---
                 luuBaoCao(baoCaoCuoiCung, danhSachFOS);
                 kiemTraMTD();
+                 // Re-enable the button for the next day
+                $('#xem-bao-cao-cu-btn').prop('disabled', false);
             };
 
             // --- GÁN SỰ KIỆN ---
@@ -1112,6 +1138,7 @@ Fos Giang báo cáo ngày...
                 
                 if (tenFosMoi && !danhSachFOS.some(fos => fos.ten.toLowerCase() === tenFosMoi.toLowerCase())) {
                     danhSachFOS.push({ ten: tenFosMoi, gioiTinh: gioiTinhMoi, baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: chiTieuMoi, kiemTraTen: null });
+                    luuDanhSachFOS(); // Save after adding
                     veLaiDanhSachFOS(); 
                     themFosModal.hide();
                     $('#them-fos-form')[0].reset();
@@ -1131,6 +1158,7 @@ Fos Giang báo cáo ngày...
             $('#xac-nhan-xoa-btn').on('click', function() {
                 if (fosCanXoa) {
                     danhSachFOS = danhSachFOS.filter(fos => fos.ten !== fosCanXoa);
+                    luuDanhSachFOS(); // Save after deleting
                     veLaiDanhSachFOS();
                     fosCanXoa = null; // Reset after deletion
                 }
@@ -1288,6 +1316,68 @@ Fos Giang báo cáo ngày...
                     alert("Không tìm thấy báo cáo của ngày hôm qua.");
                 }
             });
+
+            // --- SAVE/LOAD DATA (BACKUP/RESTORE) ---
+            $('#save-data-btn').on('click', function(e) {
+                e.preventDefault();
+                try {
+                    const dataStr = JSON.stringify(danhSachFOS, null, 2);
+                    const blob = new Blob([dataStr], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `DuLieuFOS_${dinhDangNgayISO(new Date())}.txt`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error("Lỗi khi lưu dữ liệu:", error);
+                    alert("Đã xảy ra lỗi khi cố gắng lưu dữ liệu.");
+                }
+            });
+
+            $('#load-data-btn').on('click', function(e) {
+                e.preventDefault();
+                $('#load-data-input').click();
+            });
+
+            $('#load-data-input').on('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) {
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (!confirm('Tải dữ liệu mới sẽ ghi đè lên danh sách FOS hiện tại. Bạn có muốn tiếp tục không?')) {
+                        // Reset input value to allow re-uploading the same file
+                        $(event.target).val('');
+                        return;
+                    }
+                    try {
+                        const content = e.target.result;
+                        const newData = JSON.parse(content);
+                        if (Array.isArray(newData)) {
+                            danhSachFOS = newData;
+                            luuDanhSachFOS(); // Persist the newly loaded list
+                            veLaiDanhSachFOS();
+                            alert('Tải dữ liệu thành công!');
+                        } else {
+                            throw new Error('Dữ liệu không phải là một danh sách (mảng).');
+                        }
+                    } catch (error) {
+                        console.error("Lỗi khi tải dữ liệu:", error);
+                        alert('Lỗi: File không hợp lệ hoặc không đúng định dạng. Vui lòng chọn file .txt đã được lưu từ ứng dụng này.');
+                    } finally {
+                        // Reset input value to allow re-uploading the same file
+                         $(event.target).val('');
+                    }
+                };
+                reader.readAsText(file);
+            });
+
 
             // --- CHẠY LẦN ĐẦU ---
             buildThemeMenu();
