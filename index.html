@@ -1063,30 +1063,46 @@ Fos Giang báo cáo ngày...
                 
                 const posChiTieu = tongFOS * 3;
                 let chiTietFOS = [];
+                
+                const baoCaoHomQua = taiBaoCaoHomQua();
+                const fosDataHomQuaMap = new Map();
+                if (baoCaoHomQua && baoCaoHomQua.fosData) {
+                    baoCaoHomQua.fosData.forEach(fos => fosDataHomQuaMap.set(fos.ten, fos));
+                }
 
                 danhSachFOS.forEach(fos => {
                     const emoji = fos.gioiTinh === 'Nữ' ? '👵' : '👨';
                     const noiDungBaoCao = fos.baoCao;
                     const chiTieu = fos.chiTieu || 0;
-                    const mtdMC = layGiaTri(noiDungBaoCao, 'MTD MC');
+                    
+                    const mcHomNay = layGiaTri(noiDungBaoCao, 'Tổng MC');
+                    let mtdHienThi = layGiaTri(noiDungBaoCao, 'MTD MC');
+
+                    const fosHomQua = fosDataHomQuaMap.get(fos.ten);
+                    const mtdHomQua = fosHomQua ? (fosHomQua.mtdMC || 0) : 0;
+
+                    // If FOS is OFF or reported 0 MC for the day, use yesterday's MTD for display.
+                    if (fos.trangThai === 'Off' || (fos.trangThai === 'Đã báo cáo' && mcHomNay === 0)) {
+                        mtdHienThi = mtdHomQua;
+                    }
                     
                     if (fos.trangThai === 'Off') {
-                        chiTietFOS.push(`${emoji}${fos.ten}: OFF/${mtdMC}/${chiTieu}`);
+                        chiTietFOS.push(`${emoji}${fos.ten}: OFF/${mtdHienThi}/${chiTieu}`);
                     } else {
                         activeFOS++;
                         
-                        const mc = layGiaTri(noiDungBaoCao, 'Tổng MC');
                         const ntb = layGiaTri(noiDungBaoCao, 'NTB');
                         const etb = layGiaTri(noiDungBaoCao, 'ETB');
                         const pos = layGiaTri(noiDungBaoCao, 'Pos');
 
-                        tongMC += mc;
+                        // Totals are always based on today's actual numbers
+                        tongMC += mcHomNay;
                         tongNTB += ntb;
                         tongETB += etb;
                         tongPosThucHien += pos;
                         
                         const tongNgay = ntb + etb;
-                        chiTietFOS.push(`${emoji}${fos.ten}: ${tongNgay}/${mtdMC}/${chiTieu}`);
+                        chiTietFOS.push(`${emoji}${fos.ten}: ${tongNgay}/${mtdHienThi}/${chiTieu}`);
                     }
                 });
 
