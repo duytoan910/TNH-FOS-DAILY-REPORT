@@ -438,12 +438,12 @@
                 <li><hr class="dropdown-divider"></li>
                 <li>
                     <a class="dropdown-item" id="save-data-btn" href="#">
-                        <i class="bi bi-save me-2"></i>Lưu dữ liệu (Backup)
+                        <i class="bi bi-cloud-arrow-down-fill me-2"></i>Lưu & Tải xuống phiên làm việc
                     </a>
                 </li>
                 <li>
                     <a class="dropdown-item" id="load-data-btn" href="#">
-                        <i class="bi bi-folder2-open me-2"></i>Tải dữ liệu (Restore)
+                        <i class="bi bi-cloud-arrow-up-fill me-2"></i>Tải lên phiên làm việc
                     </a>
                 </li>
             </ul>
@@ -468,7 +468,10 @@
                     </div>
                 </div>
                 <p class="fst-italic small mb-2" style="color: var(--text-secondary);">Lưu ý: Nhân viên không nhập báo cáo sẽ mặc định là active với kết quả trong ngày bằng 0.</p>
-
+                <div id="load-prompt" class="alert alert-primary small p-2 text-center" role="alert">
+                    <i class="bi bi-info-circle-fill me-1"></i>
+                    Để bắt đầu, hãy <strong>Tải lên phiên làm việc</strong> từ menu Cài đặt <i class="bi bi-gear-fill"></i>.
+                </div>
                 <div class="row g-2">
                     <div class="col-12">
                         <div id="fos-list-area">
@@ -617,6 +620,10 @@
                             <label for="rf-edit-modal" class="form-label" title="RF Thẻ/Mycash/Shopcash">RF Thẻ/Mycash/Shopcash</label>
                             <input type="number" class="form-control" id="rf-edit-modal" min="0">
                         </div>
+                         <div class="mb-3">
+                            <label for="mtd-edit-modal" class="form-label fw-bold" title="MTD MC">MTD MC</label>
+                            <input type="number" class="form-control" id="mtd-edit-modal" min="0">
+                        </div>
                     </div>
                 </div>
             </form>
@@ -709,7 +716,7 @@ Fos Giang báo cáo ngày...
     </div>
 
     <!-- Hidden file input for loading data -->
-    <input type="file" id="load-data-input" accept=".txt" style="display: none;">
+    <input type="file" id="load-data-input" accept=".json" style="display: none;">
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -718,7 +725,7 @@ Fos Giang báo cáo ngày...
 
     <script>
         $(function() {
-            // --- THEME MANAGEMENT ---
+            // --- THEME MANAGEMENT (No changes, uses localStorage for UX) ---
             const themes = {
                 'ios18': 'iOS 18',
                 'oneui': 'OneUI',
@@ -748,7 +755,6 @@ Fos Giang báo cáo ngày...
             };
             
             const applyTheme = (themeClass) => {
-                 // Remove any existing theme class
                 const classes = $('body').attr('class').split(' ');
                 for (let cls of classes) {
                     if (cls.startsWith('theme-')) {
@@ -779,63 +785,11 @@ Fos Giang báo cáo ngày...
                 }
             };
 
-            // --- DATA PERSISTENCE ---
-            const luuDanhSachFOS = () => {
-                try {
-                    localStorage.setItem('fosListData', JSON.stringify(danhSachFOS));
-                } catch (e) {
-                    console.error("Lỗi khi lưu danh sách FOS:", e);
-                    alert("Không thể tự động lưu danh sách FOS. Bộ nhớ cục bộ có thể đã đầy.");
-                }
-            };
-
-            const taiDanhSachFOS = () => {
-                try {
-                    const data = localStorage.getItem('fosListData');
-                    return data ? JSON.parse(data) : null;
-                } catch (e) {
-                    console.error("Lỗi khi tải danh sách FOS:", e);
-                    return null;
-                }
-            };
-            
-            const luuBaoCao = (reportText, fosList) => {
-                const key = 'yesterdayReportData'; // Use a fixed key
-                const fosDataToStore = JSON.parse(JSON.stringify(fosList)); 
-                fosDataToStore.forEach(fos => {
-                    fos.mtdMC = layGiaTri(fos.baoCao, 'MTD MC');
-                });
-
-                const data = {
-                    reportText: reportText,
-                    fosData: fosDataToStore
-                };
-                
-                try {
-                    localStorage.setItem(key, JSON.stringify(data));
-                    console.log(`Báo cáo đã được lưu vào localStorage với key '${key}'.`);
-                } catch (e) {
-                    console.error("Lỗi khi lưu báo cáo:", e);
-                    alert("Không thể lưu báo cáo. Bộ nhớ cục bộ có thể đã đầy.");
-                }
-            };
-            
-            const taiBaoCaoHomQua = () => {
-                const key = 'yesterdayReportData'; // Use a fixed key
-                const dataString = localStorage.getItem(key);
-                if (dataString) {
-                    try {
-                        return JSON.parse(dataString);
-                    } catch (e) {
-                        console.error("Lỗi khi đọc báo cáo hôm qua:", e);
-                        return null;
-                    }
-                }
-                return null;
-            };
+            // --- DATA PERSISTENCE (REMOVED LOCALSTORAGE) ---
+            // Data is now handled exclusively via file import/export.
 
             // --- KHỞI TẠO DỮ LIỆU VÀ GIAO DIỆN ---
-            let danhSachFOS = taiDanhSachFOS() || [
+            let danhSachFOS = [
                 { ten: 'Toàn', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50, kiemTraTen: null },
                 { ten: 'Giang', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50, kiemTraTen: null },
                 { ten: 'Đặng', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null },
@@ -847,6 +801,7 @@ Fos Giang báo cáo ngày...
                 { ten: 'Vy', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null }
             ];
             
+            let baoCaoHomQua = null; // Will be populated from the loaded file
             let fosHienTai = null;
             let fosCanXoa = null;
             
@@ -916,6 +871,7 @@ Fos Giang báo cáo ngày...
             };
             
             const layGiaTri = (noiDung, tuKhoa) => {
+                if (!noiDung) return 0;
                 const keywords = Array.isArray(tuKhoa) ? tuKhoa : [tuKhoa];
                 for (const key of keywords) {
                     const escapedKey = key.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -932,18 +888,14 @@ Fos Giang báo cáo ngày...
                     return;
                 }
                 const tenDaEscape = fosData.ten.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                // Use a positive lookahead for a whitespace character or end of string,
-                // which is more reliable for Unicode characters than \b (word boundary).
                 const regex = new RegExp(`^(fos\\s+)?${tenDaEscape}(?=\\s|$)`, 'i');
                 
                 fosData.kiemTraTen = regex.test(noiDungBaoCao.trim());
             };
             
             const kiemTraMTD = () => {
-                // Hide icon by default
                 $('#mtd-warning-icon').hide();
                 
-                const baoCaoHomQua = taiBaoCaoHomQua();
                 if (!baoCaoHomQua || !baoCaoHomQua.fosData) {
                     console.log("Không tìm thấy báo cáo hôm qua để so sánh MTD.");
                     return;
@@ -954,7 +906,7 @@ Fos Giang báo cáo ngày...
 
                 danhSachFOS.forEach(fosHienTai => {
                     const fosHomQua = fosDataHomQuaMap.get(fosHienTai.ten);
-                    if (!fosHomQua) return; // FOS mới, không so sánh
+                    if (!fosHomQua) return; 
 
                     const mtdHomQua = fosHomQua.mtdMC || 0;
                     const mcHomNay = layGiaTri(fosHienTai.baoCao, 'Tổng MC');
@@ -968,7 +920,7 @@ Fos Giang báo cáo ngày...
                                 chiTiet: `Hôm qua: ${mtdHomQua}, Hôm nay: ${mtdHomNay}`
                             });
                         }
-                    } else { // Active or not reported (assumed active)
+                    } else if (fosHienTai.trangThai === 'Đã báo cáo') { 
                         const mtdDuKien = mtdHomQua + mcHomNay;
                         if (mtdHomNay !== mtdDuKien) {
                             danhSachLoi.push({
@@ -1064,7 +1016,6 @@ Fos Giang báo cáo ngày...
                 const posChiTieu = tongFOS * 3;
                 let chiTietFOS = [];
                 
-                const baoCaoHomQua = taiBaoCaoHomQua();
                 const fosDataHomQuaMap = new Map();
                 if (baoCaoHomQua && baoCaoHomQua.fosData) {
                     baoCaoHomQua.fosData.forEach(fos => fosDataHomQuaMap.set(fos.ten, fos));
@@ -1075,18 +1026,12 @@ Fos Giang báo cáo ngày...
                     const noiDungBaoCao = fos.baoCao;
                     const chiTieu = fos.chiTieu || 0;
                     
-                    const mcHomNay = layGiaTri(noiDungBaoCao, 'Tổng MC');
                     let mtdHienThi = layGiaTri(noiDungBaoCao, 'MTD MC');
 
-                    const fosHomQua = fosDataHomQuaMap.get(fos.ten);
-                    const mtdHomQua = fosHomQua ? (fosHomQua.mtdMC || 0) : 0;
-
-                    // If FOS is OFF or reported 0 MC for the day, use yesterday's MTD for display.
-                    if (fos.trangThai === 'Off' || (fos.trangThai === 'Đã báo cáo' && mcHomNay === 0)) {
-                        mtdHienThi = mtdHomQua;
-                    }
-                    
                     if (fos.trangThai === 'Off') {
+                        const fosHomQua = fosDataHomQuaMap.get(fos.ten);
+                        const mtdHomQua = fosHomQua ? (fosHomQua.mtdMC || 0) : 0;
+                        mtdHienThi = mtdHomQua;
                         chiTietFOS.push(`${emoji}${fos.ten}: OFF/${mtdHienThi}/${chiTieu}`);
                     } else {
                         activeFOS++;
@@ -1094,15 +1039,14 @@ Fos Giang báo cáo ngày...
                         const ntb = layGiaTri(noiDungBaoCao, 'NTB');
                         const etb = layGiaTri(noiDungBaoCao, 'ETB');
                         const pos = layGiaTri(noiDungBaoCao, 'Pos');
+                        const mcHomNay = ntb + etb;
 
-                        // Totals are always based on today's actual numbers
                         tongMC += mcHomNay;
                         tongNTB += ntb;
                         tongETB += etb;
                         tongPosThucHien += pos;
                         
-                        const tongNgay = ntb + etb;
-                        chiTietFOS.push(`${emoji}${fos.ten}: ${tongNgay}/${mtdHienThi}/${chiTieu}`);
+                        chiTietFOS.push(`${emoji}${fos.ten}: ${mcHomNay}/${mtdHienThi}/${chiTieu}`);
                     }
                 });
 
@@ -1121,11 +1065,7 @@ Fos Giang báo cáo ngày...
                 baoCaoCuoiCung += chiTietFOS.join('\n');
 
                 $('#bao-cao-ket-qua').val(baoCaoCuoiCung);
-                
-                luuBaoCao(baoCaoCuoiCung, danhSachFOS);
                 kiemTraMTD();
-                 // Re-enable the button for the next day
-                $('#xem-bao-cao-cu-btn').prop('disabled', false);
             };
 
             // --- GÁN SỰ KIỆN ---
@@ -1154,7 +1094,6 @@ Fos Giang báo cáo ngày...
                 
                 if (tenFosMoi && !danhSachFOS.some(fos => fos.ten.toLowerCase() === tenFosMoi.toLowerCase())) {
                     danhSachFOS.push({ ten: tenFosMoi, gioiTinh: gioiTinhMoi, baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: chiTieuMoi, kiemTraTen: null });
-                    luuDanhSachFOS(); // Save after adding
                     veLaiDanhSachFOS(); 
                     themFosModal.hide();
                     $('#them-fos-form')[0].reset();
@@ -1174,7 +1113,6 @@ Fos Giang báo cáo ngày...
             $('#xac-nhan-xoa-btn').on('click', function() {
                 if (fosCanXoa) {
                     danhSachFOS = danhSachFOS.filter(fos => fos.ten !== fosCanXoa);
-                    luuDanhSachFOS(); // Save after deleting
                     veLaiDanhSachFOS();
                     fosCanXoa = null; // Reset after deletion
                 }
@@ -1193,7 +1131,6 @@ Fos Giang báo cáo ngày...
             
             danBaoCaoModalEl.addEventListener('shown.bs.modal', () => {
                 const $textArea = $('#noi-dung-bao-cao-modal');
-                // Always focus and select the content of the textarea when the modal is shown.
                 $textArea.focus().select();
             });
 
@@ -1203,7 +1140,7 @@ Fos Giang báo cáo ngày...
                     const noiDungBaoCao = $('#noi-dung-bao-cao-modal').val();
                     fosData.baoCao = noiDungBaoCao;
                     fosData.trangThai = 'Đã báo cáo';
-                    kiemTraTenNhanVien(fosData, noiDungBaoCao); // Kiểm tra tên
+                    kiemTraTenNhanVien(fosData, noiDungBaoCao);
                     veLaiDanhSachFOS();
                     danBaoCaoModal.hide();
                 }
@@ -1221,7 +1158,7 @@ Fos Giang báo cáo ngày...
                 if (fosData) {
                     fosData.baoCao = $('#noi-dung-bao-cao-modal').val(); 
                     fosData.trangThai = 'Off';
-                    fosData.kiemTraTen = null; // Khi OFF thì không cần check tên
+                    fosData.kiemTraTen = null;
                     veLaiDanhSachFOS();
                     danBaoCaoModal.hide();
                 }
@@ -1246,6 +1183,7 @@ Fos Giang báo cáo ngày...
                     $('#ca-edit-modal').val(layGiaTri(noiDungBaoCao, 'CA'));
                     $('#soundbox-edit-modal').val(layGiaTri(noiDungBaoCao, 'Soundbox'));
                     $('#rf-edit-modal').val(layGiaTri(noiDungBaoCao, ['RF', 'RF Thẻ/Mycash/Shopcash']));
+                    $('#mtd-edit-modal').val(layGiaTri(noiDungBaoCao, 'MTD MC'));
                     
                     suaBaoCaoModal.show();
                 }
@@ -1278,9 +1216,7 @@ Fos Giang báo cáo ngày...
                     const ca = $('#ca-edit-modal').val() || 0;
                     const soundbox = $('#soundbox-edit-modal').val() || 0;
                     const rf = $('#rf-edit-modal').val() || 0;
-                    
-                    // Lấy lại MTD MC từ báo cáo cũ để không bị mất
-                    const mtd_mc = layGiaTri(fosData.baoCao, 'MTD MC');
+                    const mtd_mc = $('#mtd-edit-modal').val() || 0;
 
                     const baoCaoMoi = `Fos ${fosData.ten}\n` +
                                      `Tổng MC: ${mc}\n` +
@@ -1324,25 +1260,30 @@ Fos Giang báo cáo ngày...
             });
             
              $('#xem-bao-cao-cu-btn').on('click', function() {
-                const baoCaoHomQua = taiBaoCaoHomQua();
                 if (baoCaoHomQua && baoCaoHomQua.reportText) {
                     $('#bao-cao-cu-ket-qua').val(baoCaoHomQua.reportText);
                     xemBaoCaoCuModal.show();
                 } else {
-                    alert("Không tìm thấy báo cáo của ngày hôm qua.");
+                    alert("Không tìm thấy báo cáo của ngày hôm qua. Vui lòng tải lên file dữ liệu.");
                 }
             });
 
-            // --- SAVE/LOAD DATA (BACKUP/RESTORE) ---
+            // --- SAVE/LOAD DATA (FILE-BASED) ---
             $('#save-data-btn').on('click', function(e) {
                 e.preventDefault();
                 try {
-                    const dataStr = JSON.stringify(danhSachFOS, null, 2);
-                    const blob = new Blob([dataStr], { type: 'text/plain;charset=utf-8' });
+                    const dataToSave = {
+                        version: 1,
+                        saveDate: dinhDangNgayISO(new Date()),
+                        fosList: danhSachFOS,
+                        generatedReport: $('#bao-cao-ket-qua').val()
+                    };
+                    const dataStr = JSON.stringify(dataToSave, null, 2);
+                    const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.setAttribute('href', url);
-                    link.setAttribute('download', `DuLieuFOS_${dinhDangNgayISO(new Date())}.txt`);
+                    link.setAttribute('download', `DuLieuBaoCao_${dinhDangNgayISO(new Date())}.json`);
                     link.style.visibility = 'hidden';
                     document.body.appendChild(link);
                     link.click();
@@ -1367,28 +1308,42 @@ Fos Giang báo cáo ngày...
 
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    if (!confirm('Tải dữ liệu mới sẽ ghi đè lên danh sách FOS hiện tại. Bạn có muốn tiếp tục không?')) {
-                        // Reset input value to allow re-uploading the same file
-                        $(event.target).val('');
-                        return;
-                    }
                     try {
                         const content = e.target.result;
-                        const newData = JSON.parse(content);
-                        if (Array.isArray(newData)) {
-                            danhSachFOS = newData;
-                            luuDanhSachFOS(); // Persist the newly loaded list
-                            veLaiDanhSachFOS();
-                            alert('Tải dữ liệu thành công!');
-                        } else {
-                            throw new Error('Dữ liệu không phải là một danh sách (mảng).');
+                        const loadedData = JSON.parse(content);
+
+                        if (!Array.isArray(loadedData.fosList)) {
+                             throw new Error('File dữ liệu không hợp lệ: thiếu danh sách FOS.');
                         }
+                        
+                        // Prepare the data from the file to be "yesterday's data" for MTD check
+                        const fosDataFromYesterday = JSON.parse(JSON.stringify(loadedData.fosList));
+                        fosDataFromYesterday.forEach(fos => {
+                            fos.mtdMC = layGiaTri(fos.baoCao, 'MTD MC');
+                        });
+                        baoCaoHomQua = {
+                            reportText: loadedData.generatedReport,
+                            fosData: fosDataFromYesterday
+                        };
+
+                        // Set the new FOS list and reset daily fields for a fresh start
+                        danhSachFOS = loadedData.fosList;
+                        danhSachFOS.forEach(fos => {
+                            fos.baoCao = '';
+                            fos.trangThai = 'Chưa báo cáo';
+                            fos.kiemTraTen = null;
+                        });
+                        
+                        veLaiDanhSachFOS();
+                        $('#xem-bao-cao-cu-btn').prop('disabled', false);
+                        $('#load-prompt').hide();
+                        alert('Tải dữ liệu thành công! Sẵn sàng cho ngày làm việc mới.');
+
                     } catch (error) {
                         console.error("Lỗi khi tải dữ liệu:", error);
-                        alert('Lỗi: File không hợp lệ hoặc không đúng định dạng. Vui lòng chọn file .txt đã được lưu từ ứng dụng này.');
+                        alert('Lỗi: File không hợp lệ hoặc không đúng định dạng. Vui lòng chọn file .json đã được lưu từ ứng dụng này.');
                     } finally {
-                        // Reset input value to allow re-uploading the same file
-                         $(event.target).val('');
+                        $(event.target).val(''); // Reset input to allow re-uploading the same file
                     }
                 };
                 reader.readAsText(file);
@@ -1399,9 +1354,7 @@ Fos Giang báo cáo ngày...
             buildThemeMenu();
             initializeTheme();
             veLaiDanhSachFOS();
-
-            // Kích hoạt/vô hiệu hóa nút xem báo cáo cũ dựa trên dữ liệu
-            $('#xem-bao-cao-cu-btn').prop('disabled', !taiBaoCaoHomQua());
+            $('#xem-bao-cao-cu-btn').prop('disabled', true);
         });
     </script>
 </body>
