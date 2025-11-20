@@ -476,6 +476,7 @@
                     <div class="col-12">
                         <div id="fos-list-area">
                             <!-- Danh sách FOS sẽ được chèn vào đây -->
+                            <div class="text-center py-3 text-muted">Đang tải danh sách...</div>
                         </div>
                     </div>
                     <div class="col-12">
@@ -789,17 +790,7 @@ Fos Giang báo cáo ngày...
             // Data is now handled exclusively via file import/export.
 
             // --- KHỞI TẠO DỮ LIỆU VÀ GIAO DIỆN ---
-            let danhSachFOS = [
-                { ten: 'Toàn', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50, kiemTraTen: null },
-                { ten: 'Giang', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50, kiemTraTen: null },
-                { ten: 'Đặng', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null },
-                { ten: 'Lâm', gioiTinh: 'Nam', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null },
-                { ten: 'Đan', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 50, kiemTraTen: null },
-                { ten: 'Tuyến', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null },
-                { ten: 'Quế', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null },
-                { ten: 'Linh', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null },
-                { ten: 'Vy', gioiTinh: 'Nữ', baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: 40, kiemTraTen: null }
-            ];
+            let danhSachFOS = []; // Dữ liệu sẽ được tải từ file fos.txt
             
             let baoCaoHomQua = null; // Will be populated from the loaded file
             let fosHienTai = null;
@@ -822,6 +813,12 @@ Fos Giang báo cáo ngày...
             };
 
             const veLaiDanhSachFOS = () => {
+                if (danhSachFOS.length === 0) {
+                     $fosListArea.html('<div class="text-center py-3 text-muted">Danh sách trống. Vui lòng thêm FOS hoặc kiểm tra file fos.txt</div>');
+                     capNhatNutTaoBaoCao();
+                     return;
+                }
+                
                 let html = '<div class="row g-2">';
                 danhSachFOS.forEach(fos => {
                     let btnClass = '';
@@ -852,6 +849,43 @@ Fos Giang báo cáo ngày...
                 html += '</div>';
                 $fosListArea.html(html);
                 capNhatNutTaoBaoCao();
+            };
+
+            // --- LOAD FOS FROM SERVER (fos.txt) ---
+            const loadFosFromServer = async () => {
+                try {
+                    const response = await fetch('fos.txt');
+                    if (!response.ok) throw new Error('Không tìm thấy file fos.txt');
+                    const text = await response.text();
+                    const lines = text.split('\n');
+                    
+                    danhSachFOS = lines
+                        .map(line => line.trim())
+                        .filter(line => line && !line.startsWith('#')) // Bỏ qua dòng trống và comment
+                        .map(line => {
+                            const parts = line.split('|');
+                            // Format: Name|Gender|Target
+                            // Ví dụ: Toàn|Nam|50
+                            if (parts.length >= 3) {
+                                return {
+                                    ten: parts[0].trim(),
+                                    gioiTinh: parts[1].trim(),
+                                    chiTieu: parseInt(parts[2].trim(), 10) || 50,
+                                    baoCao: '',
+                                    trangThai: 'Chưa báo cáo',
+                                    kiemTraTen: null
+                                };
+                            }
+                            return null;
+                        })
+                        .filter(item => item !== null);
+                    
+                    veLaiDanhSachFOS();
+                } catch (error) {
+                    console.error('Lỗi tải danh sách FOS:', error);
+                    // Alert nhẹ hoặc fallback nếu cần, ở đây để trống báo lỗi trong console
+                    $fosListArea.html('<div class="text-center py-3 text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Không thể tải fos.txt</div>');
+                }
             };
 
             const dinhDangNgay = (date) => {
@@ -1239,122 +1273,132 @@ Fos Giang báo cáo ngày...
                     suaBaoCaoModal.hide();
                 }
             });
-
-
-            $('#tao-bao-cao-btn').on('click', taoBaoCao);
-
-            $('#sao-chep-btn').on('click', function() {
-                const ketQua = $('#bao-cao-ket-qua');
-                if(!ketQua.val()) return;
-                
-                ketQua.select(); 
-                navigator.clipboard.writeText(ketQua.val()).then(() => {
-                    const $button = $(this);
-                    const originalHTML = $button.html();
-                    $button.html('<i class="bi bi-check-lg"></i> Đã chép!').addClass('copied').removeClass('btn-primary');
-                    
-                    setTimeout(() => {
-                        $button.html(originalHTML).removeClass('copied').addClass('btn-primary');
-                    }, 2000); 
-                }).catch(err => console.error('Không thể sao chép: ', err));
-            });
             
-             $('#xem-bao-cao-cu-btn').on('click', function() {
-                if (baoCaoHomQua && baoCaoHomQua.reportText) {
-                    $('#bao-cao-cu-ket-qua').val(baoCaoHomQua.reportText);
-                    xemBaoCaoCuModal.show();
-                } else {
-                    alert("Không tìm thấy báo cáo của ngày hôm qua. Vui lòng tải lên file dữ liệu.");
-                }
+            $('#tao-bao-cao-btn').on('click', taoBaoCao);
+            
+            $('#sao-chep-btn').on('click', function() {
+                const text = $('#bao-cao-ket-qua').val();
+                navigator.clipboard.writeText(text).then(function() {
+                    const btn = $('#sao-chep-btn');
+                    btn.html('<i class="bi bi-check2"></i> Đã sao chép');
+                    btn.addClass('copied');
+                    setTimeout(() => {
+                        btn.html('<i class="bi bi-clipboard"></i> Sao chép');
+                        btn.removeClass('copied');
+                    }, 2000);
+                });
             });
 
-            // --- SAVE/LOAD DATA (FILE-BASED) ---
+            // --- SAVE & LOAD DATA (File Based) ---
             $('#save-data-btn').on('click', function(e) {
                 e.preventDefault();
-                try {
-                    const dataToSave = {
-                        version: 1,
-                        saveDate: dinhDangNgayISO(new Date()),
-                        fosList: danhSachFOS,
-                        generatedReport: $('#bao-cao-ket-qua').val()
-                    };
-                    const dataStr = JSON.stringify(dataToSave, null, 2);
-                    const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.setAttribute('href', url);
-                    link.setAttribute('download', `DuLieuBaoCao_${dinhDangNgayISO(new Date())}.json`);
-                    link.style.visibility = 'hidden';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                } catch (error) {
-                    console.error("Lỗi khi lưu dữ liệu:", error);
-                    alert("Đã xảy ra lỗi khi cố gắng lưu dữ liệu.");
-                }
+                const today = dinhDangNgayISO(new Date());
+                const dataToSave = {
+                    date: today,
+                    fosData: danhSachFOS.map(fos => {
+                        // Extract metrics for history
+                        const mtd = layGiaTri(fos.baoCao, 'MTD MC');
+                        const mc = layGiaTri(fos.baoCao, 'Tổng MC');
+                        return {
+                            ten: fos.ten,
+                            gioiTinh: fos.gioiTinh,
+                            chiTieu: fos.chiTieu,
+                            baoCao: fos.baoCao,
+                            trangThai: fos.trangThai,
+                            mtdMC: mtd,
+                            mcTrongNgay: mc
+                        };
+                    })
+                };
+                
+                const jsonString = JSON.stringify(dataToSave, null, 2);
+                const blob = new Blob([jsonString], {type: "application/json"});
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `baocao_fos_${today}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
             });
-
+            
             $('#load-data-btn').on('click', function(e) {
                 e.preventDefault();
                 $('#load-data-input').click();
             });
-
-            $('#load-data-input').on('change', function(event) {
-                const file = event.target.files[0];
-                if (!file) {
-                    return;
-                }
-
+            
+            $('#load-data-input').on('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     try {
-                        const content = e.target.result;
-                        const loadedData = JSON.parse(content);
-
-                        if (!Array.isArray(loadedData.fosList)) {
-                             throw new Error('File dữ liệu không hợp lệ: thiếu danh sách FOS.');
+                        const data = JSON.parse(e.target.result);
+                        
+                        // Check if it's yesterday's report or current session
+                        const fileDate = new Date(data.date);
+                        const today = new Date();
+                        
+                        // Compare dates (ignoring time)
+                        const isToday = fileDate.toDateString() === today.toDateString();
+                        
+                        if (isToday) {
+                            if (confirm('File này có ngày trùng với hôm nay. Bạn có muốn khôi phục phiên làm việc không?')) {
+                                // Restore session
+                                danhSachFOS = data.fosData.map(item => ({
+                                    ten: item.ten,
+                                    gioiTinh: item.gioiTinh,
+                                    chiTieu: item.chiTieu,
+                                    baoCao: item.baoCao || '',
+                                    trangThai: item.trangThai || 'Chưa báo cáo',
+                                    kiemTraTen: null
+                                }));
+                                // Re-run checks
+                                danhSachFOS.forEach(fos => kiemTraTenNhanVien(fos, fos.baoCao));
+                                veLaiDanhSachFOS();
+                                alert('Đã khôi phục phiên làm việc.');
+                            }
+                        } else {
+                            // Treat as yesterday's report
+                             if (confirm(`File này có ngày ${data.date}. Bạn có muốn sử dụng làm dữ liệu "Hôm qua" để đối chiếu MTD không?`)) {
+                                baoCaoHomQua = data;
+                                
+                                // Display yesterday report content for reference
+                                let textBaoCaoCu = `Dữ liệu ngày ${data.date}:\n`;
+                                data.fosData.forEach(f => {
+                                     textBaoCaoCu += `${f.ten}: MTD ${f.mtdMC || 0}\n`;
+                                });
+                                $('#bao-cao-cu-ket-qua').val(textBaoCaoCu);
+                                
+                                // Hide prompt
+                                $('#load-prompt').hide();
+                                alert('Đã tải dữ liệu hôm qua. Hệ thống sẽ tự động cảnh báo nếu MTD nhập vào không khớp.');
+                            }
                         }
-                        
-                        // Prepare the data from the file to be "yesterday's data" for MTD check
-                        const fosDataFromYesterday = JSON.parse(JSON.stringify(loadedData.fosList));
-                        fosDataFromYesterday.forEach(fos => {
-                            fos.mtdMC = layGiaTri(fos.baoCao, 'MTD MC');
-                        });
-                        baoCaoHomQua = {
-                            reportText: loadedData.generatedReport,
-                            fosData: fosDataFromYesterday
-                        };
-
-                        // Set the new FOS list and reset daily fields for a fresh start
-                        danhSachFOS = loadedData.fosList;
-                        danhSachFOS.forEach(fos => {
-                            fos.baoCao = '';
-                            fos.trangThai = 'Chưa báo cáo';
-                            fos.kiemTraTen = null;
-                        });
-                        
-                        veLaiDanhSachFOS();
-                        $('#xem-bao-cao-cu-btn').prop('disabled', false);
-                        $('#load-prompt').hide();
-                        alert('Tải dữ liệu thành công! Sẵn sàng cho ngày làm việc mới.');
 
                     } catch (error) {
-                        console.error("Lỗi khi tải dữ liệu:", error);
-                        alert('Lỗi: File không hợp lệ hoặc không đúng định dạng. Vui lòng chọn file .json đã được lưu từ ứng dụng này.');
-                    } finally {
-                        $(event.target).val(''); // Reset input to allow re-uploading the same file
+                        console.error(error);
+                        alert('Lỗi đọc file. Vui lòng đảm bảo file đúng định dạng JSON.');
                     }
                 };
                 reader.readAsText(file);
+                // Reset input so same file can be selected again if needed
+                $(this).val('');
             });
-
-
-            // --- CHẠY LẦN ĐẦU ---
-            buildThemeMenu();
+            
+            $('#xem-bao-cao-cu-btn').on('click', function() {
+                xemBaoCaoCuModal.show();
+            });
+            
+            // Initial rendering
             initializeTheme();
-            veLaiDanhSachFOS();
-            $('#xem-bao-cao-cu-btn').prop('disabled', true);
+            buildThemeMenu();
+            
+            // Trigger fetch instead of direct render
+            loadFosFromServer();
         });
     </script>
 </body>
