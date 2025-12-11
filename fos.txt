@@ -1,0 +1,8 @@
+Toàn|Nam|60
+Giang|Nam|60
+Đặng|Nam|50
+Lâm|Nam|50
+Tuyến|Nữ|50
+Quế|Nữ|40
+Linh|Nữ|40
+Thảo|Nữ|30

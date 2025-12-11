@@ -650,6 +650,7 @@
                 </div>
             </div>
             <div>
+                 <button type="button" class="btn btn-info text-white me-1" id="paste-single-btn" title="Dán từ Clipboard"><i class="bi bi-clipboard-plus"></i> Dán</button>
                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                  <button type="button" class="btn btn-primary" id="luu-bao-cao-btn">Lưu (Enter)</button>
             </div>
@@ -743,6 +744,7 @@ Fos Giang báo cáo ngày...
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <button type="button" class="btn btn-info text-white" id="paste-bulk-btn" title="Dán từ Clipboard"><i class="bi bi-clipboard-plus"></i> Dán</button>
             <button type="button" class="btn btn-primary" id="xu-ly-nhieu-bao-cao-btn">Xử lý</button>
           </div>
         </div>
@@ -888,6 +890,7 @@ Fos Giang báo cáo ngày...
             let baoCaoHomQua = null; // Loaded from RestDB 'report'
             let fosHienTai = null;
             let fosCanXoa = null;
+            let appMode = 'online'; // 'online' or 'offline'
             
             // --- UI HELPERS ---
             const showLoading = (text = "Đang xử lý...") => {
@@ -938,7 +941,7 @@ Fos Giang báo cáo ngày...
                     $text.text('DB Connected');
                 } else {
                     $dot.removeClass('online').addClass('offline');
-                    $text.text('Disconnected');
+                    $text.text('Offline Mode');
                 }
                 if (nvCount !== null) $nv.text(`NV: ${nvCount}`);
                 if (reportCount !== null) $rp.text(`Rpt: ${reportCount}`);
@@ -985,7 +988,8 @@ Fos Giang báo cáo ngày...
                     updateDbWidget(true, nvIds.length, reportIds.length, connCount);
                 } catch (e) {
                     console.warn("DB Stat check failed", e);
-                    updateDbWidget(false, null, null, 0);
+                    // Do not strictly set offline here, as stats fail might be temporary
+                    // But if it was initial load, we would catch it in loadFosFromRestDB
                 }
             };
 
@@ -1157,6 +1161,8 @@ Fos Giang báo cáo ngày...
 
             // --- SYSTEM JOBS TRACKING ---
             const trackApiInteraction = async () => {
+                if (appMode === 'offline') return; // Skip in offline mode
+
                 const today = dinhDangNgayISO(new Date());
                 
                 try {
@@ -1201,6 +1207,8 @@ Fos Giang báo cáo ngày...
                 try {
                     // 1. Load Personnel (Triggers tracking inside apiCall)
                     const data = await apiCall('nhanvien?h={"$orderby": {"Ten": 1}}');
+                    appMode = 'online'; // Connection success
+                    
                     // Map DB fields (Ten, GioiTinh, ChiTieu) to App structure
                     danhSachFOS = data.map(item => ({
                         _id: item._id,
@@ -1221,9 +1229,40 @@ Fos Giang báo cáo ngày...
                     loadLocalCache();
 
                 } catch (error) {
-                    console.error(error);
-                    $fosListArea.html('<div class="text-center py-3 text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Lỗi kết nối RestDB</div>');
-                    showStatus("Lỗi tải dữ liệu khởi tạo", "error");
+                    console.warn("RestDB failed, trying local backup", error);
+                    appMode = 'offline'; // Connection failed, switch to offline
+                    updateDbWidget(false, null, null);
+                    
+                    try {
+                        const response = await fetch('fos.txt');
+                        if (!response.ok) throw new Error("File not found");
+                        const text = await response.text();
+                        danhSachFOS = text.split('\n')
+                            .map(line => line.trim())
+                            .filter(line => line.length > 0)
+                            .map((line, index) => {
+                                // format: Name|Gender|Target
+                                const parts = line.split('|');
+                                return {
+                                    _id: `local_${index}`,
+                                    ten: parts[0]?.trim() || 'Unknown',
+                                    gioiTinh: parts[1]?.trim() || 'Nam',
+                                    chiTieu: parseInt(parts[2]?.trim() || '50', 10),
+                                    baoCao: '',
+                                    trangThai: 'Chưa báo cáo',
+                                    kiemTraTen: null
+                                };
+                            });
+                        
+                        showStatus("Chế độ Offline: Đã tải dữ liệu từ file backup.", "info");
+                        veLaiDanhSachFOS();
+                        
+                        // Try restore/cache even in offline mode
+                        loadLocalCache();
+                    } catch (fileErr) {
+                         $fosListArea.html('<div class="text-center py-3 text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Lỗi kết nối & Không có dữ liệu backup</div>');
+                         showStatus("Lỗi tải dữ liệu: " + error.message, "error");
+                    }
                 } finally {
                     hideLoading();
                 }
@@ -1388,6 +1427,11 @@ Fos Giang báo cáo ngày...
             };
 
             const saveReportToRestDB = async (payload) => {
+                if (appMode === 'offline') {
+                    showStatus("Chế độ Offline: Đã lưu báo cáo vào bộ nhớ trình duyệt.", "info");
+                    return;
+                }
+
                 showLoading("Đang lưu báo cáo lên Server...");
                 try {
                     // 1. Check if report exists for today
@@ -1535,6 +1579,10 @@ Fos Giang báo cáo ngày...
             };
 
             const taoBaoCao = (e, isDryRun = false) => {
+                // Sort by ChiTieu Descending before generating report
+                danhSachFOS.sort((a, b) => b.chiTieu - a.chiTieu);
+                veLaiDanhSachFOS(); // Update UI list to reflect new order
+
                 const tenQuanLy = 'TNH';
                 const ngayBaoCao = dinhDangNgay(new Date());
                 
@@ -1634,6 +1682,24 @@ Fos Giang báo cáo ngày...
                 const chiTieuMoi = parseInt($('#chi-tieu-modal').val(), 10) || 0;
                 
                 if (tenFosMoi && !danhSachFOS.some(fos => fos.ten.toLowerCase() === tenFosMoi.toLowerCase())) {
+                    if (appMode === 'offline') {
+                         danhSachFOS.push({
+                            _id: `local_new_${Date.now()}`,
+                            ten: tenFosMoi,
+                            gioiTinh: gioiTinhMoi,
+                            chiTieu: chiTieuMoi,
+                            baoCao: '',
+                            trangThai: 'Chưa báo cáo',
+                            kiemTraTen: null
+                        });
+                        themFosModal.hide();
+                        $('#them-fos-form')[0].reset();
+                        veLaiDanhSachFOS();
+                        saveLocalCache();
+                        showStatus(`Đã thêm FOS ${tenFosMoi} (Offline)!`);
+                        return;
+                    }
+
                     showLoading("Đang thêm nhân viên...");
                     try {
                         await apiCall('nhanvien', 'POST', {
@@ -1666,6 +1732,16 @@ Fos Giang báo cáo ngày...
 
             $('#xac-nhan-xoa-btn').on('click', async function() {
                 if (fosCanXoa && fosCanXoa.id) {
+                     if (appMode === 'offline') {
+                         danhSachFOS = danhSachFOS.filter(f => f._id !== fosCanXoa.id);
+                         veLaiDanhSachFOS();
+                         saveLocalCache();
+                         showStatus(`Đã xoá ${fosCanXoa.name} (Offline)!`);
+                         fosCanXoa = null;
+                         xacNhanXoaModal.hide();
+                         return;
+                     }
+
                     showLoading("Đang xoá...");
                     try {
                         await apiCall(`nhanvien/${fosCanXoa.id}`, 'DELETE');
@@ -1820,6 +1896,27 @@ Fos Giang báo cáo ngày...
                 }
             });
             
+            // Clipboard Paste Logic
+            const pasteFromClipboard = async (targetSelector) => {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text && text.trim().length > 0) {
+                        $(targetSelector).val(text);
+                        // Trigger input event if needed, or focus
+                        $(targetSelector).focus();
+                        showStatus('Đã dán nội dung từ clipboard!', 'success');
+                    } else {
+                        showStatus('Clipboard trống hoặc không phải văn bản.', 'error');
+                    }
+                } catch (err) {
+                    console.error('Clipboard error:', err);
+                    showStatus('Không thể đọc clipboard. Hãy cấp quyền hoặc dán thủ công (Ctrl+V).', 'error');
+                }
+            };
+
+            $('#paste-single-btn').on('click', () => pasteFromClipboard('#noi-dung-bao-cao-modal'));
+            $('#paste-bulk-btn').on('click', () => pasteFromClipboard('#noi-dung-nhieu-bao-cao-modal'));
+
             $('#tao-bao-cao-btn').on('click', (e) => taoBaoCao(e, false));
             
             $('#sao-chep-btn').on('click', function() {
