@@ -498,7 +498,7 @@
         </div>
         <div class="status-detail">
             <span id="db-count-nv">NV: -</span> | <span id="db-count-report">Rpt: -</span>
-            <span id="db-api-usage" class="ms-1 text-muted small" title="Số lần gọi API hôm nay / Giới hạn">(0/500)</span>
+            <span id="db-api-usage" class="ms-1 text-muted small" title="Số lần gọi API hôm nay">(-)</span>
         </div>
     </div>
     
@@ -926,11 +926,12 @@ Fos Giang báo cáo ngày...
                 }).showToast();
             };
 
-            const updateDbWidget = (isOnline, nvCount, reportCount) => {
+            const updateDbWidget = (isOnline, nvCount, reportCount, connCount) => {
                 const $dot = $('#db-status-dot');
                 const $text = $('#db-status-text');
                 const $nv = $('#db-count-nv');
                 const $rp = $('#db-count-report');
+                const $usage = $('#db-api-usage');
                 
                 if (isOnline) {
                     $dot.removeClass('offline').addClass('online');
@@ -941,24 +942,17 @@ Fos Giang báo cáo ngày...
                 }
                 if (nvCount !== null) $nv.text(`NV: ${nvCount}`);
                 if (reportCount !== null) $rp.text(`Rpt: ${reportCount}`);
+                if (connCount !== null) {
+                    $usage.text(`(${connCount})`);
+                    $usage.removeClass('text-danger fw-bold').addClass('text-muted');
+                }
             }
 
             const updateApiUsage = (headers) => {
-                if (!headers) return;
-                const limit = headers.get('x-ratelimit-limit');
-                const remaining = headers.get('x-ratelimit-remaining');
-                
-                if (limit && remaining) {
-                    const used = parseInt(limit) - parseInt(remaining);
-                    $('#db-api-usage').text(`(${used}/${limit})`);
-                    
-                    // Optional: color code warning if close to limit
-                    if (parseInt(remaining) < 50) {
-                         $('#db-api-usage').removeClass('text-muted').addClass('text-danger fw-bold');
-                    } else {
-                         $('#db-api-usage').addClass('text-muted').removeClass('text-danger fw-bold');
-                    }
-                }
+                // Feature removed/disabled in favor of custom DB tracking
+                // if (!headers) return;
+                // const limit = headers.get('x-ratelimit-limit');
+                // const remaining = headers.get('x-ratelimit-remaining');
             };
 
             const refreshDbStats = async () => {
@@ -968,18 +962,30 @@ Fos Giang báo cáo ngày...
                     
                     // Fetch IDs for count (lightweight)
                     const resReport = await fetch(`${DB_URL}/report?q={}&h={"$fields":{"_id":1}}`, {method: 'GET', headers: headers});
-                    updateApiUsage(resReport.headers); // Update usage
+                    // updateApiUsage(resReport.headers); // Update usage
                     if (!resReport.ok) throw new Error("Connection failed");
                     const reportIds = await resReport.json();
                     
                     const resNv = await fetch(`${DB_URL}/nhanvien?q={}&h={"$fields":{"_id":1}}`, {method: 'GET', headers: headers});
-                    // updateApiUsage(resNv.headers); // Optional to update again, but maybe redundant quickly
                     const nvIds = await resNv.json();
                     
-                    updateDbWidget(true, nvIds.length, reportIds.length);
+                    // Fetch Setting for Connection Count
+                    const resSetting = await fetch(`${DB_URL}/setting?max=1`, {method: 'GET', headers: headers});
+                    const settings = await resSetting.json();
+                    let connCount = 0;
+                    if(settings.length > 0) {
+                        const s = settings[0];
+                        const today = dinhDangNgayISO(new Date());
+                        if (s.date === today) {
+                             connCount = s.connectionCount || 0;
+                        }
+                        // If date mismatch, count is effectively 0 for today
+                    }
+
+                    updateDbWidget(true, nvIds.length, reportIds.length, connCount);
                 } catch (e) {
                     console.warn("DB Stat check failed", e);
-                    updateDbWidget(false, null, null);
+                    updateDbWidget(false, null, null, 0);
                 }
             };
 
@@ -1058,7 +1064,11 @@ Fos Giang báo cáo ngày...
             const apiCall = async (endpoint, method = 'GET', data = null) => {
                 // Tracking: Bất cứ khi nào có tương tác với DB (trừ việc update setting để tránh loop) thì +1
                 if (!endpoint.startsWith('setting')) {
-                    trackApiInteraction();
+                    // Await tracking to ensure DB count is updated before any subsequent refresh reads it.
+                    // This prevents the UI from flickering back to an old count if refreshDbStats runs too early.
+                    try {
+                        await trackApiInteraction();
+                    } catch(e) { console.warn("Tracking error", e); }
                 }
 
                 const options = {
@@ -1069,12 +1079,18 @@ Fos Giang báo cáo ngày...
                     options.body = JSON.stringify(data);
                 }
                 const response = await fetch(`${DB_URL}/${endpoint}`, options);
-                updateApiUsage(response.headers); // Update usage on every call
+                updateApiUsage(response.headers); 
                 if (!response.ok) {
                     const errText = await response.text();
                     updateDbWidget(false, null, null);
                     throw new Error(`API Error: ${response.status} - ${errText}`);
                 }
+                
+                // Refresh stats widget after successful interaction (updates NV count, Report count, etc.)
+                if (!endpoint.startsWith('setting')) {
+                    refreshDbStats();
+                }
+
                 return response.json();
             };
 
@@ -1144,21 +1160,34 @@ Fos Giang báo cáo ngày...
                 const today = dinhDangNgayISO(new Date());
                 
                 try {
-                    // Check if job exists for today
-                    const query = `{"date_str": "${today}"}`;
-                    // Note: This call triggers 'apiCall' but with 'setting' endpoint, so it won't loop
-                    const exists = await apiCall(`setting?q=${query}&h={"$fields": {"_id": 1, "count": 1}}`);
+                    // Check if setting exists (Singleton pattern logic)
+                    // We just fetch the first document in 'setting' collection
+                    const settings = await apiCall(`setting?max=1`);
                     
-                    if (exists.length > 0) {
-                        // Increment
-                        const job = exists[0];
-                        await apiCall(`setting/${job._id}`, 'PUT', { count: (job.count || 0) + 1 });
+                    if (settings.length > 0) {
+                        const setting = settings[0];
+                        let newCount = (setting.connectionCount || 0) + 1;
+                        
+                        // Daily Reset Logic
+                        // If stored date != today, reset count to 1
+                        if (setting.date !== today) {
+                            newCount = 1;
+                        }
+                        
+                        // Optimistic UI Update
+                        $('#db-api-usage').text(`(${newCount})`);
+
+                        // Increment/Update
+                        await apiCall(`setting/${setting._id}`, 'PUT', { 
+                            connectionCount: newCount,
+                            date: today 
+                        });
                     } else {
-                        // Create
+                        // Create initial
+                         $('#db-api-usage').text(`(1)`);
                         await apiCall('setting', 'POST', {
-                            date_str: today,
-                            count: 1,
-                            description: "Daily user connection/load count"
+                            connectionCount: 1,
+                            date: today
                         });
                     }
                 } catch (e) {
