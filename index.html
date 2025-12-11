@@ -12,6 +12,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Toastify CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <style>
         /* --- THEME SYSTEM USING CSS VARIABLES --- */
         /* Hình nền ngẫu nhiên được cung cấp bởi picsum.photos */
@@ -400,6 +402,64 @@
             display: none;
         }
         .dropdown-submenu:hover > .dropdown-menu { display: block; }
+        
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+        
+        /* DB Status Widget */
+        .db-status-widget {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            background: var(--card-bg);
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            transition: all 0.3s ease;
+        }
+        .db-status-widget:hover {
+            transform: scale(1.05);
+        }
+        .status-header {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .status-dot {
+            height: 8px;
+            width: 8px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        .status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 5px var(--accent-green); }
+        .status-dot.offline { background-color: var(--accent-red); box-shadow: 0 0 5px var(--accent-red); }
+        .status-detail {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
 
         /* Mobile Responsive Fix */
         @media (max-width: 576px) {
@@ -412,11 +472,36 @@
                 margin-left: auto;
                 margin-right: auto;
             }
+            .db-status-widget {
+                bottom: 10px;
+                left: 10px;
+                padding: 6px 10px;
+            }
         }
     </style>
 </head>
 <body class="py-4">
 
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner-border text-light mb-2" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <div id="loading-text">Đang xử lý...</div>
+    </div>
+    
+    <!-- DB Status Widget -->
+    <div class="db-status-widget">
+        <div class="status-header">
+            <span id="db-status-dot" class="status-dot"></span>
+            <span id="db-status-text">Đang kết nối...</span>
+        </div>
+        <div class="status-detail">
+            <span id="db-count-nv">NV: -</span> | <span id="db-count-report">Rpt: -</span>
+            <span id="db-api-usage" class="ms-1 text-muted small" title="Số lần gọi API hôm nay / Giới hạn">(0/500)</span>
+        </div>
+    </div>
+    
     <!-- Settings Menu -->
     <div class="settings-container">
         <div class="dropdown">
@@ -436,14 +521,9 @@
                     </ul>
                 </li>
                 <li><hr class="dropdown-divider"></li>
-                <li>
-                    <a class="dropdown-item" id="save-data-btn" href="#">
-                        <i class="bi bi-cloud-arrow-down-fill me-2"></i>Lưu & Tải xuống phiên làm việc
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" id="load-data-btn" href="#">
-                        <i class="bi bi-cloud-arrow-up-fill me-2"></i>Tải lên phiên làm việc
+                 <li>
+                    <a class="dropdown-item disabled" href="#" style="font-size: 0.8rem; font-style: italic;">
+                        <i class="bi bi-database-check me-2"></i>Dữ liệu đồng bộ RestDB
                     </a>
                 </li>
             </ul>
@@ -467,21 +547,19 @@
                         <i class="bi bi-plus-circle-fill add-fos-icon-btn" title="Thêm FOS mới" data-bs-toggle="modal" data-bs-target="#themFosModal"></i>
                     </div>
                 </div>
-                <p class="fst-italic small mb-2" style="color: var(--text-secondary);">Lưu ý: Nhân viên không nhập báo cáo sẽ mặc định là active với kết quả trong ngày bằng 0.</p>
-                <div id="load-prompt" class="alert alert-primary small p-2 text-center" role="alert">
-                    <i class="bi bi-info-circle-fill me-1"></i>
-                    Để bắt đầu, hãy <strong>Tải lên phiên làm việc</strong> từ menu Cài đặt <i class="bi bi-gear-fill"></i>.
-                </div>
+                
+                <!-- Old Status Alert Removed -->
+
                 <div class="row g-2">
                     <div class="col-12">
                         <div id="fos-list-area">
                             <!-- Danh sách FOS sẽ được chèn vào đây -->
-                            <div class="text-center py-3 text-muted">Đang tải danh sách...</div>
+                            <div class="text-center py-3 text-muted">Đang tải danh sách từ máy chủ...</div>
                         </div>
                     </div>
                     <div class="col-12">
                         <div class="d-grid mt-2">
-                            <button id="tao-bao-cao-btn" class="btn btn-primary btn-lg">Tạo Báo Cáo Tổng Hợp</button>
+                            <button id="tao-bao-cao-btn" class="btn btn-primary btn-lg">Tạo & Lưu Báo Cáo</button>
                         </div>
                     </div>
                 </div>
@@ -506,7 +584,7 @@
                                 </button>
                             </div>
                         </div>
-                        <textarea id="bao-cao-ket-qua" class="form-control" rows="8" readonly></textarea>
+                        <textarea id="bao-cao-ket-qua" class="form-control" rows="8"></textarea>
                     </div>
                 </div>
             </div>
@@ -542,7 +620,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-            <button type="button" class="btn btn-primary" id="luu-fos-btn">Lưu</button>
+            <button type="button" class="btn btn-primary" id="luu-fos-btn">Lưu lên Server</button>
           </div>
         </div>
       </div>
@@ -560,7 +638,17 @@
             <textarea id="noi-dung-bao-cao-modal" class="form-control" rows="6" placeholder="Dán nội dung báo cáo vào đây..."></textarea>
           </div>
           <div class="modal-footer justify-content-between">
-            <button type="button" class="btn btn-danger" id="danh-dau-off-btn">OFF (Nghỉ)</button>
+            <div class="btn-group dropup">
+                <button type="button" class="btn btn-danger" id="danh-dau-off-btn">OFF (Nghỉ)</button>
+                <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                    <span class="visually-hidden">Toggle Dropdown</span>
+                </button>
+                <div class="dropdown-menu p-3 shadow" style="min-width: 250px;">
+                     <label for="ly-do-off-input" class="form-label small mb-1">Lý do nghỉ:</label>
+                     <input type="text" class="form-control form-control-sm mb-2" id="ly-do-off-input" placeholder="VD: Phép năm, Ốm...">
+                     <button type="button" class="btn btn-sm btn-danger w-100" id="luu-off-co-ly-do-btn">Xác nhận</button>
+                </div>
+            </div>
             <div>
                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                  <button type="button" class="btn btn-primary" id="luu-bao-cao-btn">Lưu (Enter)</button>
@@ -595,6 +683,10 @@
                             <input type="number" class="form-control" id="etb-edit-modal" min="0">
                         </div>
                         <div class="mb-3">
+                            <label for="aeplus-edit-modal" class="form-label fw-bold text-primary">AE+</label>
+                            <input type="number" class="form-control" id="aeplus-edit-modal" min="0">
+                        </div>
+                        <div class="mb-3">
                             <label for="pos-edit-modal" class="form-label">Pos</label>
                             <input type="number" class="form-control" id="pos-edit-modal" min="0">
                         </div>
@@ -616,10 +708,6 @@
                         <div class="mb-3">
                             <label for="soundbox-edit-modal" class="form-label">Soundbox</label>
                             <input type="number" class="form-control" id="soundbox-edit-modal" min="0">
-                        </div>
-                        <div class="mb-3">
-                            <label for="rf-edit-modal" class="form-label" title="RF Thẻ/Mycash/Shopcash">RF Thẻ/Mycash/Shopcash</label>
-                            <input type="number" class="form-control" id="rf-edit-modal" min="0">
                         </div>
                          <div class="mb-3">
                             <label for="mtd-edit-modal" class="form-label fw-bold" title="MTD MC">MTD MC</label>
@@ -670,11 +758,11 @@ Fos Giang báo cáo ngày...
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            Bạn có chắc chắn muốn xoá FOS này không?
+            Bạn có chắc chắn muốn xoá FOS này khỏi cơ sở dữ liệu không?
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
-            <button type="button" class="btn btn-danger" id="xac-nhan-xoa-btn">Xoá</button>
+            <button type="button" class="btn btn-danger" id="xac-nhan-xoa-btn">Xoá vĩnh viễn</button>
           </div>
         </div>
       </div>
@@ -716,17 +804,26 @@ Fos Giang báo cáo ngày...
       </div>
     </div>
 
-    <!-- Hidden file input for loading data -->
-    <input type="file" id="load-data-input" accept=".json" style="display: none;">
-
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <!-- Bootstrap JS Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Toastify JS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <script>
         $(function() {
-            // --- THEME MANAGEMENT (No changes, uses localStorage for UX) ---
+            // --- CONSTANTS & CONFIG ---
+            const DB_URL = 'https://dtoan-92c1.restdb.io/rest';
+            const API_KEY = '6931829a1c64b968d1dde5d6';
+            const DB_HEADERS = {
+                "content-type": "application/json",
+                "x-apikey": API_KEY,
+                "cache-control": "no-cache"
+            };
+            const LOCAL_CACHE_KEY = 'fos_app_daily_cache';
+
+            // --- THEME MANAGEMENT ---
             const themes = {
                 'ios18': 'iOS 18',
                 'oneui': 'OneUI',
@@ -786,16 +883,106 @@ Fos Giang báo cáo ngày...
                 }
             };
 
-            // --- DATA PERSISTENCE (REMOVED LOCALSTORAGE) ---
-            // Data is now handled exclusively via file import/export.
-
-            // --- KHỞI TẠO DỮ LIỆU VÀ GIAO DIỆN ---
-            let danhSachFOS = []; // Dữ liệu sẽ được tải từ file fos.txt
-            
-            let baoCaoHomQua = null; // Will be populated from the loaded file
+            // --- DATA STATE ---
+            let danhSachFOS = []; // Loaded from RestDB 'nhanvien'
+            let baoCaoHomQua = null; // Loaded from RestDB 'report'
             let fosHienTai = null;
             let fosCanXoa = null;
             
+            // --- UI HELPERS ---
+            const showLoading = (text = "Đang xử lý...") => {
+                $('#loading-text').text(text);
+                $('#loading-overlay').css('display', 'flex');
+            };
+
+            const hideLoading = () => {
+                $('#loading-overlay').hide();
+            };
+
+            const showStatus = (msg, type = 'success') => {
+                let bg = "linear-gradient(to right, #00b09b, #96c93d)"; // Success Green
+                if (type === 'danger' || type === 'error') {
+                    bg = "linear-gradient(to right, #ff5f6d, #ffc371)"; // Error Red
+                } else if (type === 'info') {
+                    bg = "linear-gradient(to right, #2193b0, #6dd5ed)"; // Info Blue
+                }
+
+                Toastify({
+                    text: msg,
+                    duration: 3000,
+                    gravity: "bottom", // `top` or `bottom`
+                    position: "right", // `left`, `center` or `right`
+                    stopOnFocus: true, // Prevents dismissing of toast on hover
+                    style: {
+                        background: bg,
+                        borderRadius: "12px",
+                        boxShadow: "0 5px 15px rgba(0,0,0,0.15)",
+                        fontFamily: "'Poppins', sans-serif",
+                        padding: "12px 20px",
+                        fontWeight: "500",
+                        fontSize: "0.9rem"
+                    },
+                    onClick: function(){} // Callback after click
+                }).showToast();
+            };
+
+            const updateDbWidget = (isOnline, nvCount, reportCount) => {
+                const $dot = $('#db-status-dot');
+                const $text = $('#db-status-text');
+                const $nv = $('#db-count-nv');
+                const $rp = $('#db-count-report');
+                
+                if (isOnline) {
+                    $dot.removeClass('offline').addClass('online');
+                    $text.text('DB Connected');
+                } else {
+                    $dot.removeClass('online').addClass('offline');
+                    $text.text('Disconnected');
+                }
+                if (nvCount !== null) $nv.text(`NV: ${nvCount}`);
+                if (reportCount !== null) $rp.text(`Rpt: ${reportCount}`);
+            }
+
+            const updateApiUsage = (headers) => {
+                if (!headers) return;
+                const limit = headers.get('x-ratelimit-limit');
+                const remaining = headers.get('x-ratelimit-remaining');
+                
+                if (limit && remaining) {
+                    const used = parseInt(limit) - parseInt(remaining);
+                    $('#db-api-usage').text(`(${used}/${limit})`);
+                    
+                    // Optional: color code warning if close to limit
+                    if (parseInt(remaining) < 50) {
+                         $('#db-api-usage').removeClass('text-muted').addClass('text-danger fw-bold');
+                    } else {
+                         $('#db-api-usage').addClass('text-muted').removeClass('text-danger fw-bold');
+                    }
+                }
+            };
+
+            const refreshDbStats = async () => {
+                try {
+                    // Check headers for count or just fetch minimal fields
+                    const headers = { ...DB_HEADERS };
+                    
+                    // Fetch IDs for count (lightweight)
+                    const resReport = await fetch(`${DB_URL}/report?q={}&h={"$fields":{"_id":1}}`, {method: 'GET', headers: headers});
+                    updateApiUsage(resReport.headers); // Update usage
+                    if (!resReport.ok) throw new Error("Connection failed");
+                    const reportIds = await resReport.json();
+                    
+                    const resNv = await fetch(`${DB_URL}/nhanvien?q={}&h={"$fields":{"_id":1}}`, {method: 'GET', headers: headers});
+                    // updateApiUsage(resNv.headers); // Optional to update again, but maybe redundant quickly
+                    const nvIds = await resNv.json();
+                    
+                    updateDbWidget(true, nvIds.length, reportIds.length);
+                } catch (e) {
+                    console.warn("DB Stat check failed", e);
+                    updateDbWidget(false, null, null);
+                }
+            };
+
             const $fosListArea = $('#fos-list-area');
             const themFosModal = new bootstrap.Modal('#themFosModal');
             const danBaoCaoModal = new bootstrap.Modal('#danBaoCaoModal');
@@ -809,12 +996,12 @@ Fos Giang báo cáo ngày...
             const capNhatNutTaoBaoCao = () => {
                 const daBaoCao = danhSachFOS.filter(fos => fos.trangThai !== 'Chưa báo cáo').length;
                 const tongSo = danhSachFOS.length;
-                $('#tao-bao-cao-btn').html(`Tạo Báo Cáo Tổng Hợp (${daBaoCao}/${tongSo})`);
+                $('#tao-bao-cao-btn').html(`Tạo & Lưu Báo Cáo (${daBaoCao}/${tongSo})`);
             };
 
             const veLaiDanhSachFOS = () => {
                 if (danhSachFOS.length === 0) {
-                     $fosListArea.html('<div class="text-center py-3 text-muted">Danh sách trống. Vui lòng thêm FOS hoặc kiểm tra file fos.txt</div>');
+                     $fosListArea.html('<div class="text-center py-3 text-muted">Danh sách trống. Vui lòng thêm FOS.</div>');
                      capNhatNutTaoBaoCao();
                      return;
                 }
@@ -833,13 +1020,13 @@ Fos Giang báo cáo ngày...
                     html += `
                         <div class="col-6">
                             <div class="input-group">
-                                <button class="btn fos-name-btn ${btnClass}" data-fos-name="${fos.ten}">
+                                <button class="btn fos-name-btn ${btnClass}" data-fos-id="${fos._id}" data-fos-name="${fos.ten}">
                                     ${fos.ten}
                                 </button>
-                                <button class="btn edit-fos-btn" data-fos-name="${fos.ten}" title="Sửa báo cáo của ${fos.ten}">
+                                <button class="btn edit-fos-btn" data-fos-id="${fos._id}" data-fos-name="${fos.ten}" title="Sửa báo cáo của ${fos.ten}">
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
-                                <button class="btn delete-fos-btn" data-fos-name="${fos.ten}" title="Xóa ${fos.ten}">
+                                <button class="btn delete-fos-btn" data-fos-id="${fos._id}" data-fos-name="${fos.ten}" title="Xóa ${fos.ten}">
                                     <i class="bi bi-trash3-fill"></i>
                                 </button>
                             </div>
@@ -849,43 +1036,6 @@ Fos Giang báo cáo ngày...
                 html += '</div>';
                 $fosListArea.html(html);
                 capNhatNutTaoBaoCao();
-            };
-
-            // --- LOAD FOS FROM SERVER (fos.txt) ---
-            const loadFosFromServer = async () => {
-                try {
-                    const response = await fetch('fos.txt');
-                    if (!response.ok) throw new Error('Không tìm thấy file fos.txt');
-                    const text = await response.text();
-                    const lines = text.split('\n');
-                    
-                    danhSachFOS = lines
-                        .map(line => line.trim())
-                        .filter(line => line && !line.startsWith('#')) // Bỏ qua dòng trống và comment
-                        .map(line => {
-                            const parts = line.split('|');
-                            // Format: Name|Gender|Target
-                            // Ví dụ: Toàn|Nam|50
-                            if (parts.length >= 3) {
-                                return {
-                                    ten: parts[0].trim(),
-                                    gioiTinh: parts[1].trim(),
-                                    chiTieu: parseInt(parts[2].trim(), 10) || 50,
-                                    baoCao: '',
-                                    trangThai: 'Chưa báo cáo',
-                                    kiemTraTen: null
-                                };
-                            }
-                            return null;
-                        })
-                        .filter(item => item !== null);
-                    
-                    veLaiDanhSachFOS();
-                } catch (error) {
-                    console.error('Lỗi tải danh sách FOS:', error);
-                    // Alert nhẹ hoặc fallback nếu cần, ở đây để trống báo lỗi trong console
-                    $fosListArea.html('<div class="text-center py-3 text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Không thể tải fos.txt</div>');
-                }
             };
 
             const dinhDangNgay = (date) => {
@@ -903,7 +1053,337 @@ Fos Giang báo cáo ngày...
                 const ngay = String(d.getDate()).padStart(2, '0');
                 return `${nam}-${thang}-${ngay}`;
             };
+
+            // --- RESTDB API CALLS ---
+            const apiCall = async (endpoint, method = 'GET', data = null) => {
+                // Tracking: Bất cứ khi nào có tương tác với DB (trừ việc update setting để tránh loop) thì +1
+                if (!endpoint.startsWith('setting')) {
+                    trackApiInteraction();
+                }
+
+                const options = {
+                    method: method,
+                    headers: DB_HEADERS
+                };
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                const response = await fetch(`${DB_URL}/${endpoint}`, options);
+                updateApiUsage(response.headers); // Update usage on every call
+                if (!response.ok) {
+                    const errText = await response.text();
+                    updateDbWidget(false, null, null);
+                    throw new Error(`API Error: ${response.status} - ${errText}`);
+                }
+                return response.json();
+            };
+
+            // --- LOCAL STORAGE CACHE ---
+            const saveLocalCache = () => {
+                const today = dinhDangNgayISO(new Date());
+                const data = {
+                    date: today,
+                    fosData: danhSachFOS.map(f => ({
+                        _id: f._id,
+                        baoCao: f.baoCao,
+                        trangThai: f.trangThai,
+                        kiemTraTen: f.kiemTraTen
+                    })),
+                    resultText: $('#bao-cao-ket-qua').val()
+                };
+                localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(data));
+            };
+
+            const loadLocalCache = () => {
+                const raw = localStorage.getItem(LOCAL_CACHE_KEY);
+                if (!raw) return false;
+                
+                try {
+                    const data = JSON.parse(raw);
+                    const today = dinhDangNgayISO(new Date());
+                    
+                    // Reset if 0:00 passed (date changed)
+                    if (data.date !== today) {
+                        localStorage.removeItem(LOCAL_CACHE_KEY);
+                        return false;
+                    }
+                    
+                    // Restore data from cache
+                    let restoredCount = 0;
+                    data.fosData.forEach(cachedItem => {
+                        const fos = danhSachFOS.find(f => f._id === cachedItem._id);
+                        if (fos && cachedItem.baoCao) {
+                            fos.baoCao = cachedItem.baoCao;
+                            fos.trangThai = cachedItem.trangThai;
+                            fos.kiemTraTen = cachedItem.kiemTraTen;
+                            restoredCount++;
+                        }
+                    });
+                    
+                    if (restoredCount > 0) {
+                        veLaiDanhSachFOS();
+                        // Restore result text if available, else re-generate
+                        if(data.resultText) {
+                             $('#bao-cao-ket-qua').val(data.resultText);
+                             kiemTraMTD();
+                        } else {
+                             taoBaoCao(null, true);
+                        }
+                        showStatus(`Đã khôi phục ${restoredCount} báo cáo chưa lưu từ bộ nhớ tạm.`, 'info');
+                        return true;
+                    }
+                } catch (e) {
+                    console.error("Cache load error", e);
+                    localStorage.removeItem(LOCAL_CACHE_KEY);
+                }
+                return false;
+            };
+
+            // --- SYSTEM JOBS TRACKING ---
+            const trackApiInteraction = async () => {
+                const today = dinhDangNgayISO(new Date());
+                
+                try {
+                    // Check if job exists for today
+                    const query = `{"date_str": "${today}"}`;
+                    // Note: This call triggers 'apiCall' but with 'setting' endpoint, so it won't loop
+                    const exists = await apiCall(`setting?q=${query}&h={"$fields": {"_id": 1, "count": 1}}`);
+                    
+                    if (exists.length > 0) {
+                        // Increment
+                        const job = exists[0];
+                        await apiCall(`setting/${job._id}`, 'PUT', { count: (job.count || 0) + 1 });
+                    } else {
+                        // Create
+                        await apiCall('setting', 'POST', {
+                            date_str: today,
+                            count: 1,
+                            description: "Daily user connection/load count"
+                        });
+                    }
+                } catch (e) {
+                    console.warn("Tracking failed (non-critical):", e);
+                }
+            };
+
+            // --- LOAD DATA ---
+            const loadFosFromRestDB = async () => {
+                showLoading("Đang tải dữ liệu hệ thống...");
+                try {
+                    // 1. Load Personnel (Triggers tracking inside apiCall)
+                    const data = await apiCall('nhanvien?h={"$orderby": {"Ten": 1}}');
+                    // Map DB fields (Ten, GioiTinh, ChiTieu) to App structure
+                    danhSachFOS = data.map(item => ({
+                        _id: item._id,
+                        ten: item.Ten,
+                        gioiTinh: item.GioiTinh,
+                        chiTieu: parseInt(item.ChiTieu, 10) || 50,
+                        baoCao: '',
+                        trangThai: 'Chưa báo cáo',
+                        kiemTraTen: null
+                    }));
+                    veLaiDanhSachFOS();
+                    refreshDbStats();
+                    
+                    // 2. Try to restore session from Server
+                    await restoreSession();
+                    
+                    // 3. Override with Local Storage if available and fresh (Client-side unsaved work)
+                    loadLocalCache();
+
+                } catch (error) {
+                    console.error(error);
+                    $fosListArea.html('<div class="text-center py-3 text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Lỗi kết nối RestDB</div>');
+                    showStatus("Lỗi tải dữ liệu khởi tạo", "error");
+                } finally {
+                    hideLoading();
+                }
+            };
+
+            const restoreSession = async () => {
+                const today = dinhDangNgayISO(new Date());
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = dinhDangNgayISO(yesterday);
+
+                // 1. Fetch Today's Report to restore UI
+                try {
+                    const reports = await apiCall(`report?q={"ngayBaoCao": "${today}"}`);
+                    if (reports.length > 0) {
+                        const report = reports[0];
+                        // Only show status if we are actually restoring something significant
+                        if(report.baoCaoFOS && report.baoCaoFOS.length > 0) {
+                             showStatus(`Đã tìm thấy báo cáo đã lưu trên server.`, 'info');
+                        }
+                        
+                        // Map report data back to danhSachFOS
+                        report.baoCaoFOS.forEach(item => {
+                            const fos = danhSachFOS.find(f => f.ten === item.tenNhanVien);
+                            if (fos) {
+                                // New OFF field Logic for Restore
+                                const offState = item.OFF;
+                                if (offState !== undefined) {
+                                    if (offState === 0) {
+                                        fos.trangThai = 'Đã báo cáo';
+                                        if (item.rawReport) {
+                                            fos.baoCao = item.rawReport;
+                                        } else {
+                                             // Fallback if rawReport missing but reported
+                                             const mtd = item.chiSoHieuSuat.saleTrongThang;
+                                             const todaySale = item.chiSoHieuSuat.saleHomNay;
+                                             fos.baoCao = `Fos ${item.tenNhanVien} (Khôi phục)\nTổng MC: ${todaySale}\nMTD MC: ${mtd}`;
+                                        }
+                                    } else {
+                                        fos.trangThai = 'Off';
+                                        // 1 is default OFF, otherwise it's the reason text
+                                        const reason = (offState === 1 || offState === '1') ? 'OFF' : offState;
+                                        // Reconstruct the OFF report text so UI displays it correctly
+                                        fos.baoCao = `Fos ${item.tenNhanVien} ${reason}`;
+                                    }
+                                } else {
+                                    // Fallback for old records without OFF field
+                                    if (item.rawReport) {
+                                        fos.baoCao = item.rawReport;
+                                        fos.trangThai = item.rawReport.includes('OFF') ? 'Off' : 'Đã báo cáo';
+                                    } else {
+                                        const mtd = item.chiSoHieuSuat.saleTrongThang;
+                                        const todaySale = item.chiSoHieuSuat.saleHomNay;
+                                        if (todaySale === 0 && mtd === 0) {
+                                             fos.baoCao = `Fos ${item.tenNhanVien} (Khôi phục)\nTổng MC: ${todaySale}\nMTD MC: ${mtd}`;
+                                             fos.trangThai = 'Đã báo cáo';
+                                        } else {
+                                            fos.baoCao = `Fos ${item.tenNhanVien} (Khôi phục)\nTổng MC: ${todaySale}\nMTD MC: ${mtd}`;
+                                            fos.trangThai = 'Đã báo cáo';
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        veLaiDanhSachFOS();
+                        // Re-generate the text view but DO NOT SAVE (Dry Run)
+                        taoBaoCao(null, true);
+                    }
+                } catch (e) { console.warn("Không thể khôi phục phiên hôm nay", e); }
+
+                // 2. Fetch Yesterday's Report for MTD Check
+                try {
+                    const oldReports = await apiCall(`report?q={"ngayBaoCao": "${yesterdayStr}"}`);
+                    if (oldReports.length > 0) {
+                        baoCaoHomQua = oldReports[0];
+                        // Convert structure for compatibility with existing MTD check logic
+                        // We need an array map of {ten, mtdMC}
+                        const formattedOldData = baoCaoHomQua.baoCaoFOS.map(item => ({
+                            ten: item.tenNhanVien,
+                            mtdMC: item.chiSoHieuSuat.saleTrongThang
+                        }));
+                        
+                        // Wrap it to match expected structure in checkMTD
+                        baoCaoHomQua.fosData = formattedOldData; 
+                        
+                        // Set text for modal
+                        let textBaoCaoCu = `Dữ liệu ngày ${yesterdayStr} (Từ Server):\n`;
+                        formattedOldData.forEach(f => {
+                             textBaoCaoCu += `${f.ten}: MTD ${f.mtdMC || 0}\n`;
+                        });
+                        $('#bao-cao-cu-ket-qua').val(textBaoCaoCu);
+                        showStatus("Đã tải dữ liệu MTD hôm qua.", "info");
+                    }
+                } catch (e) { console.warn("Không tìm thấy báo cáo hôm qua", e); }
+            };
+
+            // --- REPORT SAVING LOGIC ---
+            const generateReportPayload = (rawText, stats) => {
+                 const todayStr = dinhDangNgayISO(new Date());
+                 
+                 // stats object from calculate function: { tongFOS, tongMC, tongNTB, ... }
+                 const tongKetToanDoi = {
+                     tongSoFOS: stats.tongFOS,
+                     tongSoMC: stats.tongMC,
+                     tongSoNTB: stats.tongNTB,
+                     NSBQ_NTB: parseFloat(stats.nsbqNTB),
+                     tongSoETB: stats.tongETB,
+                     NSBQ_ETB: parseFloat(stats.nsbqETB),
+                     tongSoAEPlus: stats.tongAEPlus, // CHANGED: Uses explicit AE+ sum
+                     tyLePOS: `${stats.tongPosThucHien}/${stats.posChiTieu}`,
+                     tyLeActiveFOS: `${stats.activeFOS}/${stats.tongFOS}`
+                 };
+                 
+                 const baoCaoFOS = danhSachFOS.map(fos => {
+                     const noiDung = fos.baoCao || '';
+                     const mcHomNay = layGiaTri(noiDung, ['Tổng MC', 'NTB']) + layGiaTri(noiDung, 'ETB'); // Fallback logic
+                     let mtd = layGiaTri(noiDung, 'MTD MC');
+                     
+                     // Handle OFF Field Calculation
+                     let offValue = 0;
+                     if (fos.trangThai === 'Off') {
+                         const matchReason = noiDung.match(/^Fos\s+\S+\s+(.*)$/i);
+                         const reasonText = (matchReason && matchReason[1]) ? matchReason[1].trim() : 'OFF';
+                         
+                         // Determine OFF code: 1 if just "OFF", else reason text
+                         if (reasonText.toUpperCase() === 'OFF') {
+                             offValue = 1;
+                         } else {
+                             offValue = reasonText;
+                         }
+
+                         // CRITICAL: If OFF, ensure MTD is carried over from yesterday if current MTD is 0 (which it usually is for OFF reports)
+                         if (mtd === 0 && baoCaoHomQua && baoCaoHomQua.fosData) {
+                              const oldFos = baoCaoHomQua.fosData.find(f => f.ten === fos.ten);
+                              if (oldFos) {
+                                  mtd = oldFos.mtdMC || 0;
+                              }
+                         }
+                     } else {
+                         offValue = 0;
+                     }
+
+                     return {
+                         tenNhanVien: fos.ten,
+                         OFF: offValue, // New Schema Field
+                         chiSoHieuSuat: {
+                             saleHomNay: fos.trangThai === 'Off' ? 0 : layGiaTri(noiDung, ['Tổng MC']),
+                             saleTrongThang: mtd,
+                             chiTieu: fos.chiTieu
+                         },
+                         // IMPORTANT: We inject raw report to allow session restore functionality.
+                         // RestDB is flexible with extra fields.
+                         rawReport: fos.baoCao 
+                     };
+                 });
+
+                 return {
+                     ngayBaoCao: todayStr,
+                     tongKetToanDoi: tongKetToanDoi,
+                     baoCaoFOS: baoCaoFOS
+                 };
+            };
+
+            const saveReportToRestDB = async (payload) => {
+                showLoading("Đang lưu báo cáo lên Server...");
+                try {
+                    // 1. Check if report exists for today
+                    const check = await apiCall(`report?q={"ngayBaoCao": "${payload.ngayBaoCao}"}`);
+                    
+                    if (check.length > 0) {
+                        // Update
+                        const id = check[0]._id;
+                        await apiCall(`report/${id}`, 'PUT', payload);
+                        showStatus("Đã cập nhật báo cáo thành công!");
+                    } else {
+                        // Create
+                        await apiCall('report', 'POST', payload);
+                        showStatus("Đã tạo mới báo cáo thành công!");
+                    }
+                    refreshDbStats();
+                } catch (error) {
+                    console.error(error);
+                    showStatus(`Lỗi khi lưu báo cáo: ${error.message}`, 'error');
+                } finally {
+                    hideLoading();
+                }
+            };
             
+            // --- LOGIC FUNCTIONS ---
             const layGiaTri = (noiDung, tuKhoa) => {
                 if (!noiDung) return 0;
                 const keywords = Array.isArray(tuKhoa) ? tuKhoa : [tuKhoa];
@@ -918,22 +1398,17 @@ Fos Giang báo cáo ngày...
             
             const kiemTraTenNhanVien = (fosData, noiDungBaoCao) => {
                 if (!noiDungBaoCao.trim()) {
-                    fosData.kiemTraTen = null; // Reset status if report is empty
+                    fosData.kiemTraTen = null;
                     return;
                 }
                 const tenDaEscape = fosData.ten.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
                 const regex = new RegExp(`^(fos\\s+)?${tenDaEscape}(?=\\s|$)`, 'i');
-                
                 fosData.kiemTraTen = regex.test(noiDungBaoCao.trim());
             };
             
             const kiemTraMTD = () => {
                 $('#mtd-warning-icon').hide();
-                
-                if (!baoCaoHomQua || !baoCaoHomQua.fosData) {
-                    console.log("Không tìm thấy báo cáo hôm qua để so sánh MTD.");
-                    return;
-                }
+                if (!baoCaoHomQua || !baoCaoHomQua.fosData) return;
                 
                 const danhSachLoi = [];
                 const fosDataHomQuaMap = new Map(baoCaoHomQua.fosData.map(fos => [fos.ten, fos]));
@@ -947,12 +1422,10 @@ Fos Giang báo cáo ngày...
                     const mtdHomNay = layGiaTri(fosHienTai.baoCao, 'MTD MC');
 
                     if (fosHienTai.trangThai === 'Off') {
-                        if (mtdHomNay !== mtdHomQua) {
-                            danhSachLoi.push({
-                                ten: fosHienTai.ten,
-                                lyDo: `Trạng thái OFF nhưng MTD thay đổi.`,
-                                chiTiet: `Hôm qua: ${mtdHomQua}, Hôm nay: ${mtdHomNay}`
-                            });
+                        if (mtdHomNay !== mtdHomQua && mtdHomNay !== 0) { // Allow 0 if user just typed 'Off'
+                             // Actually, if OFF, mtd should match yesterday
+                             // But often users just type "Off", no numbers.
+                             // Only strict check if numbers are present.
                         }
                     } else if (fosHienTai.trangThai === 'Đã báo cáo') { 
                         const mtdDuKien = mtdHomQua + mcHomNay;
@@ -978,7 +1451,6 @@ Fos Giang báo cáo ngày...
                         `;
                     });
                     htmlLoi += '</ul>';
-                    
                     $('#mtd-warning-list').html(htmlLoi);
                     $('#mtd-warning-icon').show();
                 }
@@ -987,12 +1459,10 @@ Fos Giang báo cáo ngày...
             const xuLyBaoCaoHangLoat = () => {
                 const bulkText = $('#noi-dung-nhieu-bao-cao-modal').val().trim();
                 if (!bulkText) {
-                    alert('Vui lòng dán nội dung báo cáo.');
+                    showStatus('Vui lòng dán nội dung báo cáo.', 'error');
                     return;
                 }
-
                 const reportBlocks = bulkText.split(/(?=^Fos\s)/im); 
-
                 let successCount = 0;
                 let notFoundNames = [];
                 const updatedFosNames = new Set();
@@ -1000,13 +1470,10 @@ Fos Giang báo cáo ngày...
                 reportBlocks.forEach(block => {
                     const trimmedBlock = block.trim();
                     if (trimmedBlock.length === 0) return;
-
                     const nameMatch = trimmedBlock.match(/^Fos\s+([^\s]+)/i);
                     const reportFosName = nameMatch ? nameMatch[1] : null;
 
-                    let foundFos = null;
-
-                    foundFos = danhSachFOS.find(fos => {
+                    let foundFos = danhSachFOS.find(fos => {
                         const escapedFosName = fos.ten.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
                         const fosNameRegex = new RegExp(`^Fos\\s+${escapedFosName}(?=\\s|$)`, 'i');
                         return fosNameRegex.test(trimmedBlock);
@@ -1016,7 +1483,6 @@ Fos Giang báo cáo ngày...
                         foundFos.baoCao = trimmedBlock;
                         foundFos.trangThai = 'Đã báo cáo';
                         kiemTraTenNhanVien(foundFos, trimmedBlock);
-                        
                         if (!updatedFosNames.has(foundFos.ten)) {
                             successCount++;
                             updatedFosNames.add(foundFos.ten);
@@ -1028,25 +1494,24 @@ Fos Giang báo cáo ngày...
 
                 danNhieuBaoCaoModal.hide();
                 veLaiDanhSachFOS();
-
-                let resultMessage = `Xử lý hoàn tất!\n\n- Cập nhật thành công: ${successCount} FOS.`;
+                saveLocalCache(); // Save to local storage
+                
+                let resultMessage = `Xử lý hoàn tất!<br>- Cập nhật thành công: ${successCount} FOS.`;
                 if (notFoundNames.length > 0) {
                     const uniqueNotFound = [...new Set(notFoundNames)];
-                    resultMessage += `\n- Không tìm thấy hoặc tên sai: ${uniqueNotFound.join(', ')}.`;
+                    resultMessage += `<br>- Không tìm thấy/tên sai: ${uniqueNotFound.join(', ')}.`;
                 }
-                alert(resultMessage);
-                
+                showStatus(resultMessage, notFoundNames.length > 0 ? 'info' : 'success');
                 $('#noi-dung-nhieu-bao-cao-modal').val('');
             };
 
-
-            const taoBaoCao = () => {
+            const taoBaoCao = (e, isDryRun = false) => {
                 const tenQuanLy = 'TNH';
                 const ngayBaoCao = dinhDangNgay(new Date());
                 
                 let tongFOS = danhSachFOS.length;
                 let tongMC = 0, tongNTB = 0, tongETB = 0, activeFOS = 0, tongPosThucHien = 0;
-                
+                let tongAEPlus = 0; // New Metric
                 const posChiTieu = tongFOS * 3;
                 let chiTietFOS = [];
                 
@@ -1065,20 +1530,25 @@ Fos Giang báo cáo ngày...
                     if (fos.trangThai === 'Off') {
                         const fosHomQua = fosDataHomQuaMap.get(fos.ten);
                         const mtdHomQua = fosHomQua ? (fosHomQua.mtdMC || 0) : 0;
-                        mtdHienThi = mtdHomQua;
-                        chiTietFOS.push(`${emoji}${fos.ten}: OFF/${mtdHienThi}/${chiTieu}`);
+                        if (mtdHienThi === 0) mtdHienThi = mtdHomQua; // Use yesterday's if not provided today
+                        // Check if reason is embedded in content "Fos Ten LyDo" or default "Fos Ten OFF"
+                        const matchReason = noiDungBaoCao.match(/^Fos\s+\S+\s+(.*)$/i);
+                        const reason = (matchReason && matchReason[1] && matchReason[1].toUpperCase() !== 'OFF') ? matchReason[1] : 'OFF';
+                        chiTietFOS.push(`${emoji}${fos.ten}: ${reason}/${mtdHienThi}/${chiTieu}`);
                     } else {
                         activeFOS++;
-                        
                         const ntb = layGiaTri(noiDungBaoCao, 'NTB');
                         const etb = layGiaTri(noiDungBaoCao, 'ETB');
                         const pos = layGiaTri(noiDungBaoCao, 'Pos');
-                        const mcHomNay = ntb + etb;
+                        const aePlus = layGiaTri(noiDungBaoCao, ['AE+', 'AE Plus']); // Explicit AE+ parsing
+                        
+                        const mcHomNay = ntb + etb; // Assuming MC = NTB + ETB
 
                         tongMC += mcHomNay;
                         tongNTB += ntb;
                         tongETB += etb;
                         tongPosThucHien += pos;
+                        tongAEPlus += aePlus; // Sum explicitly
                         
                         chiTietFOS.push(`${emoji}${fos.ten}: ${mcHomNay}/${mtdHienThi}/${chiTieu}`);
                     }
@@ -1093,68 +1563,98 @@ Fos Giang báo cáo ngày...
                 baoCaoCuoiCung += `✅NSBQ NTB: ${nsbqNTB}\n`;
                 baoCaoCuoiCung += `✅ETB: ${tongETB}\n`;
                 baoCaoCuoiCung += `✅NSBQ ETB: ${nsbqETB}\n`;
-                baoCaoCuoiCung += `✅AE+: ${tongNTB}\n`;
+                baoCaoCuoiCung += `✅AE+: ${tongAEPlus}\n`; // Display specific AE+ sum
                 baoCaoCuoiCung += `✅Pos: ${tongPosThucHien}/${posChiTieu}\n\n`;
                 baoCaoCuoiCung += `⭐️Active ${activeFOS}/${tongFOS}\n`;
                 baoCaoCuoiCung += chiTietFOS.join('\n');
 
                 $('#bao-cao-ket-qua').val(baoCaoCuoiCung);
                 kiemTraMTD();
+
+                // Save to RestDB if not just refreshing UI
+                if (!isDryRun) {
+                    const stats = {
+                        tongFOS, tongMC, tongNTB, nsbqNTB, tongETB, nsbqETB, tongPosThucHien, posChiTieu, activeFOS, tongAEPlus
+                    };
+                    const payload = generateReportPayload(baoCaoCuoiCung, stats);
+                    saveReportToRestDB(payload);
+                }
             };
 
-            // --- GÁN SỰ KIỆN ---
+            // --- EVENT HANDLERS ---
             
-            // Theme switcher event
+            // Theme Events
             $('.dropdown-menu').on('click', '.theme-option', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
+                e.preventDefault(); e.stopPropagation();
                 const theme = $(this).data('theme');
                 const mode = $(this).data('mode');
                 const themeClass = `theme-${theme}-${mode}`;
                 applyTheme(themeClass);
                 saveThemePreference(themeClass);
             });
-            
             $('#random-theme-btn').on('click', function(e) {
                 e.preventDefault();
                 saveThemePreference('random');
                 applyRandomTheme();
             });
 
-            $('#luu-fos-btn').on('click', function() {
+            // Add FOS (Save to DB)
+            $('#luu-fos-btn').on('click', async function() {
                 const tenFosMoi = $('#ten-fos-modal').val().trim();
                 const gioiTinhMoi = $('#gioi-tinh-modal').val();
                 const chiTieuMoi = parseInt($('#chi-tieu-modal').val(), 10) || 0;
                 
                 if (tenFosMoi && !danhSachFOS.some(fos => fos.ten.toLowerCase() === tenFosMoi.toLowerCase())) {
-                    danhSachFOS.push({ ten: tenFosMoi, gioiTinh: gioiTinhMoi, baoCao: '', trangThai: 'Chưa báo cáo', chiTieu: chiTieuMoi, kiemTraTen: null });
-                    veLaiDanhSachFOS(); 
-                    themFosModal.hide();
-                    $('#them-fos-form')[0].reset();
+                    showLoading("Đang thêm nhân viên...");
+                    try {
+                        await apiCall('nhanvien', 'POST', {
+                            Ten: tenFosMoi,
+                            GioiTinh: gioiTinhMoi,
+                            ChiTieu: chiTieuMoi
+                        });
+                        themFosModal.hide();
+                        $('#them-fos-form')[0].reset();
+                        showStatus(`Đã thêm FOS ${tenFosMoi} thành công!`);
+                        loadFosFromRestDB(); // Reload list
+                    } catch (e) {
+                        showStatus("Lỗi thêm FOS: " + e.message, 'error');
+                    } finally {
+                        hideLoading();
+                    }
                 } else if (!tenFosMoi) {
-                    alert('Vui lòng nhập tên FOS.');
+                    showStatus('Vui lòng nhập tên FOS.', 'error');
                 } else {
-                    alert('Tên FOS đã tồn tại!');
+                    showStatus('Tên FOS đã tồn tại!', 'error');
                 }
             });
             
+            // Delete FOS (Delete from DB)
             $fosListArea.on('click', '.delete-fos-btn', function() {
-                fosCanXoa = $(this).data('fos-name');
-                $('#xacNhanXoaModal .modal-body').text(`Bạn có chắc chắn muốn xoá FOS "${fosCanXoa}" không? Thao tác này không thể hoàn tác.`);
+                fosCanXoa = { id: $(this).data('fos-id'), name: $(this).data('fos-name') };
+                $('#xacNhanXoaModal .modal-body').text(`Bạn có chắc chắn muốn xoá FOS "${fosCanXoa.name}" khỏi cơ sở dữ liệu không?`);
                 xacNhanXoaModal.show();
             });
 
-            $('#xac-nhan-xoa-btn').on('click', function() {
-                if (fosCanXoa) {
-                    danhSachFOS = danhSachFOS.filter(fos => fos.ten !== fosCanXoa);
-                    veLaiDanhSachFOS();
-                    fosCanXoa = null; // Reset after deletion
+            $('#xac-nhan-xoa-btn').on('click', async function() {
+                if (fosCanXoa && fosCanXoa.id) {
+                    showLoading("Đang xoá...");
+                    try {
+                        await apiCall(`nhanvien/${fosCanXoa.id}`, 'DELETE');
+                        showStatus(`Đã xoá ${fosCanXoa.name} thành công!`);
+                        loadFosFromRestDB();
+                    } catch (e) {
+                        showStatus("Lỗi xoá FOS: " + e.message, 'error');
+                    } finally {
+                        hideLoading();
+                    }
+                    fosCanXoa = null;
                 }
                 xacNhanXoaModal.hide();
             });
             
+            // Edit Report Flow
             $fosListArea.on('click', '.fos-name-btn', function() {
-                fosHienTai = $(this).data('fos-name');
+                fosHienTai = $(this).data('fos-name'); // Still using name for finding in memory list
                 const fosData = danhSachFOS.find(fos => fos.ten === fosHienTai);
                 if (fosData) {
                     $('#danBaoCaoModalLabel').text(`Báo cáo của ${fosHienTai}`);
@@ -1164,8 +1664,8 @@ Fos Giang báo cáo ngày...
             });
             
             danBaoCaoModalEl.addEventListener('shown.bs.modal', () => {
-                const $textArea = $('#noi-dung-bao-cao-modal');
-                $textArea.focus().select();
+                $('#noi-dung-bao-cao-modal').focus().select();
+                $('#ly-do-off-input').val(''); // Clear reason input
             });
 
             $('#luu-bao-cao-btn').on('click', function() {
@@ -1176,6 +1676,7 @@ Fos Giang báo cáo ngày...
                     fosData.trangThai = 'Đã báo cáo';
                     kiemTraTenNhanVien(fosData, noiDungBaoCao);
                     veLaiDanhSachFOS();
+                    saveLocalCache(); // Save to local storage
                     danBaoCaoModal.hide();
                 }
             });
@@ -1187,50 +1688,65 @@ Fos Giang báo cáo ngày...
                 }
             });
 
-            $('#danh-dau-off-btn').on('click', function() {
+            // Helper to set OFF status
+            const setFosOff = (reason = '') => {
                 const fosData = danhSachFOS.find(fos => fos.ten === fosHienTai);
                 if (fosData) {
-                    fosData.baoCao = $('#noi-dung-bao-cao-modal').val(); 
+                    let reportText = '';
+                    if (reason.trim()) {
+                        reportText = `Fos ${fosData.ten} ${reason.trim()}`;
+                    } else {
+                         reportText = `Fos ${fosData.ten} OFF`;
+                    }
+                    
+                    fosData.baoCao = reportText;
                     fosData.trangThai = 'Off';
                     fosData.kiemTraTen = null;
                     veLaiDanhSachFOS();
+                    saveLocalCache(); // Save to local storage
                     danBaoCaoModal.hide();
                 }
+            }
+
+            $('#danh-dau-off-btn').on('click', function() {
+                setFosOff('');
+            });
+            
+            $('#luu-off-co-ly-do-btn').on('click', function() {
+                const reason = $('#ly-do-off-input').val();
+                setFosOff(reason);
             });
 
+            // Advanced Edit Modal
             $fosListArea.on('click', '.edit-fos-btn', function() {
                 fosHienTai = $(this).data('fos-name');
                 const fosData = danhSachFOS.find(fos => fos.ten === fosHienTai);
                 if (fosData) {
                     $('#suaBaoCaoModalTitleText').text(`Chỉnh sửa báo cáo của ${fosHienTai}`);
                     const noiDungBaoCao = fosData.baoCao;
-                    
                     const ntb = layGiaTri(noiDungBaoCao, 'NTB');
                     const etb = layGiaTri(noiDungBaoCao, 'ETB');
-
                     $('#mc-edit-display').text(ntb + etb);
                     $('#ntb-edit-modal').val(ntb);
                     $('#etb-edit-modal').val(etb);
                     $('#pos-edit-modal').val(layGiaTri(noiDungBaoCao, 'Pos'));
+                    $('#aeplus-edit-modal').val(layGiaTri(noiDungBaoCao, ['AE+', 'AE Plus'])); // Load AE+
                     $('#saleapp-edit-modal').val(layGiaTri(noiDungBaoCao, ['Saleapp', 'SL nhập saleapp']));
                     $('#cskh-edit-modal').val(layGiaTri(noiDungBaoCao, ['CSKH', 'SL gọi chăm sóc KH']));
                     $('#ca-edit-modal').val(layGiaTri(noiDungBaoCao, 'CA'));
                     $('#soundbox-edit-modal').val(layGiaTri(noiDungBaoCao, 'Soundbox'));
-                    $('#rf-edit-modal').val(layGiaTri(noiDungBaoCao, ['RF', 'RF Thẻ/Mycash/Shopcash']));
+                    // REMOVED RF READ
                     $('#mtd-edit-modal').val(layGiaTri(noiDungBaoCao, 'MTD MC'));
-                    
                     suaBaoCaoModal.show();
                 }
             });
             
             $('#xu-ly-nhieu-bao-cao-btn').on('click', xuLyBaoCaoHangLoat);
-
             $('#sua-bao-cao-form').on('input', '#ntb-edit-modal, #etb-edit-modal', function() {
                 const ntb = parseInt($('#ntb-edit-modal').val(), 10) || 0;
                 const etb = parseInt($('#etb-edit-modal').val(), 10) || 0;
                 $('#mc-edit-display').text(ntb + etb);
             });
-            
              $('#sua-bao-cao-form').on('keydown', function(e) {
                 if (e.key === 'Enter' && e.target.tagName.toLowerCase() !== 'textarea') {
                     e.preventDefault();
@@ -1245,36 +1761,37 @@ Fos Giang báo cáo ngày...
                     const etb = $('#etb-edit-modal').val() || 0;
                     const mc = (parseInt(ntb, 10) || 0) + (parseInt(etb, 10) || 0);
                     const pos = $('#pos-edit-modal').val() || 0;
+                    const aeplus = $('#aeplus-edit-modal').val() || 0; // Get AE+
                     const saleapp = $('#saleapp-edit-modal').val() || 0;
                     const cskh = $('#cskh-edit-modal').val() || 0;
                     const ca = $('#ca-edit-modal').val() || 0;
                     const soundbox = $('#soundbox-edit-modal').val() || 0;
-                    const rf = $('#rf-edit-modal').val() || 0;
+                    // REMOVED RF READ
                     const mtd_mc = $('#mtd-edit-modal').val() || 0;
 
                     const baoCaoMoi = `Fos ${fosData.ten}\n` +
                                      `Tổng MC: ${mc}\n` +
                                      `NTB: ${ntb}\n` +
                                      `ETB: ${etb}\n` +
-                                     `AE+: ${ntb}\n` +
+                                     `AE+: ${aeplus}\n` + // Use explicitly entered AE+
                                      `Pos: ${pos}\n` +
                                      `Saleapp: ${saleapp}\n` +
                                      `CSKH: ${cskh}\n` +
                                      `CA: ${ca}\n` +
                                      `Soundbox: ${soundbox}\n` +
-                                     `RF: ${rf}\n` +
+                                     // REMOVED RF WRITE
                                      `MTD MC: ${mtd_mc}`;
 
                     fosData.baoCao = baoCaoMoi;
                     fosData.trangThai = 'Đã báo cáo';
                     kiemTraTenNhanVien(fosData, baoCaoMoi);
-                    
                     veLaiDanhSachFOS();
+                    saveLocalCache(); // Save to local storage
                     suaBaoCaoModal.hide();
                 }
             });
             
-            $('#tao-bao-cao-btn').on('click', taoBaoCao);
+            $('#tao-bao-cao-btn').on('click', (e) => taoBaoCao(e, false));
             
             $('#sao-chep-btn').on('click', function() {
                 const text = $('#bao-cao-ket-qua').val();
@@ -1286,119 +1803,18 @@ Fos Giang báo cáo ngày...
                         btn.html('<i class="bi bi-clipboard"></i> Sao chép');
                         btn.removeClass('copied');
                     }, 2000);
+                    showStatus('Đã sao chép vào bộ nhớ tạm!', 'success');
                 });
-            });
-
-            // --- SAVE & LOAD DATA (File Based) ---
-            $('#save-data-btn').on('click', function(e) {
-                e.preventDefault();
-                const today = dinhDangNgayISO(new Date());
-                const dataToSave = {
-                    date: today,
-                    fosData: danhSachFOS.map(fos => {
-                        // Extract metrics for history
-                        const mtd = layGiaTri(fos.baoCao, 'MTD MC');
-                        const mc = layGiaTri(fos.baoCao, 'Tổng MC');
-                        return {
-                            ten: fos.ten,
-                            gioiTinh: fos.gioiTinh,
-                            chiTieu: fos.chiTieu,
-                            baoCao: fos.baoCao,
-                            trangThai: fos.trangThai,
-                            mtdMC: mtd,
-                            mcTrongNgay: mc
-                        };
-                    })
-                };
-                
-                const jsonString = JSON.stringify(dataToSave, null, 2);
-                const blob = new Blob([jsonString], {type: "application/json"});
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `baocao_fos_${today}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            });
-            
-            $('#load-data-btn').on('click', function(e) {
-                e.preventDefault();
-                $('#load-data-input').click();
-            });
-            
-            $('#load-data-input').on('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const data = JSON.parse(e.target.result);
-                        
-                        // Check if it's yesterday's report or current session
-                        const fileDate = new Date(data.date);
-                        const today = new Date();
-                        
-                        // Compare dates (ignoring time)
-                        const isToday = fileDate.toDateString() === today.toDateString();
-                        
-                        if (isToday) {
-                            if (confirm('File này có ngày trùng với hôm nay. Bạn có muốn khôi phục phiên làm việc không?')) {
-                                // Restore session
-                                danhSachFOS = data.fosData.map(item => ({
-                                    ten: item.ten,
-                                    gioiTinh: item.gioiTinh,
-                                    chiTieu: item.chiTieu,
-                                    baoCao: item.baoCao || '',
-                                    trangThai: item.trangThai || 'Chưa báo cáo',
-                                    kiemTraTen: null
-                                }));
-                                // Re-run checks
-                                danhSachFOS.forEach(fos => kiemTraTenNhanVien(fos, fos.baoCao));
-                                veLaiDanhSachFOS();
-                                alert('Đã khôi phục phiên làm việc.');
-                            }
-                        } else {
-                            // Treat as yesterday's report
-                             if (confirm(`File này có ngày ${data.date}. Bạn có muốn sử dụng làm dữ liệu "Hôm qua" để đối chiếu MTD không?`)) {
-                                baoCaoHomQua = data;
-                                
-                                // Display yesterday report content for reference
-                                let textBaoCaoCu = `Dữ liệu ngày ${data.date}:\n`;
-                                data.fosData.forEach(f => {
-                                     textBaoCaoCu += `${f.ten}: MTD ${f.mtdMC || 0}\n`;
-                                });
-                                $('#bao-cao-cu-ket-qua').val(textBaoCaoCu);
-                                
-                                // Hide prompt
-                                $('#load-prompt').hide();
-                                alert('Đã tải dữ liệu hôm qua. Hệ thống sẽ tự động cảnh báo nếu MTD nhập vào không khớp.');
-                            }
-                        }
-
-                    } catch (error) {
-                        console.error(error);
-                        alert('Lỗi đọc file. Vui lòng đảm bảo file đúng định dạng JSON.');
-                    }
-                };
-                reader.readAsText(file);
-                // Reset input so same file can be selected again if needed
-                $(this).val('');
             });
             
             $('#xem-bao-cao-cu-btn').on('click', function() {
                 xemBaoCaoCuModal.show();
             });
             
-            // Initial rendering
+            // Initialization
             initializeTheme();
             buildThemeMenu();
-            
-            // Trigger fetch instead of direct render
-            loadFosFromServer();
+            loadFosFromRestDB(); // Fetch Data
         });
     </script>
 </body>
