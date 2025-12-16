@@ -77,10 +77,10 @@ $(function() {
                             ${fos.ten}
                         </button>
                         <button class="btn edit-fos-btn" data-fos-id="${fos._id}" data-fos-name="${fos.ten}" title="Sửa báo cáo của ${fos.ten}">
-                            <i class="bi bi-pencil-fill"></i>
+                            <i class="fa-solid fa-pen-to-square"></i>
                         </button>
                         <button class="btn delete-fos-btn" data-fos-id="${fos._id}" data-fos-name="${fos.ten}" title="Xóa ${fos.ten}">
-                            <i class="bi bi-trash3-fill"></i>
+                            <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 </div>
@@ -207,7 +207,7 @@ $(function() {
                 hideLoading(); 
             } catch (fileErr) {
                  hideLoading(); 
-                 $fosListArea.html('<div class="text-center py-3 text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Lỗi kết nối & Không có dữ liệu backup</div>');
+                 $fosListArea.html('<div class="text-center py-3 text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>Lỗi kết nối & Không có dữ liệu backup</div>');
                  showStatus("Lỗi tải dữ liệu: " + error.message, "error");
             }
         } finally {
@@ -715,10 +715,10 @@ $(function() {
         const text = $('#bao-cao-ket-qua').val();
         navigator.clipboard.writeText(text).then(function() {
             const btn = $('#sao-chep-btn');
-            btn.html('<i class="bi bi-check2"></i> Đã sao chép');
+            btn.html('<i class="fa-solid fa-check"></i> Đã sao chép');
             btn.addClass('copied');
             setTimeout(() => {
-                btn.html('<i class="bi bi-clipboard"></i> Sao chép');
+                btn.html('<i class="fa-regular fa-copy"></i> Sao chép');
                 btn.removeClass('copied');
             }, 2000);
             showStatus('Đã sao chép vào bộ nhớ tạm!', 'success');
