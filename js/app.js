@@ -20,7 +20,6 @@ $(function() {
     const modalXacNhanXoa = new bootstrap.Modal('#modal-xac-nhan-xoa');
     const modalXemBaoCaoCu = new bootstrap.Modal('#modal-xem-bao-cao-cu');
 
-    // --- HÀM HỖ TRỢ GIAO DIỆN ---
     const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
         const $cham = $('#cham-trang-thai-db');
         const $chu = $('#chu-trang-thai-db');
@@ -53,7 +52,7 @@ $(function() {
 
     const hienThiDanhSachNhanVien = () => {
         if (danhSachNhanVien.length === 0) {
-             $vungDsNv.html('<div class="text-center py-3 text-muted">Danh sách trống. Vui lòng thêm nhân viên.</div>');
+             $vungDsNv.html('<div class="text-center py-3 text-muted">Danh sách trống.</div>');
              capNhatNutTaoBaoCao();
              return;
         }
@@ -61,18 +60,14 @@ $(function() {
         let html = '<div class="row g-2">';
         danhSachNhanVien.forEach(nv => {
             let lopNut = 'nut-ten-nv btn';
-            if (nv.kiemTraTen === false) {
-                lopNut += ' sai-ten';
-            } else if (nv.trangThai === 'Đã báo cáo') {
-                lopNut += ' da-bao-cao';
-            } else if (nv.trangThai === 'Off') {
-                lopNut += ' nghi';
-            }
+            if (nv.kiemTraTen === false) lopNut += ' sai-ten';
+            else if (nv.trangThai === 'Đã báo cáo') lopNut += ' da-bao-cao';
+            else if (nv.trangThai === 'Off') lopNut += ' nghi';
 
             html += `
                 <div class="col-6">
                     <div class="input-group">
-                        <button class="${lopNut}" data-nv-ten="${nv.ten}">
+                        <button class="${lopNut}" data-nv-ten="${nv.ten}" title="${nv.ten}">
                             ${nv.ten}
                         </button>
                         <button class="btn nut-sua-nv nut-sua-nhanh-nv" data-nv-ten="${nv.ten}">
@@ -107,8 +102,7 @@ $(function() {
         if (!duLieuTho) return false;
         try {
             const duLieu = JSON.parse(duLieuTho);
-            const homNayStr = dinhDangNgayISO(new Date());
-            if (duLieu.ngay !== homNayStr) {
+            if (duLieu.ngay !== dinhDangNgayISO(new Date())) {
                 localStorage.removeItem(KHOA_BO_NHO_TAM_CUC_BO);
                 return false;
             }
@@ -142,24 +136,19 @@ $(function() {
             lamMoiThongKeCsdl(capNhatWidgetDb);
             await khoiPhuPhienLamViec();
         } catch (error) {
-            console.warn("Dùng dữ liệu fallback...", error);
             datCheDoUngDung('offline');
             hienThiThongBao("Chế độ Offline", "info");
-            
             try {
                 const phanHoi = await fetch('fos.txt');
                 const text = await phanHoi.text();
-                danhSachNhanVien = text.split('\n')
-                    .map(line => line.trim())
-                    .filter(line => line.length > 0)
-                    .map((line, index) => {
-                        const parts = line.split('|');
-                        return {
-                            _id: `local_${index}`, ten: parts[0]?.trim() || 'Vô danh',
-                            gioiTinh: parts[1]?.trim() || 'Nam', chiTieu: parseInt(parts[2]?.trim() || '50', 10),
-                            baoCao: '', trangThai: 'Chưa báo cáo', kiemTraTen: null
-                        };
-                    });
+                danhSachNhanVien = text.split('\n').filter(l => l.trim()).map((line, index) => {
+                    const parts = line.split('|');
+                    return {
+                        _id: `local_${index}`, ten: parts[0]?.trim(), gioiTinh: parts[1]?.trim(), 
+                        chiTieu: parseInt(parts[2]?.trim() || '50'), baoCao: '', 
+                        trangThai: 'Chưa báo cáo', kiemTraTen: null
+                    };
+                });
                 hienThiDanhSachNhanVien();
                 khoiPhuTuBoNhoTam();
             } catch (e) {}
@@ -182,6 +171,7 @@ $(function() {
             }
         } catch (e) {}
 
+        // LOGIC LẤY LỊCH SỬ: Chỉ lấy những ngày TRƯỚC HÔM NAY (< homNayStr)
         try {
             const truyVanLichSu = `{"ngayBaoCao": {"$lt": "${homNayStr}"}}`;
             const sapXepLichSu = `{"$orderby": {"ngayBaoCao": -1}}`;
@@ -192,7 +182,7 @@ $(function() {
                 baoCaoLichSuGanNhat.duLieuNvLichSu = baoCaoLichSuGanNhat.baoCaoFOS.map(item => ({
                     ten: item.tenNhanVien, mtdMC: item.chiSoHieuSuat.saleTrongThang
                 }));
-                let txt = `Lịch sử (${dinhDangNgayHienThi(ngayBaoCaoLichSu)}):\n`;
+                let txt = `Lịch sử chốt ngày ${dinhDangNgayHienThi(ngayBaoCaoLichSu)}:\n`;
                 baoCaoLichSuGanNhat.duLieuNvLichSu.forEach(n => txt += `${n.ten}: MTD ${n.mtdMC}\n`);
                 $('#vung-ket-qua-bao-cao-cu').val(txt);
                 thucHienTaoBaoCao(null, true);
@@ -229,7 +219,7 @@ $(function() {
             let mcNay = ntb + etb;
             if (mcNay === 0) mcNay = trichXuatSoLieu(bc, ['Tổng MC', 'MC']);
 
-            if ((nv.trangThai === 'Off' || mcNay === 0) && mtd === 0) {
+            if ((nv.trangThai === 'Off' || mcNay === 0) && mtd === 0 && baoCaoLichSuGanNhat) {
                 const nvLichSu = banDoLichSu.get(nv.ten);
                 mtd = nvLichSu ? (nvLichSu.mtdMC || 0) : 0;
             }
@@ -241,8 +231,7 @@ $(function() {
             } else {
                 nvActive++;
                 tMC += mcNay; tNTB += ntb; tETB += etb;
-                tPos += trichXuatSoLieu(bc, 'Pos'); 
-                tAE += trichXuatSoLieu(bc, ['AE+', 'AE Plus']);
+                tPos += trichXuatSoLieu(bc, 'Pos'); tAE += trichXuatSoLieu(bc, ['AE+', 'AE Plus']);
                 dsChiTiet.push(`${bieuTuong}${nv.ten}: ${mcNay}/${mtd}/${nv.chiTieu}`);
             }
         });
@@ -328,10 +317,8 @@ $(function() {
         if (nv) {
             const bc = nv.baoCao;
             $('#tieu-de-modal-sua-bao-cao').text(`Sửa báo cáo: ${nhanVienHienTai}`);
-            $('#ntb-sua').val(trichXuatSoLieu(bc, 'NTB')); 
-            $('#etb-sua').val(trichXuatSoLieu(bc, 'ETB'));
-            $('#pos-sua').val(trichXuatSoLieu(bc, 'Pos')); 
-            $('#aeplus-sua').val(trichXuatSoLieu(bc, ['AE+', 'AE Plus']));
+            $('#ntb-sua').val(trichXuatSoLieu(bc, 'NTB')); $('#etb-sua').val(trichXuatSoLieu(bc, 'ETB'));
+            $('#pos-sua').val(trichXuatSoLieu(bc, 'Pos')); $('#aeplus-sua').val(trichXuatSoLieu(bc, ['AE+', 'AE Plus']));
             $('#mtd-sua').val(trichXuatSoLieu(bc, 'MTD MC'));
             modalSuaBaoCao.show();
         }
@@ -341,13 +328,17 @@ $(function() {
         const nv = danhSachNhanVien.find(n => n.ten === nhanVienHienTai);
         if (nv) {
             const n = parseInt($('#ntb-sua').val()) || 0, e = parseInt($('#etb-sua').val()) || 0;
-            const ae = $('#aeplus-sua').val() || 0;
-            const pos = $('#pos-sua').val() || 0;
-            const mtd = $('#mtd-sua').val() || 0;
-            nv.baoCao = `Fos ${nv.ten}\nTổng MC: ${n+e}\nNTB: ${n}\nETB: ${e}\nAE+: ${ae}\nPos: ${pos}\nMTD MC: ${mtd}`;
-            nv.trangThai = 'Đã báo cáo'; 
-            hienThiDanhSachNhanVien(); luuVaoBoNhoTam(); modalSuaBaoCao.hide();
+            nv.baoCao = `Fos ${nv.ten}\nTổng MC: ${n+e}\nNTB: ${n}\nETB: ${e}\nAE+: ${$('#aeplus-sua').val() || 0}\nPos: ${$('#pos-sua').val() || 0}\nMTD MC: ${$('#mtd-sua').val() || 0}`;
+            nv.trangThai = 'Đã báo cáo'; hienThiDanhSachNhanVien(); luuVaoBoNhoTam(); modalSuaBaoCao.hide();
         }
+    });
+
+    $('#nut-dan-tu-bo-nho').on('click', async () => {
+        try { const t = await navigator.clipboard.readText(); if (t) $('#noi-dung-bao-cao-nhap').val(t); } catch(e) {}
+    });
+
+    $('#nut-dan-hang-loat').on('click', async () => {
+        try { const t = await navigator.clipboard.readText(); if (t) $('#noi-dung-nhieu-bao-cao-nhap').val(t); } catch(e) {}
     });
 
     $('#nut-xu-ly-nhieu-bao-cao').on('click', () => {
@@ -363,16 +354,20 @@ $(function() {
             if (nv) { nv.baoCao = khoiTrim; nv.trangThai = 'Đã báo cáo'; kiemTraTenTrongBaoCao(nv, khoiTrim); }
         });
         modalDanNhieuBaoCao.hide(); hienThiDanhSachNhanVien(); luuVaoBoNhoTam();
+        hienThiThongBao("Đã xử lý báo cáo hàng loạt");
     });
 
     $('#nut-tao-bao-cao').on('click', () => thucHienTaoBaoCao());
-    $('#nut-sao-chep').on('click', () => {
-        navigator.clipboard.writeText($('#vung-ket-qua-bao-cao').val()).then(() => hienThiThongBao('Đã chép!'));
+    $('#nut-sao-chep').on('click', function() {
+        const $btn = $(this);
+        navigator.clipboard.writeText($('#vung-ket-qua-bao-cao').val()).then(() => {
+            hienThiThongBao('Đã chép báo cáo!');
+            $btn.html('<i class="fa-solid fa-check"></i> Đã chép').addClass('btn-success').removeClass('btn-primary');
+            setTimeout(() => $btn.html('<i class="fa-regular fa-copy"></i> Sao chép').removeClass('btn-success').addClass('btn-primary'), 2000);
+        });
     });
     $('#nut-xem-bao-cao-cu').on('click', () => modalXemBaoCaoCu.show());
     
     // KHỞI CHẠY
-    khoiTaoGiaoDien(); 
-    xayDungMenuGiaoDien(); 
-    taiDuLieuTuServer(); 
+    khoiTaoGiaoDien(); xayDungMenuGiaoDien(); taiDuLieuTuServer(); 
 });
