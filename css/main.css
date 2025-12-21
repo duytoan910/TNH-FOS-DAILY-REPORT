@@ -3,7 +3,7 @@
 :root {
     --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     --bg-image: none;
-    --card-bg: rgba(255, 255, 255, 0.75);
+    --card-bg: rgba(255, 255, 255, 0.8);
     --text-primary: #1c1c1e;
     --text-secondary: #636366;
     --main-title-color: #1c1c1e;
@@ -19,90 +19,137 @@
     --scrollbar-track: rgba(0, 0, 0, 0.05);
 }
 
-/* Lớp phủ tải trang (Loading Overlay) - QUAN TRỌNG: Cần CSS này để hiển thị Loading */
-#lop-phu-tai-trang {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(8px);
-    display: none; /* Mặc định ẩn, hiện bằng JS */
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    color: white;
-}
-#chu-thich-tai-trang {
-    margin-top: 15px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-}
+/* --- THEMES DEFINITIONS --- */
 
-/* Các Theme bổ sung */
+/* iOS 18 */
+body.theme-ios18-light { /* Biến mặc định */ }
 body.theme-ios18-dark {
-    --bg-gradient: linear-gradient(135deg, #000000 0%, #2c2c2e 100%);
-    --card-bg: rgba(28, 28, 30, 0.9);
+    --bg-gradient: linear-gradient(135deg, #000000 0%, #1c1c1e 100%);
+    --card-bg: rgba(28, 28, 30, 0.95);
     --text-primary: #ffffff;
     --text-secondary: #a0a0a5;
     --main-title-color: #ffffff;
-    --input-bg: #1c1c1e;
-    --btn-fos-bg: #2c2c2e;
+    --input-bg: #2c2c2e;
+    --btn-fos-bg: #1c1c1e;
     --btn-fos-border: #3a3a3c;
 }
 
+/* OneUI Samsung */
 body.theme-oneui-light {
-    --bg-gradient: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
-    --card-bg: rgba(255, 255, 255, 0.95);
-    --text-primary: #212529;
+    --bg-gradient: linear-gradient(180deg, #f2f2f2 0%, #ffffff 100%);
+    --card-bg: rgba(255, 255, 255, 0.98);
+    --accent-blue: #0381fe;
+    --btn-fos-bg: #f8f9fa;
+    --btn-fos-border: #dee2e6;
 }
-
 body.theme-oneui-dark {
     --bg-gradient: linear-gradient(180deg, #121212 0%, #212121 100%);
-    --card-bg: rgba(33, 33, 33, 0.95);
+    --card-bg: rgba(33, 33, 33, 0.98);
     --text-primary: #e0e0e0;
     --accent-blue: #3d5afe;
+    --btn-fos-bg: #2a2a2a;
+    --btn-fos-border: #333;
 }
 
+/* Window 11 */
+body.theme-window11-light {
+    --bg-gradient: linear-gradient(135deg, #eeefff 0%, #d9e2ff 100%);
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --accent-blue: #0067c0;
+}
 body.theme-window11-dark {
     --bg-gradient: linear-gradient(135deg, #202020 0%, #1c1c1c 100%);
-    --card-bg: rgba(32, 32, 32, 0.85);
+    --card-bg: rgba(32, 32, 32, 0.9);
     --text-primary: #ffffff;
     --accent-blue: #4cc2ff;
+    --btn-fos-bg: #2d2d2d;
+    --btn-fos-border: #444;
 }
 
+/* Pastel Dream */
+body.theme-pastel-light {
+    --bg-gradient: linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%);
+    --card-bg: rgba(255, 255, 255, 0.6);
+    --accent-blue: #6c5ce7;
+    --text-primary: #2d3436;
+}
+body.theme-pastel-dark {
+    --bg-gradient: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+    --card-bg: rgba(45, 52, 54, 0.85);
+    --text-primary: #fab1a0;
+    --accent-blue: #a29bfe;
+}
+
+/* Serene Nature */
+body.theme-nature-light {
+    --bg-gradient: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    --accent-blue: #2e7d32;
+    --accent-green: #4caf50;
+    --card-bg: rgba(255, 255, 255, 0.85);
+}
+body.theme-nature-dark {
+    --bg-gradient: linear-gradient(135deg, #1b5e20 0%, #000000 100%);
+    --card-bg: rgba(27, 94, 32, 0.9);
+    --text-primary: #c8e6c9;
+    --accent-blue: #81c784;
+}
+
+/* Gaming Zone */
+body.theme-gaming-light {
+    --bg-gradient: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+    --accent-blue: #000000;
+    --card-bg: rgba(255, 255, 255, 0.9);
+}
 body.theme-gaming-dark {
     --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
     --accent-blue: #00d2ff;
     --accent-green: #39ff14;
     --accent-red: #ff0055;
-    --card-bg: rgba(0, 0, 0, 0.7);
+    --card-bg: rgba(0, 0, 0, 0.85);
     --text-primary: #00ffcc;
 }
 
-body.theme-pastel-light {
-    --bg-gradient: linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%);
-    --accent-blue: #6c5ce7;
-    --card-bg: rgba(255, 255, 255, 0.65);
+/* Carbon Fiber */
+body.theme-carbon-light {
+    --bg-gradient: linear-gradient(135deg, #e0e0e0 0%, #ffffff 100%);
+    --accent-blue: #333;
+    --card-bg: rgba(255, 255, 255, 0.95);
 }
-
-body.theme-nature-light {
-    --bg-gradient: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-    --accent-blue: #2e7d32;
-    --card-bg: rgba(255, 255, 255, 0.85);
-}
-
 body.theme-carbon-dark {
-    --bg-gradient: radial-gradient(circle, #434343 0%, #000000 100%);
-    --card-bg: rgba(30, 30, 30, 0.9);
-    --text-primary: #f0f0f0;
+    --bg-gradient: radial-gradient(circle, #2c3e50 0%, #000000 100%);
+    --card-bg: rgba(30, 30, 30, 0.95);
+    --text-primary: #ecf0f1;
+    --accent-blue: #bdc3c7;
     --btn-fos-bg: #222;
 }
 
+/* Chic & Modern */
 body.theme-chic-light {
     --bg-gradient: linear-gradient(to right, #fdfbfb 0%, #ebedee 100%);
-    --accent-blue: #333;
-    --card-bg: white;
+    --accent-blue: #2c3e50;
+    --card-bg: #ffffff;
+}
+body.theme-chic-dark {
+    --bg-gradient: linear-gradient(to right, #434343 0%, #000000 100%);
+    --card-bg: #1a1a1a;
+    --text-primary: #ffffff;
+    --accent-blue: #d4af37;
+}
+
+/* --- BASE UI STYLES --- */
+
+#lop-phu-tai-trang {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    display: none; 
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: white;
 }
 
 body {
@@ -113,44 +160,95 @@ body {
     background-position: center;
     background-attachment: fixed;
     color: var(--text-primary);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background 0.4s ease, color 0.4s ease;
     min-height: 100vh;
 }
 
+/* Settings Button */
 .settings-container {
     position: fixed;
-    top: 20px;
-    right: 20px;
+    top: 25px;
+    right: 25px;
     z-index: 1100;
 }
 
 #nut-cai-dat {
     cursor: pointer;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     color: var(--accent-blue);
     background: var(--card-bg);
-    padding: 10px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 50%;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
-    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 #nut-cai-dat:hover { transform: rotate(90deg) scale(1.1); }
 
-.dropdown-submenu { position: relative; }
+/* Dropdown & Submenu Fixes */
+.dropdown-menu {
+    border-radius: 1rem;
+    padding: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 15px 45px rgba(0,0,0,0.2) !important;
+}
+
+.dropdown-item {
+    border-radius: 0.5rem;
+    padding: 0.6rem 1rem;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+.dropdown-item:hover {
+    background-color: rgba(0, 122, 255, 0.1);
+    color: var(--accent-blue);
+}
+
+.dropdown-submenu {
+    position: relative;
+}
+
 .dropdown-submenu > .dropdown-menu {
     top: 0;
     left: auto;
     right: 100%;
-    margin-top: -6px;
-    margin-right: 2px;
+    margin-top: -5px;
+    margin-right: 0.5rem;
     display: none;
-    border: none;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
 }
-.dropdown-submenu:hover > .dropdown-menu { display: block; }
 
-.main-title { font-weight: 700; color: var(--main-title-color); letter-spacing: -0.5px; }
+.dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+}
+
+.dropdown-toggle::after {
+    display: inline-block;
+    margin-left: 0.5em;
+    vertical-align: 0.255em;
+    content: "";
+    border-top: 0.3em solid;
+    border-right: 0.3em solid transparent;
+    border-bottom: 0;
+    border-left: 0.3em solid transparent;
+}
+
+.dropdown-submenu > .dropdown-toggle::after {
+    transform: rotate(90deg);
+    float: left;
+    margin-top: 0.5rem;
+    margin-right: 0.5rem;
+    margin-left: 0;
+}
+
+/* Layout Elements */
+.main-title { font-weight: 700; color: var(--main-title-color); letter-spacing: -1px; }
 
 .card, .modal-content {
     background: var(--card-bg);
@@ -160,12 +258,12 @@ body {
 }
 
 #vung-danh-sach-nv {
-    max-height: 400px;
+    max-height: 420px;
     overflow-y: auto;
-    padding: 12px;
+    padding: 10px;
     margin-bottom: 20px;
-    border-radius: 1.25rem;
-    background: rgba(0,0,0,0.04);
+    border-radius: 1rem;
+    background: rgba(0,0,0,0.03);
 }
 
 .nut-ten-nv {
@@ -175,7 +273,7 @@ body {
     flex: 1;
     text-align: left;
     font-weight: 600;
-    border-radius: 1rem 0 0 1rem !important;
+    border-radius: 0.75rem 0 0 0.75rem !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -185,7 +283,7 @@ body {
 .nut-ten-nv.sai-ten { background-color: var(--accent-red) !important; color: white !important; }
 
 .nut-sua-nv { background-color: var(--accent-blue); color: white; width: 42px; border: none; }
-.nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 1rem 1rem 0 !important; width: 42px; border: none; }
+.nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 0.75rem 0.75rem 0 !important; width: 42px; border: none; }
 
 .db-status-widget, .build-info-widget {
     position: fixed; bottom: 15px;
@@ -197,8 +295,9 @@ body {
 .build-info-widget { right: 15px; }
 
 #chi-bao-dang-luu {
-    position: fixed; bottom: 70px; right: 20px;
-    z-index: 2000; background: var(--accent-blue); padding: 10px 20px;
-    border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    position: fixed; bottom: 75px; right: 20px;
+    z-index: 2000; background: var(--accent-blue); padding: 12px 24px;
+    border-radius: 50px; box-shadow: 0 10px 25px rgba(0,122,255,0.3);
     display: none; align-items: center; gap: 10px; color: white;
+    font-size: 0.9rem; font-weight: 500;
 }

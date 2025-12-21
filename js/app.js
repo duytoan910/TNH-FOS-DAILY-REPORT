@@ -2,7 +2,7 @@ import { KHOA_BO_NHO_TAM_CUC_BO } from './config.js';
 import { hienThiThongBao, hienThiTaiTrang, anTaiTrang, dinhDangNgayHienThi, dinhDangNgayISO, trichXuatSoLieu } from './utils.js';
 import { khoiTaoGiaoDien, xayDungMenuGiaoDien, apDungGiaoDien, luuCauHinhGiaoDien, apDungGiaoDienNgauNhien } from './theme.js';
 import { thucHienGoiApi, ghiNhanTuongTacApi, lamMoiThongKeCsdl, datCheDoUngDung, layCheDoUngDung } from './api.js';
-import { kiemTraTenTrongBaoCao, kiemTraChiSoMtd, taoCauTrucGuiBaoCao } from './report.js';
+import { kiemTraTenTrongBaoCao, taoCauTrucGuiBaoCao } from './report.js';
 
 $(function() {
     // --- TRẠNG THÁI ỨNG DỤNG ---
@@ -21,8 +21,8 @@ $(function() {
     const modalXemBaoCaoCu = new bootstrap.Modal('#modal-xem-bao-cao-cu');
 
     // --- CẬP NHẬT THÔNG TIN BUILD ---
-    const phienBanBuild = "v1.2.9-stable";
-    const thoiGianBuildStr = "2025.02.21 18:25"; 
+    const phienBanBuild = "v1.3.2-stable";
+    const thoiGianBuildStr = "2025.02.21 19:45"; 
     $('#thoi-gian-build').html(`Build: ${thoiGianBuildStr}`);
     $('.build-info-widget .fw-bold').text(phienBanBuild);
 
@@ -69,7 +69,7 @@ $(function() {
 
             html += `
                 <div class="col-6">
-                    <div class="input-group shadow-sm" style="border-radius: 1rem; overflow: hidden;">
+                    <div class="input-group shadow-sm" style="border-radius: 0.75rem; overflow: hidden;">
                         <button class="${lopNut}" data-nv-ten="${nv.ten}" title="${nv.ten}">
                             ${nv.ten}
                         </button>
@@ -124,7 +124,7 @@ $(function() {
     };
 
     const taiDuLieuTuServer = async () => {
-        hienThiTaiTrang("Đang khởi động hệ thống...");
+        hienThiTaiTrang("Đang kết nối hệ thống...");
         try {
             ghiNhanTuongTacApi().catch(() => {});
             
@@ -141,7 +141,7 @@ $(function() {
             await khoiPhuPhienLamViec();
         } catch (error) {
             datCheDoUngDung('offline');
-            hienThiThongBao("Lỗi kết nối, đang dùng dữ liệu Offline", "info");
+            hienThiThongBao("Đang hoạt động ngoại tuyến", "info");
             try {
                 const phanHoi = await fetch('fos.txt');
                 const text = await phanHoi.text();
@@ -164,7 +164,6 @@ $(function() {
     const khoiPhuPhienLamViec = async () => {
         const homNayStr = dinhDangNgayISO(new Date());
         
-        // 1. Kiểm tra báo cáo hôm nay
         try {
             const bcHomNay = await thucHienGoiApi(`report?q={"ngayBaoCao": "${homNayStr}"}`);
             if (bcHomNay.length > 0) {
@@ -179,7 +178,7 @@ $(function() {
             }
         } catch (e) {}
 
-        // 2. LẤY MỐC LỊCH SỬ GẦN NHẤT: Luôn lấy ngày < hôm nay
+        // Lấy mốc lịch sử thực sự cũ hơn hôm nay
         try {
             const truyVanLichSu = `{"ngayBaoCao": {"$lt": "${homNayStr}"}}`;
             const sapXepLichSu = `{"$orderby": {"ngayBaoCao": -1}}`;
@@ -194,7 +193,7 @@ $(function() {
                     mtdMC: item.chiSoHieuSuat.saleTrongThang
                 }));
 
-                let txt = `Dữ liệu chốt ngày ${dinhDangNgayHienThi(ngayBaoCaoLichSu)}:\n`;
+                let txt = `Chốt mốc ngày ${dinhDangNgayHienThi(ngayBaoCaoLichSu)}:\n`;
                 baoCaoLichSuGanNhat.duLieuNvLichSu.forEach(n => txt += `${n.ten}: MTD ${n.mtdMC}\n`);
                 $('#vung-ket-qua-bao-cao-cu').val(txt);
                 thucHienTaoBaoCao(null, true);
@@ -253,8 +252,6 @@ $(function() {
         let ketQua = `${quanLy} ngày ${ngayHienThi}\n🔥${danhSachNhanVien.length} FOS – ${tMC} MC\n✅NTB: ${tNTB}\n✅NSBQ NTB: ${nsbqNTB}\n✅ETB: ${tETB}\n✅NSBQ ETB: ${nsbqETB}\n✅AE+: ${tAE}\n✅Pos: ${tPos}/${danhSachNhanVien.length * 3}\n\n⭐️Active ${nvActive}/${danhSachNhanVien.length}\n${dsChiTiet.join('\n')}`;
         $('#vung-ket-qua-bao-cao').val(ketQua);
         
-        kiemTraChiSoMtd(danhSachNhanVien, baoCaoLichSuGanNhat, ngayBaoCaoLichSu);
-        
         if (!chiXem) {
             const thongKe = { tongFOS: danhSachNhanVien.length, tongMC: tMC, tongNTB: tNTB, nsbqNTB, tongETB: tETB, nsbqETB, tongPosThucHien: tPos, posChiTieu: danhSachNhanVien.length * 3, activeFOS: nvActive, tongAEPlus: tAE };
             luuBaoCaoLenServer(taoCauTrucGuiBaoCao(danhSachNhanVien, baoCaoLichSuGanNhat, thongKe), true);
@@ -281,7 +278,7 @@ $(function() {
     $('#nut-luu-nv-moi').on('click', async () => {
         const ten = $('#ten-nv-modal').val().trim(), gt = $('#gioi-tinh-nv-modal').val(), ct = parseInt($('#chi-tieu-nv-modal').val()) || 0;
         if (ten && !danhSachNhanVien.some(n => n.ten.toLowerCase() === ten.toLowerCase())) {
-            hienThiTaiTrang("Đang lưu...");
+            hienThiTaiTrang("Đang lưu nhân viên...");
             try { await thucHienGoiApi('nhanvien', 'POST', { Ten: ten, GioiTinh: gt, ChiTieu: ct }); modalThemNv.hide(); taiDuLieuTuServer(); }
             catch (e) { hienThiThongBao(e.message, 'error'); } finally { anTaiTrang(); }
         }
@@ -295,7 +292,7 @@ $(function() {
 
     $('#nut-xac-nhan-xoa-vinh-vien').on('click', async () => {
         if (!nhanVienCanXoa) return;
-        hienThiTaiTrang("Đang xoá...");
+        hienThiTaiTrang("Đang xoá vĩnh viễn...");
         try { await thucHienGoiApi(`nhanvien/${nhanVienCanXoa.id}`, 'DELETE'); taiDuLieuTuServer(); }
         catch (e) { hienThiThongBao(e.message, 'error'); } finally { anTaiTrang(); modalXacNhanXoa.hide(); }
     });
@@ -372,14 +369,14 @@ $(function() {
             if (nv) { nv.baoCao = khoiTrim; nv.trangThai = 'Đã báo cáo'; kiemTraTenTrongBaoCao(nv, khoiTrim); }
         });
         modalDanNhieuBaoCao.hide(); hienThiDanhSachNhanVien(); luuVaoBoNhoTam();
-        hienThiThongBao("Đã xử lý hàng loạt.");
+        hienThiThongBao("Đã xử lý xong báo cáo hàng loạt.");
     });
 
     $('#nut-tao-bao-cao').on('click', () => thucHienTaoBaoCao());
     $('#nut-sao-chep').on('click', function() {
         const $btn = $(this);
         navigator.clipboard.writeText($('#vung-ket-qua-bao-cao').val()).then(() => {
-            hienThiThongBao('Đã sao chép!');
+            hienThiThongBao('Đã sao chép báo cáo vào bộ nhớ tạm!');
             $btn.html('<i class="fa-solid fa-check"></i> Đã chép').addClass('btn-success').removeClass('btn-primary');
             setTimeout(() => $btn.html('<i class="fa-regular fa-copy"></i> Sao chép').removeClass('btn-success').addClass('btn-primary'), 2000);
         });
