@@ -19,7 +19,7 @@ export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoLichSu, ngayBaoCaoLichSu
     const danhSachLoi = [];
     const banDoNvLichSu = new Map(baoCaoLichSu.duLieuNvLichSu.map(nv => [nv.ten, nv]));
     
-    // nhanNgay là ngày của báo cáo lịch sử (ví dụ 20/12/2025)
+    // nhanNgay là ngày của báo cáo lịch sử làm mốc (VD: 20/12/2025)
     const nhanNgay = ngayBaoCaoLichSu ? dinhDangNgayHienThi(ngayBaoCaoLichSu) : 'trước đó';
 
     danhSachNhanVien.forEach(nvNay => {
@@ -27,43 +27,52 @@ export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoLichSu, ngayBaoCaoLichSu
         if (!nvCu) return; 
 
         const mtdLichSu = nvCu.mtdMC || 0;
-        let mcHomNay = trichXuatSoLieu(nvNay.baoCao, 'NTB') + trichXuatSoLieu(nvNay.baoCao, 'ETB');
-        if (mcHomNay === 0) mcHomNay = trichXuatSoLieu(nvNay.baoCao, ['Tổng MC', 'MC']);
+        let ntb = trichXuatSoLieu(nvNay.baoCao, 'NTB');
+        let etb = trichXuatSoLieu(nvNay.baoCao, 'ETB');
+        let mcHomNay = ntb + etb;
+        
+        // Nếu không có NTB/ETB rõ ràng, thử lấy Tổng MC
+        if (mcHomNay === 0) {
+            mcHomNay = trichXuatSoLieu(nvNay.baoCao, ['Tổng MC', 'MC']);
+        }
 
         const mtdHomNay = trichXuatSoLieu(nvNay.baoCao, 'MTD MC');
 
+        // Logic kiểm tra MTD
         if (nvNay.trangThai === 'Off') {
-            // Khi OFF, MTD mới phải bằng MTD lịch sử
+            // Khi OFF, MTD hôm nay phải bằng MTD lịch sử gần nhất
             if (mtdHomNay !== mtdLichSu && mtdHomNay !== 0) { 
                  danhSachLoi.push({
                     ten: nvNay.ten,
                     lyDo: `Sai MTD khi nghỉ`,
-                    chiTiet: `Mốc cũ (${nhanNgay}) là ${mtdLichSu}. Bạn nhập: ${mtdHomNay}. (Nghỉ nên giữ nguyên MTD)`
+                    chiTiet: `Mốc cũ ngày ${nhanNgay} là ${mtdLichSu}. Bạn nhập: ${mtdHomNay}. (Nghỉ nên MTD không được tăng)`
                 });
             }
         } else if (nvNay.trangThai === 'Đã báo cáo') { 
-            // Dự kiến = MTD cũ + MC nay
+            // Dự kiến = MTD cũ (chốt gần nhất) + MC nay
             const mtdDuKien = mtdLichSu + mcHomNay;
+            
+            // Chỉ cảnh báo nếu người dùng có nhập MTD nhưng nhập sai
             if (mtdHomNay !== 0 && mtdHomNay !== mtdDuKien) {
                 danhSachLoi.push({
                     ten: nvNay.ten,
-                    lyDo: `Cộng dồn MTD sai lệch`,
-                    chiTiet: `Dự kiến: ${mtdLichSu} (ngày ${nhanNgay}) + ${mcHomNay} (nay) = ${mtdDuKien}. Thực tế nhập: ${mtdHomNay}`
+                    lyDo: `Cộng dồn MTD sai`,
+                    chiTiet: `Dự kiến: ${mtdLichSu} (chốt ${nhanNgay}) + ${mcHomNay} (nay) = ${mtdDuKien}. Thực tế nhập: ${mtdHomNay}`
                 });
             }
         }
     });
 
     if (danhSachLoi.length > 0) {
-        let htmlLoi = `<p class="mb-2 small text-muted">So sánh với dữ liệu ngày ${nhanNgay}:</p><div class="list-group list-group-flush">`;
+        let htmlLoi = `<p class="mb-3 small text-muted">Hệ thống phát hiện sai lệch chỉ số MTD dựa trên mốc chốt gần nhất ngày ${nhanNgay}:</p><div class="list-group list-group-flush">`;
         danhSachLoi.forEach(loi => {
             htmlLoi += `
-                <div class="list-group-item px-0 border-0">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold">${loi.ten}</span>
+                <div class="list-group-item px-0 border-0 mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-bold text-dark">${loi.ten}</span>
                         <span class="badge bg-danger rounded-pill">${loi.lyDo}</span>
                     </div>
-                    <div class="text-secondary small mt-1">${loi.chiTiet}</div>
+                    <div class="text-secondary small" style="line-height: 1.4;">${loi.chiTiet}</div>
                 </div>
             `;
         });
@@ -100,9 +109,14 @@ export const taoCauTrucGuiBaoCao = (danhSachNhanVien, baoCaoLichSu, thongKe) => 
              giaTriOff = chuLyDo.toUpperCase() === 'OFF' ? 1 : chuLyDo;
          }
 
+         // Nếu không nhập MTD trong báo cáo tay, tự động lấy MTD cũ làm mốc để lưu (nếu có mốc lịch sử)
          if ((nv.trangThai === 'Off' || mcHomNay === 0) && mtd === 0 && baoCaoLichSu && baoCaoLichSu.duLieuNvLichSu) {
              const nvCu = baoCaoLichSu.duLieuNvLichSu.find(f => f.ten === nv.ten);
              if (nvCu) mtd = nvCu.mtdMC || 0;
+         } else if (mtd === 0 && nv.trangThai === 'Đã báo cáo' && baoCaoLichSu && baoCaoLichSu.duLieuNvLichSu) {
+             // Tự động tính MTD nếu người dùng không nhập MTD
+             const nvCu = baoCaoLichSu.duLieuNvLichSu.find(f => f.ten === nv.ten);
+             if (nvCu) mtd = (nvCu.mtdMC || 0) + mcHomNay;
          }
 
          return {

@@ -21,9 +21,11 @@ $(function() {
     const modalXemBaoCaoCu = new bootstrap.Modal('#modal-xem-bao-cao-cu');
 
     // --- CẬP NHẬT THÔNG TIN BUILD ---
-    const thoiGianHienTai = new Date();
-    const chuoiBuild = `Build: ${thoiGianHienTai.getFullYear()}.${String(thoiGianHienTai.getMonth()+1).padStart(2,'0')}.${String(thoiGianHienTai.getDate()).padStart(2,'0')} ${String(thoiGianHienTai.getHours()).padStart(2,'0')}:${String(thoiGianHienTai.getMinutes()).padStart(2,'0')}`;
-    $('#thoi-gian-build').text(chuoiBuild);
+    // Cập nhật phiên bản và thời gian build thực tế
+    const phienBanBuild = "v1.2.7-stable";
+    const thoiGianBuildStr = "2025.02.21 17:35"; 
+    $('#thoi-gian-build').html(`Build: ${thoiGianBuildStr}`);
+    $('.build-info-widget .fw-bold').text(phienBanBuild);
 
     const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
         const $cham = $('#cham-trang-thai-db');
@@ -161,6 +163,8 @@ $(function() {
 
     const khoiPhuPhienLamViec = async () => {
         const homNayStr = dinhDangNgayISO(new Date());
+        
+        // 1. Khôi phục dữ liệu đã nhập cho ngày hôm nay (nếu có trên server)
         try {
             const bcHomNay = await thucHienGoiApi(`report?q={"ngayBaoCao": "${homNayStr}"}`);
             if (bcHomNay.length > 0) {
@@ -175,23 +179,34 @@ $(function() {
             }
         } catch (e) {}
 
-        // LOGIC LẤY LỊCH SỬ: Chỉ lấy báo cáo có ngày < hôm nay
+        // 2. LẤY MỐC LỊCH SỬ ĐỂ SO SÁNH MTD: Phải là ngày gần nhất TRONG QUÁ KHỨ (không lấy ngày hôm nay)
         try {
             const truyVanLichSu = `{"ngayBaoCao": {"$lt": "${homNayStr}"}}`;
             const sapXepLichSu = `{"$orderby": {"ngayBaoCao": -1}}`;
             const dsBcCu = await thucHienGoiApi(`report?q=${truyVanLichSu}&h=${sapXepLichSu}&max=1`);
+            
             if (dsBcCu.length > 0) {
                 baoCaoLichSuGanNhat = dsBcCu[0];
                 ngayBaoCaoLichSu = baoCaoLichSuGanNhat.ngayBaoCao;
+                
+                // Chuẩn bị dữ liệu Map để tra cứu nhanh khi tạo báo cáo
                 baoCaoLichSuGanNhat.duLieuNvLichSu = baoCaoLichSuGanNhat.baoCaoFOS.map(item => ({
-                    ten: item.tenNhanVien, mtdMC: item.chiSoHieuSuat.saleTrongThang
+                    ten: item.tenNhanVien, 
+                    mtdMC: item.chiSoHieuSuat.saleTrongThang
                 }));
+
                 let txt = `Dữ liệu mốc lịch sử (${dinhDangNgayHienThi(ngayBaoCaoLichSu)}):\n`;
                 baoCaoLichSuGanNhat.duLieuNvLichSu.forEach(n => txt += `${n.ten}: MTD ${n.mtdMC}\n`);
                 $('#vung-ket-qua-bao-cao-cu').val(txt);
+                
+                // Cập nhật lại giao diện để hiển thị cảnh báo MTD ngay nếu đã có dữ liệu tạm
                 thucHienTaoBaoCao(null, true);
+            } else {
+                console.log("Không tìm thấy báo cáo cũ nào trong quá khứ để làm mốc MTD.");
             }
-        } catch (e) {}
+        } catch (e) {
+            console.error("Lỗi khi tải mốc lịch sử MTD:", e);
+        }
     };
 
     const luuBaoCaoLenServer = async (cauTruc, chayNgam = false) => {
@@ -245,6 +260,7 @@ $(function() {
         let ketQua = `${quanLy} ngày ${ngayHienThi}\n🔥${danhSachNhanVien.length} FOS – ${tMC} MC\n✅NTB: ${tNTB}\n✅NSBQ NTB: ${nsbqNTB}\n✅ETB: ${tETB}\n✅NSBQ ETB: ${nsbqETB}\n✅AE+: ${tAE}\n✅Pos: ${tPos}/${danhSachNhanVien.length * 3}\n\n⭐️Active ${nvActive}/${danhSachNhanVien.length}\n${dsChiTiet.join('\n')}`;
         $('#vung-ket-qua-bao-cao').val(ketQua);
         
+        // Gọi hàm kiểm tra MTD với mốc ngày thực sự cũ hơn
         kiemTraChiSoMtd(danhSachNhanVien, baoCaoLichSuGanNhat, ngayBaoCaoLichSu);
         
         if (!chiXem) {
@@ -256,12 +272,18 @@ $(function() {
     // --- SỰ KIỆN GIAO DIỆN ---
     $('#menu-giao-dien-chon').on('click', '.lua-chon-giao-dien', function(e) {
         e.preventDefault();
-        const lop = `theme-${$(this).data('theme')}-${$(this).data('mode')}`;
-        apDungGiaoDien(lop); luuCauHinhGiaoDien(lop);
+        const theme = $(this).data('theme');
+        const mode = $(this).data('mode');
+        const lop = `theme-${theme}-${mode}`;
+        apDungGiaoDien(lop); 
+        luuCauHinhGiaoDien(lop);
+        hienThiThongBao(`Đã đổi sang: ${theme} ${mode}`);
     });
 
     $('#nut-giao-dien-ngau-nhien').on('click', e => { 
-        e.preventDefault(); luuCauHinhGiaoDien('random'); apDungGiaoDienNgauNhien(); 
+        e.preventDefault(); 
+        luuCauHinhGiaoDien('random'); 
+        apDungGiaoDienNgauNhien(); 
     });
 
     $('#nut-luu-nv-moi').on('click', async () => {

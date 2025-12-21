@@ -19,6 +19,10 @@
     --scrollbar-track: rgba(0, 0, 0, 0.05);
 }
 
+/* iOS 18 Light */
+body.theme-ios18-light { /* Biến mặc định của :root */ }
+
+/* iOS 18 Dark */
 body.theme-ios18-dark {
     --bg-gradient: linear-gradient(135deg, #000000 0%, #2c2c2e 100%);
     --card-bg: rgba(28, 28, 30, 0.9);
@@ -26,23 +30,75 @@ body.theme-ios18-dark {
     --text-secondary: #a0a0a5;
     --main-title-color: #ffffff;
     --input-bg: #1c1c1e;
-    --input-border: rgba(255, 255, 255, 0.15);
     --btn-fos-bg: #2c2c2e;
     --btn-fos-border: #3a3a3c;
 }
 
-/* OneUI Samsung Theme */
+/* OneUI Samsung Light */
 body.theme-oneui-light {
     --bg-gradient: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
     --accent-blue: #0381fe;
     --card-bg: rgba(255, 255, 255, 0.95);
     --text-primary: #212529;
 }
+
+/* OneUI Samsung Dark */
 body.theme-oneui-dark {
     --bg-gradient: linear-gradient(180deg, #121212 0%, #212121 100%);
     --card-bg: rgba(33, 33, 33, 0.95);
     --text-primary: #e0e0e0;
     --accent-blue: #3d5afe;
+}
+
+/* Window 11 Light */
+body.theme-window11-light {
+    --bg-gradient: linear-gradient(135deg, #eeefff 0%, #d9e2ff 100%);
+    --accent-blue: #0067c0;
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --main-title-color: #000;
+}
+
+/* Window 11 Dark */
+body.theme-window11-dark {
+    --bg-gradient: linear-gradient(135deg, #202020 0%, #1c1c1c 100%);
+    --card-bg: rgba(32, 32, 32, 0.85);
+    --text-primary: #ffffff;
+    --accent-blue: #4cc2ff;
+}
+
+/* Pastel Dream Light */
+body.theme-pastel-light {
+    --bg-gradient: linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%);
+    --accent-blue: #6c5ce7;
+    --card-bg: rgba(255, 255, 255, 0.6);
+}
+
+/* Serene Nature Light */
+body.theme-nature-light {
+    --bg-gradient: linear-gradient(135deg, #e1f5fe 0%, #c8e6c9 100%);
+    --accent-blue: #2e7d32;
+    --accent-green: #4caf50;
+    --card-bg: rgba(255, 255, 255, 0.85);
+}
+
+/* Gaming Zone Dark */
+body.theme-gaming-dark {
+    --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    --accent-blue: #00d2ff;
+    --accent-green: #39ff14;
+    --accent-red: #ff0055;
+    --card-bg: rgba(0, 0, 0, 0.7);
+    --text-primary: #00ffcc;
+    --btn-fos-bg: #1a1a1a;
+}
+
+/* Carbon Fiber Dark */
+body.theme-carbon-dark {
+    --bg-gradient: radial-gradient(circle, #2c2c2c 0%, #000000 100%);
+    --card-bg: rgba(30, 30, 30, 0.9);
+    --text-primary: #e0e0e0;
+    --accent-blue: #666;
+    --btn-fos-bg: #333;
 }
 
 body {
@@ -53,7 +109,7 @@ body {
     background-position: center;
     background-attachment: fixed;
     color: var(--text-primary);
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s ease-in-out;
     min-height: 100vh;
 }
 
@@ -77,7 +133,7 @@ body {
 }
 #nut-cai-dat:hover { transform: rotate(90deg); scale: 1.1; }
 
-/* Submenu Dropdown CSS */
+/* FIX: Hiển thị Menu con cho Dropdown (Bootstrap 5) */
 .dropdown-submenu { position: relative; }
 .dropdown-submenu > .dropdown-menu {
     top: 0;
@@ -86,8 +142,12 @@ body {
     margin-top: -6px;
     margin-right: 2px;
     display: none;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
 }
-.dropdown-submenu:hover > .dropdown-menu { display: block; }
+.dropdown-submenu:hover > .dropdown-menu { 
+    display: block; 
+}
 .dropdown-item.dropdown-toggle::after {
     float: left;
     margin-top: 8px;
