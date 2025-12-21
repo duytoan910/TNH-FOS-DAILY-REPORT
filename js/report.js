@@ -12,12 +12,15 @@ export const kiemTraTenTrongBaoCao = (duLieuNv, noiDungBaoCao) => {
 
 export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoLichSu, ngayBaoCaoLichSu) => {
     $('#bieu-tuong-canh-bao-mtd').hide();
-    // baoCaoLichSu PHẢI là báo cáo của ngày gần nhất TRONG QUÁ KHỨ (< hôm nay)
+    
+    // Nếu không có báo cáo lịch sử (ngày cũ hơn hôm nay), không thực hiện kiểm tra
     if (!baoCaoLichSu || !baoCaoLichSu.duLieuNvLichSu) return;
     
     const danhSachLoi = [];
     const banDoNvLichSu = new Map(baoCaoLichSu.duLieuNvLichSu.map(nv => [nv.ten, nv]));
-    const nhanNgay = ngayBaoCaoLichSu ? dinhDangNgayHienThi(ngayBaoCaoLichSu) : 'trước';
+    
+    // nhanNgay là ngày của báo cáo lịch sử (ví dụ 20/12/2025)
+    const nhanNgay = ngayBaoCaoLichSu ? dinhDangNgayHienThi(ngayBaoCaoLichSu) : 'trước đó';
 
     danhSachNhanVien.forEach(nvNay => {
         const nvCu = banDoNvLichSu.get(nvNay.ten);
@@ -30,19 +33,21 @@ export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoLichSu, ngayBaoCaoLichSu
         const mtdHomNay = trichXuatSoLieu(nvNay.baoCao, 'MTD MC');
 
         if (nvNay.trangThai === 'Off') {
+            // Khi OFF, MTD mới phải bằng MTD lịch sử
             if (mtdHomNay !== mtdLichSu && mtdHomNay !== 0) { 
                  danhSachLoi.push({
                     ten: nvNay.ten,
-                    lyDo: `Sai MTD (Nghỉ)`,
-                    chiTiet: `Dữ liệu ngày ${nhanNgay} là ${mtdLichSu}. Bạn nhập: ${mtdHomNay}. (Nghỉ nên giữ nguyên MTD)`
+                    lyDo: `Sai MTD khi nghỉ`,
+                    chiTiet: `Mốc cũ (${nhanNgay}) là ${mtdLichSu}. Bạn nhập: ${mtdHomNay}. (Nghỉ nên giữ nguyên MTD)`
                 });
             }
         } else if (nvNay.trangThai === 'Đã báo cáo') { 
+            // Dự kiến = MTD cũ + MC nay
             const mtdDuKien = mtdLichSu + mcHomNay;
             if (mtdHomNay !== 0 && mtdHomNay !== mtdDuKien) {
                 danhSachLoi.push({
                     ten: nvNay.ten,
-                    lyDo: `Cộng dồn MTD sai lệch.`,
+                    lyDo: `Cộng dồn MTD sai lệch`,
                     chiTiet: `Dự kiến: ${mtdLichSu} (ngày ${nhanNgay}) + ${mcHomNay} (nay) = ${mtdDuKien}. Thực tế nhập: ${mtdHomNay}`
                 });
             }
@@ -50,19 +55,21 @@ export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoLichSu, ngayBaoCaoLichSu
     });
 
     if (danhSachLoi.length > 0) {
-        let htmlLoi = `<p class="mb-2">Phát hiện sai lệch MTD so với mốc lịch sử (${nhanNgay}):</p><ul class="list-group">`;
+        let htmlLoi = `<p class="mb-2 small text-muted">So sánh với dữ liệu ngày ${nhanNgay}:</p><div class="list-group list-group-flush">`;
         danhSachLoi.forEach(loi => {
             htmlLoi += `
-                <li class="list-group-item border-start-0 border-end-0 px-0">
-                    <div class="fw-bold">${loi.ten}</div>
-                    <small class="text-danger fw-600">${loi.lyDo}</small>
-                    <div class="text-muted small">${loi.chiTiet}</div>
-                </li>
+                <div class="list-group-item px-0 border-0">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">${loi.ten}</span>
+                        <span class="badge bg-danger rounded-pill">${loi.lyDo}</span>
+                    </div>
+                    <div class="text-secondary small mt-1">${loi.chiTiet}</div>
+                </div>
             `;
         });
-        htmlLoi += '</ul>';
+        htmlLoi += '</div>';
         $('#vung-danh-sach-loi-mtd').html(htmlLoi);
-        $('#bieu-tuong-canh-bao-mtd').show();
+        $('#bieu-tuong-canh-bao-mtd').fadeIn();
     }
 };
 

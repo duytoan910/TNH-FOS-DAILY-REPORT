@@ -20,6 +20,11 @@ $(function() {
     const modalXacNhanXoa = new bootstrap.Modal('#modal-xac-nhan-xoa');
     const modalXemBaoCaoCu = new bootstrap.Modal('#modal-xem-bao-cao-cu');
 
+    // --- CẬP NHẬT THÔNG TIN BUILD ---
+    const thoiGianHienTai = new Date();
+    const chuoiBuild = `Build: ${thoiGianHienTai.getFullYear()}.${String(thoiGianHienTai.getMonth()+1).padStart(2,'0')}.${String(thoiGianHienTai.getDate()).padStart(2,'0')} ${String(thoiGianHienTai.getHours()).padStart(2,'0')}:${String(thoiGianHienTai.getMinutes()).padStart(2,'0')}`;
+    $('#thoi-gian-build').text(chuoiBuild);
+
     const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
         const $cham = $('#cham-trang-thai-db');
         const $chu = $('#chu-trang-thai-db');
@@ -29,7 +34,7 @@ $(function() {
         
         if (trucTuyen) {
             $cham.removeClass('offline').addClass('online');
-            $chu.text('Đã kết nối DB');
+            $chu.text('RestDB Online');
         } else {
             $cham.removeClass('online').addClass('offline');
             $chu.text('Chế độ Offline');
@@ -38,7 +43,6 @@ $(function() {
         if (slBaoCao !== null) $bc.text(`Rpt: ${slBaoCao}`);
         if (slTruyCap !== null) {
             $luong.text(`(${slTruyCap})`);
-            $luong.removeClass('text-danger fw-bold').addClass('text-muted');
         }
     }
 
@@ -121,7 +125,7 @@ $(function() {
     };
 
     const taiDuLieuTuServer = async () => {
-        hienThiTaiTrang("Đang tải dữ liệu...");
+        hienThiTaiTrang("Đang kết nối RestDB...");
         try {
             await ghiNhanTuongTacApi();
             const duLieuGoc = await thucHienGoiApi('nhanvien?h={"$orderby": {"Ten": 1}}');
@@ -171,7 +175,7 @@ $(function() {
             }
         } catch (e) {}
 
-        // LOGIC LẤY LỊCH SỬ: Chỉ lấy những ngày TRƯỚC HÔM NAY (< homNayStr)
+        // LOGIC LẤY LỊCH SỬ: Chỉ lấy báo cáo có ngày < hôm nay
         try {
             const truyVanLichSu = `{"ngayBaoCao": {"$lt": "${homNayStr}"}}`;
             const sapXepLichSu = `{"$orderby": {"ngayBaoCao": -1}}`;
@@ -182,7 +186,7 @@ $(function() {
                 baoCaoLichSuGanNhat.duLieuNvLichSu = baoCaoLichSuGanNhat.baoCaoFOS.map(item => ({
                     ten: item.tenNhanVien, mtdMC: item.chiSoHieuSuat.saleTrongThang
                 }));
-                let txt = `Lịch sử chốt ngày ${dinhDangNgayHienThi(ngayBaoCaoLichSu)}:\n`;
+                let txt = `Dữ liệu mốc lịch sử (${dinhDangNgayHienThi(ngayBaoCaoLichSu)}):\n`;
                 baoCaoLichSuGanNhat.duLieuNvLichSu.forEach(n => txt += `${n.ten}: MTD ${n.mtdMC}\n`);
                 $('#vung-ket-qua-bao-cao-cu').val(txt);
                 thucHienTaoBaoCao(null, true);
@@ -198,7 +202,7 @@ $(function() {
             if (kiemTra.length > 0) await thucHienGoiApi(`report/${kiemTra[0]._id}`, 'PUT', cauTruc);
             else await thucHienGoiApi('report', 'POST', cauTruc);
             lamMoiThongKeCsdl(capNhatWidgetDb);
-        } catch (error) {} finally { $('#chi-bao-dang-luu').hide(); }
+        } catch (error) {} finally { setTimeout(() => $('#chi-bao-dang-luu').fadeOut(), 1000); }
     };
     
     const thucHienTaoBaoCao = (e, chiXem = false) => {
@@ -316,7 +320,7 @@ $(function() {
         const nv = danhSachNhanVien.find(n => n.ten === nhanVienHienTai);
         if (nv) {
             const bc = nv.baoCao;
-            $('#tieu-de-modal-sua-bao-cao').text(`Sửa báo cáo: ${nhanVienHienTai}`);
+            $('#tieu-de-modal-sua-bao-cao').text(`Sửa nhanh: ${nhanVienHienTai}`);
             $('#ntb-sua').val(trichXuatSoLieu(bc, 'NTB')); $('#etb-sua').val(trichXuatSoLieu(bc, 'ETB'));
             $('#pos-sua').val(trichXuatSoLieu(bc, 'Pos')); $('#aeplus-sua').val(trichXuatSoLieu(bc, ['AE+', 'AE Plus']));
             $('#mtd-sua').val(trichXuatSoLieu(bc, 'MTD MC'));
@@ -354,14 +358,14 @@ $(function() {
             if (nv) { nv.baoCao = khoiTrim; nv.trangThai = 'Đã báo cáo'; kiemTraTenTrongBaoCao(nv, khoiTrim); }
         });
         modalDanNhieuBaoCao.hide(); hienThiDanhSachNhanVien(); luuVaoBoNhoTam();
-        hienThiThongBao("Đã xử lý báo cáo hàng loạt");
+        hienThiThongBao("Đã xử lý xong các báo cáo.");
     });
 
     $('#nut-tao-bao-cao').on('click', () => thucHienTaoBaoCao());
     $('#nut-sao-chep').on('click', function() {
         const $btn = $(this);
         navigator.clipboard.writeText($('#vung-ket-qua-bao-cao').val()).then(() => {
-            hienThiThongBao('Đã chép báo cáo!');
+            hienThiThongBao('Đã sao chép báo cáo!');
             $btn.html('<i class="fa-solid fa-check"></i> Đã chép').addClass('btn-success').removeClass('btn-primary');
             setTimeout(() => $btn.html('<i class="fa-regular fa-copy"></i> Sao chép').removeClass('btn-success').addClass('btn-primary'), 2000);
         });

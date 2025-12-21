@@ -3,7 +3,7 @@
 :root {
     --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     --bg-image: none;
-    --card-bg: rgba(255, 255, 255, 0.7);
+    --card-bg: rgba(255, 255, 255, 0.75);
     --text-primary: #1c1c1e;
     --text-secondary: #636366;
     --main-title-color: #1c1c1e;
@@ -13,25 +13,37 @@
     --accent-gray: #8E8E93;
     --input-bg: #F2F2F7;
     --input-border: rgba(0, 0, 0, 0.1);
-    --input-focus-shadow: rgba(0, 122, 255, 0.2);
-    --btn-fos-bg: #fff;
-    --btn-fos-border: #ddd;
-    --btn-fos-hover-bg: #e9ecef;
+    --btn-fos-bg: #ffffff;
+    --btn-fos-border: #e0e0e0;
     --scrollbar-thumb: var(--accent-gray);
     --scrollbar-track: rgba(0, 0, 0, 0.05);
 }
 
 body.theme-ios18-dark {
-    --bg-gradient: linear-gradient(135deg, #1d2b34 0%, #2c3e50 100%);
-    --card-bg: rgba(28, 28, 30, 0.85);
-    --text-primary: #f5f5f7;
+    --bg-gradient: linear-gradient(135deg, #000000 0%, #2c2c2e 100%);
+    --card-bg: rgba(28, 28, 30, 0.9);
+    --text-primary: #ffffff;
     --text-secondary: #a0a0a5;
     --main-title-color: #ffffff;
-    --input-bg: #2c2c2e;
+    --input-bg: #1c1c1e;
     --input-border: rgba(255, 255, 255, 0.15);
+    --btn-fos-bg: #2c2c2e;
+    --btn-fos-border: #3a3a3c;
 }
 
-/* Các theme khác dùng logic tương tự */
+/* OneUI Samsung Theme */
+body.theme-oneui-light {
+    --bg-gradient: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+    --accent-blue: #0381fe;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text-primary: #212529;
+}
+body.theme-oneui-dark {
+    --bg-gradient: linear-gradient(180deg, #121212 0%, #212121 100%);
+    --card-bg: rgba(33, 33, 33, 0.95);
+    --text-primary: #e0e0e0;
+    --accent-blue: #3d5afe;
+}
 
 body {
     font-family: 'Poppins', sans-serif;
@@ -41,7 +53,7 @@ body {
     background-position: center;
     background-attachment: fixed;
     color: var(--text-primary);
-    transition: background 0.5s ease;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 100vh;
 }
 
@@ -57,22 +69,22 @@ body {
     font-size: 1.8rem;
     color: var(--accent-blue);
     background: var(--card-bg);
-    padding: 8px;
+    padding: 10px;
     border-radius: 50%;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
 }
-#nut-cai-dat:hover { transform: rotate(45deg); scale: 1.1; }
+#nut-cai-dat:hover { transform: rotate(90deg); scale: 1.1; }
 
-/* CSS cho Submenu Dropdown (Bootstrap 5 fix) */
+/* Submenu Dropdown CSS */
 .dropdown-submenu { position: relative; }
 .dropdown-submenu > .dropdown-menu {
     top: 0;
     left: auto;
     right: 100%;
     margin-top: -6px;
-    margin-right: 0px;
+    margin-right: 2px;
     display: none;
 }
 .dropdown-submenu:hover > .dropdown-menu { display: block; }
@@ -83,26 +95,25 @@ body {
     transform: rotate(90deg);
 }
 
-.main-title { font-weight: 700; color: var(--main-title-color); }
+.main-title { font-weight: 700; color: var(--main-title-color); letter-spacing: -0.5px; }
 
 .card, .modal-content {
     background: var(--card-bg);
-    backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(25px) saturate(200%);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 1.25rem;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 1.5rem;
 }
 
 #vung-danh-sach-nv {
-    max-height: 380px;
+    max-height: 400px;
     overflow-y: auto;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 1rem;
-    background: rgba(0,0,0,0.03);
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 1.25rem;
+    background: rgba(0,0,0,0.04);
     border: 1px solid rgba(0,0,0,0.05);
 }
-#vung-danh-sach-nv::-webkit-scrollbar { width: 4px; }
+#vung-danh-sach-nv::-webkit-scrollbar { width: 5px; }
 #vung-danh-sach-nv::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
 
 .nut-ten-nv {
@@ -112,45 +123,45 @@ body {
     flex: 1;
     text-align: left;
     font-weight: 600;
-    border-radius: 0.75rem 0 0 0.75rem !important;
+    border-radius: 1rem 0 0 1rem !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: all 0.2s ease;
 }
 .nut-ten-nv.da-bao-cao { background-color: var(--accent-green) !important; color: white !important; border-color: var(--accent-green); }
-.nut-ten-nv.nghi { background-color: var(--accent-gray) !important; color: white !important; text-decoration: line-through; }
+.nut-ten-nv.nghi { background-color: var(--accent-gray) !important; color: white !important; text-decoration: line-through; opacity: 0.8; }
 .nut-ten-nv.sai-ten { background-color: var(--accent-red) !important; color: white !important; }
 
-.nut-sua-nv { background-color: var(--accent-blue); color: white; border-radius: 0 !important; width: 45px; }
-.nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 0.75rem 0.75rem 0 !important; width: 45px; }
+.nut-sua-nv { background-color: var(--accent-blue); color: white; border-radius: 0 !important; width: 42px; border: none; }
+.nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 1rem 1rem 0 !important; width: 42px; border: none; }
 
 .nut-bieu-tuong-hanh-dong {
     cursor: pointer;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     color: var(--accent-blue);
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.nut-bieu-tuong-hanh-dong:hover { transform: scale(1.2); }
-
-#lop-phu-tai-trang {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.4); z-index: 2000;
-    display: none; justify-content: center; align-items: center; flex-direction: column;
-    color: white; backdrop-filter: blur(8px);
-}
+.nut-bieu-tuong-hanh-dong:hover { transform: scale(1.25); color: #0056b3; }
 
 .db-status-widget {
     position: fixed; bottom: 15px; left: 15px;
-    background: var(--card-bg); padding: 8px 12px; border-radius: 12px;
-    font-size: 0.75rem; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    backdrop-filter: blur(10px);
+    background: var(--card-bg); padding: 8px 15px; border-radius: 14px;
+    font-size: 0.7rem; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.build-info-widget {
+    position: fixed; bottom: 15px; right: 15px;
+    background: var(--card-bg); padding: 8px 15px; border-radius: 14px;
+    font-size: 0.7rem; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
 }
 
 #chi-bao-dang-luu {
-    position: fixed; bottom: 20px; right: 20px;
-    z-index: 2000; background: var(--card-bg); padding: 10px 20px;
-    border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    display: none; align-items: center; gap: 10px;
-    border: 1px solid var(--accent-blue); color: var(--accent-blue);
-    backdrop-filter: blur(10px);
+    position: fixed; bottom: 70px; right: 20px;
+    z-index: 2000; background: var(--accent-blue); padding: 10px 20px;
+    border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    display: none; align-items: center; gap: 10px; color: white;
 }
