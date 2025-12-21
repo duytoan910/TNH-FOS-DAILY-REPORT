@@ -1,14 +1,14 @@
 import { DUONG_DAN_CSDL, TIEU_DE_TRUY_VAN } from './config.js';
 import { dinhDangNgayISO } from './utils.js';
 
-let cheDoHienTai = 'online';
+let cheDoUngDung = 'online';
 
 export const datCheDoUngDung = (cheDo) => {
-    cheDoHienTai = cheDo;
+    cheDoUngDung = cheDo;
 };
 
 export const layCheDoUngDung = () => {
-    return cheDoHienTai;
+    return cheDoUngDung;
 };
 
 export const thucHienGoiApi = async (diemCuoi, phuongThuc = 'GET', duLieu = null) => {
@@ -24,11 +24,12 @@ export const thucHienGoiApi = async (diemCuoi, phuongThuc = 'GET', duLieu = null
         const noiDungLoi = await phanHoi.text();
         throw new Error(`Lỗi API: ${phanHoi.status} - ${noiDungLoi}`);
     }
-    return phanHoi.json();
+    const duLieuTraVe = await phanHoi.json();
+    return duLieuTraVe;
 };
 
 export const ghiNhanTuongTacApi = async () => {
-    if (cheDoHienTai === 'offline') return;
+    if (cheDoUngDung === 'offline') return;
 
     const homNayStr = dinhDangNgayISO(new Date());
     

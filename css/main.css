@@ -1,6 +1,6 @@
-/* --- THEME SYSTEM USING CSS VARIABLES --- */
+/* --- HỆ THỐNG GIAO DIỆN SỬ DỤNG BIẾN CSS --- */
 
-/* 1. Default Theme (iOS 18 Light) */
+/* 1. Giao diện mặc định (iOS 18 Light) */
 :root {
     --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     --bg-image: none;
@@ -61,135 +61,10 @@ body.theme-oneui-dark {
     --btn-fos-bg: #2c2c2e;
 }
 
-/* 5. Window 11 Light */
- body.theme-window11-light {
-    --bg-gradient: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
-    --card-bg: rgba(255, 255, 255, 0.5);
-    --accent-blue: #0067c0;
-}
-
-/* 6. Window 11 Dark */
-body.theme-window11-dark {
-    --bg-gradient: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-    --card-bg: rgba(0, 0, 0, 0.4);
-    --text-primary: #ffffff;
-    --text-secondary: #bdc3c7;
-    --main-title-color: #ffffff;
-    --accent-blue: #0095ff;
-    --input-bg: rgba(255,255,255,0.05);
-    --input-border: rgba(255,255,255,0.2);
-    --btn-fos-bg: rgba(255,255,255,0.1);
-    --btn-fos-border: rgba(255,255,255,0.2);
-}
-
-/* --- NEW THEMES --- */
-
-/* 7. Pastel Dream */
-body.theme-pastel-light {
-    --bg-gradient: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
-    --card-bg: rgba(255, 255, 255, 0.7);
-    --accent-blue: #ff6a88;
-    --main-title-color: #5d54a4;
-}
-body.theme-pastel-dark {
-    --bg-gradient: linear-gradient(to top, #30cfd0 0%, #330867 100%);
-    --card-bg: rgba(0, 0, 0, 0.4);
-    --text-primary: #f0f0f0;
-    --text-secondary: #c2e9fb;
-    --main-title-color: #f0f0f0;
-    --accent-blue: #a1c4fd;
-    --input-bg: rgba(255,255,255,0.1);
-    --btn-fos-bg: rgba(255,255,255,0.1);
-}
-
-/* 8. Serene Nature */
-body.theme-nature-light {
-    --bg-gradient: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
-    --bg-image: url('https://picsum.photos/seed/nature-light/1920/1080');
-    --card-bg: rgba(255, 255, 255, 0.75);
-    --accent-blue: #2c5d3d;
-    --main-title-color: #0c3d1d;
-}
-body.theme-nature-dark {
-    --bg-gradient: linear-gradient(135deg, #263D31 0%, #1A2922 100%);
-    --bg-image: url('https://picsum.photos/seed/nature-dark/1920/1080');
-    --card-bg: rgba(10, 20, 10, 0.7);
-    --text-primary: #f0f0f0;
-    --text-secondary: #a2b4a7;
-    --main-title-color: #e6f4e9;
-    --accent-blue: #a8e063;
-    --input-bg: rgba(255,255,255,0.1);
-    --btn-fos-bg: rgba(255,255,255,0.1);
-}
-
-/* 9. Gaming Zone */
-body.theme-gaming-light {
-     --bg-gradient: linear-gradient(135deg, #e1e6f2 0%, #c4d0e3 100%);
-     --bg-image: url('https://picsum.photos/seed/gaming-light/1920/1080');
-     --card-bg: rgba(255, 255, 255, 0.6);
-     --main-title-color: #3d007a;
-     --accent-blue: #8a2be2;
-}
-body.theme-gaming-dark {
-    --bg-gradient: linear-gradient(135deg, #1a0a2e 0%, #2e1a47 100%);
-    --bg-image: url('https://picsum.photos/seed/gaming-dark/1920/1080');
-    --card-bg: rgba(13, 2, 38, 0.75);
-    --text-primary: #f0f0f0;
-    --text-secondary: #a0a0a0;
-    --main-title-color: #f706cf;
-    --accent-blue: #0abdc6;
-    --accent-green: #44f59e;
-    --input-bg: rgba(255,255,255,0.05);
-    --input-border: #f706cf;
-    --btn-fos-bg: rgba(255,255,255,0.05);
-    --btn-fos-border: #0abdc6;
-}
-
-/* 10. Carbon Fiber */
-body.theme-carbon-light {
-    --bg-image: url('https://www.transparenttextures.com/patterns/carbon-fibre-v2.png');
-    --bg-gradient: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);
-    --card-bg: rgba(255, 255, 255, 0.7);
-    --accent-red: #d62929;
-    --main-title-color: #333;
-    --accent-blue: #111;
-}
-body.theme-carbon-dark {
-    --bg-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-    --bg-gradient: linear-gradient(to right, #232526, #414345);
-    --card-bg: rgba(10, 10, 10, 0.65);
-    --text-primary: #f5f5f5;
-    --text-secondary: #aaa;
-    --main-title-color: #fff;
-    --accent-blue: #e8491d;
-    --accent-red: #ff3b30;
-    --input-bg: rgba(255,255,255,0.05);
-    --btn-fos-bg: rgba(255,255,255,0.1);
-}
-
-/* 11. Chic & Modern */
-body.theme-chic-light {
-     --bg-gradient: linear-gradient(135deg, #f9f2f5 0%, #f3e6e8 100%);
-     --bg-image: url('https://picsum.photos/seed/chic-light/1920/1080');
-     --card-bg: rgba(255, 255, 255, 0.7);
-     --main-title-color: #7b4397;
-     --accent-blue: #dc2430;
-}
- body.theme-chic-dark {
-     --bg-gradient: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
-     --bg-image: url('https://picsum.photos/seed/chic-dark/1920/1080');
-     --card-bg: rgba(10, 10, 10, 0.6);
-     --text-primary: #f5f5f5;
-     --text-secondary: #ccc;
-     --main-title-color: #fff;
-     --accent-blue: #f7b733;
-}
-
-
-/* --- BASE STYLES USING VARIABLES --- */
+/* --- CẤU TRÚC CƠ BẢN --- */
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: var(--bg-gradient); /* Fallback color */
+    background-color: var(--bg-gradient);
     background-image: var(--bg-image), var(--bg-gradient);
     background-size: cover;
     background-position: center;
@@ -214,10 +89,6 @@ h1.main-title {
     transition: background 0.5s ease;
 }
 
-.modal-header, .modal-footer {
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
 .form-control, .form-select {
     background-color: var(--input-bg);
     border: 1px solid var(--input-border);
@@ -225,15 +96,8 @@ h1.main-title {
     border-radius: 0.75rem;
     padding: 0.75rem 1rem;
 }
-.form-control::placeholder { color: var(--accent-gray); }
-.form-control:focus, .form-select:focus {
-    color: var(--text-primary);
-    background-color: var(--btn-fos-bg);
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 0.25rem var(--input-focus-shadow);
-}
 
-#tao-bao-cao-btn {
+#nut-tao-bao-cao {
     background-color: var(--accent-blue);
     border: none;
     border-radius: 0.75rem;
@@ -243,12 +107,8 @@ h1.main-title {
     font-weight: 600;
     padding: 0.75rem;
 }
-#tao-bao-cao-btn:hover {
-    opacity: 0.85;
-    transform: translateY(-2px);
-}
 
-.fos-name-btn {
+.nut-ten-nv {
     background-color: var(--btn-fos-bg);
     border: 1px solid var(--btn-fos-border);
     color: var(--text-primary);
@@ -261,228 +121,81 @@ h1.main-title {
     border-radius: 0.75rem 0 0 0.75rem !important;
     font-weight: 600;
 }
-.fos-name-btn:hover {
-     background-color: var(--btn-fos-hover-bg);
-     transform: translateY(-1px);
-}
 
-.fos-name-btn.reported {
-    background-color: var(--btn-fos-reported-bg);
-    border-color: var(--btn-fos-reported-bg);
+.nut-ten-nv.da-bao-cao {
+    background-color: var(--accent-green);
+    border-color: var(--accent-green);
     color: #fff;
 }
- .fos-name-btn.off {
-    background-color: var(--btn-fos-off-bg);
-    border-color: var(--btn-fos-off-bg);
+.nut-ten-nv.nghi {
+    background-color: var(--accent-gray);
+    border-color: var(--accent-gray);
     color: #fff;
     text-decoration: line-through;
 }
-.fos-name-btn.name-mismatch {
+.nut-ten-nv.sai-ten {
     background-color: var(--accent-red);
     border-color: var(--accent-red);
     color: #fff;
 }
 
-.edit-fos-btn {
+.nut-sua-nv {
     background-color: var(--accent-blue);
     border-color: var(--accent-blue);
     color: #fff;
     border-radius: 0 !important;
     opacity: 0.8;
-    transition: opacity 0.3s ease;
-}
-.edit-fos-btn:hover {
-    opacity: 1;
 }
 
-.delete-fos-btn {
+.nut-xoa-nv {
     background-color: var(--accent-red);
     border-color: var(--accent-red);
     color: #fff;
     border-radius: 0 0.75rem 0.75rem 0 !important;
 }
-.delete-fos-btn:hover { opacity: 0.85; }
 
-.add-fos-icon-btn, #settings-btn {
+.nut-bieu-tuong-them-nv, #nut-cai-dat {
     cursor: pointer;
     font-size: 2rem;
     color: var(--accent-blue);
-    transition: color 0.3s ease, transform 0.3s ease;
-}
-.add-fos-icon-btn:hover, #settings-btn:hover {
-    transform: scale(1.1) rotate(15deg);
+    transition: all 0.3s ease;
 }
 
-#sao-chep-btn {
-    border-radius: 20px;
-    font-weight: 500;
-}
-#sao-chep-btn.copied {
+#nut-sao-chep.copied {
     background-color: var(--accent-green);
     border-color: var(--accent-green);
 }
 
-#bao-cao-ket-qua, #bao-cao-cu-ket-qua {
+#vung-ket-qua-bao-cao, #vung-ket-qua-bao-cao-cu {
     white-space: pre-wrap;
     font-family: 'Courier New', Courier, monospace;
-    font-size: 0.9rem;
 }
 
-#fos-list-area {
+#vung-danh-sach-nv {
     max-height: 280px;
     overflow-y: auto;
-    padding-right: 8px;
-}
-#fos-list-area::-webkit-scrollbar { width: 6px; }
-#fos-list-area::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
-    border-radius: 10px;
-}
-#fos-list-area::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb);
-    border-radius: 10px;
 }
 
-#suaBaoCaoModal .form-label {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-    display: block;
-}
-
-/* --- Settings Dropdown & Submenu CSS --- */
-.settings-container {
-    position: absolute;
-    top: 1.5rem;
-    right: 2rem;
-    z-index: 1050; /* Ensure it's above other content */
-}
-.dropdown-menu {
-    background: var(--card-bg);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    border-radius: 1rem;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-}
-.dropdown-item {
-    color: var(--text-primary);
-}
-.dropdown-item:hover, .dropdown-item:focus {
-    background-color: rgba(0,0,0,0.1);
-    color: var(--text-primary);
-}
-
-.dropdown-submenu { position: relative; }
-.dropdown-submenu > .dropdown-menu {
-    top: 0;
-    right: 100%;
-    left: auto;
-    margin-top: -6px;
-    margin-right: -1px;
-    display: none;
-}
-.dropdown-submenu:hover > .dropdown-menu { display: block; }
-
-/* Loading Overlay */
-#loading-overlay {
+#lop-phu-tai-trang {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.5);
     z-index: 2000;
     display: none;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: white;
-    backdrop-filter: blur(5px);
+    justify-content: center; align-items: center; flex-direction: column;
+    color: white; backdrop-filter: blur(5px);
 }
 
-/* DB Status Widget */
 .db-status-widget {
-    position: fixed;
-    bottom: 15px;
-    left: 15px;
-    background: var(--card-bg);
-    border: 1px solid rgba(0,0,0,0.1);
-    padding: 8px 12px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    z-index: 1000;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    transition: all 0.3s ease;
-}
-.db-status-widget:hover {
-    transform: scale(1.05);
-}
-.status-header {
-    display: flex;
-    align-items: center;
-    font-weight: 600;
-    margin-bottom: 2px;
-}
-.status-dot {
-    height: 8px;
-    width: 8px;
-    background-color: #bbb;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 6px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.2);
-}
-.status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 5px var(--accent-green); }
-.status-dot.offline { background-color: var(--accent-red); box-shadow: 0 0 5px var(--accent-red); }
-.status-detail {
-    font-size: 0.7rem;
-    color: var(--text-secondary);
-    white-space: nowrap;
+    position: fixed; bottom: 15px; left: 15px;
+    background: var(--card-bg); padding: 8px 12px; border-radius: 12px;
+    font-size: 0.75rem; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-/* Background Processing Indicator */
-#bg-processing-indicator {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 2000;
-    background: var(--card-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 10px 20px;
-    border-radius: 30px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    display: none;
-    align-items: center;
-    gap: 10px;
-    border: 1px solid var(--accent-blue);
-    color: var(--accent-blue);
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
-
-/* Mobile Responsive Fix */
-@media (max-width: 576px) {
-    .settings-container {
-        top: 1rem;
-        right: 0.5rem;
-    }
-    h1.main-title {
-        max-width: calc(100% - 60px);
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .db-status-widget {
-        bottom: 10px;
-        left: 10px;
-        padding: 6px 10px;
-    }
-    #bg-processing-indicator {
-        bottom: 60px; /* Move up slightly on mobile to avoid overlap if needed */
-        right: 15px;
-    }
+#chi-bao-dang-luu {
+    position: fixed; bottom: 20px; right: 20px;
+    z-index: 2000; background: var(--card-bg); padding: 10px 20px;
+    border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    display: none; align-items: center; gap: 10px;
+    border: 1px solid var(--accent-blue); color: var(--accent-blue);
 }

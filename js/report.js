@@ -12,7 +12,7 @@ export const kiemTraTenTrongBaoCao = (duLieuNv, noiDungBaoCao) => {
 
 export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoLichSu, ngayBaoCaoLichSu) => {
     $('#bieu-tuong-canh-bao-mtd').hide();
-    // baoCaoLichSu phải là báo cáo của ngày < hôm nay
+    // baoCaoLichSu PHẢI là báo cáo của ngày gần nhất trong quá khứ (< hôm nay)
     if (!baoCaoLichSu || !baoCaoLichSu.duLieuNvLichSu) return;
     
     const danhSachLoi = [];
@@ -32,7 +32,7 @@ export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoLichSu, ngayBaoCaoLichSu
         const mtdHomNay = trichXuatSoLieu(nvNay.baoCao, 'MTD MC');
 
         if (nvNay.trangThai === 'Off') {
-            // Khi OFF, MTD nhập vào (nếu có) phải khớp với lịch sử (loại trừ hôm nay)
+            // Khi OFF, MTD nhập vào (nếu có và khác 0) phải khớp với lịch sử (ngày < hôm nay)
             if (mtdHomNay !== mtdLichSu && mtdHomNay !== 0) { 
                  danhSachLoi.push({
                     ten: nvNay.ten,
@@ -42,7 +42,7 @@ export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoLichSu, ngayBaoCaoLichSu
             }
         } else if (nvNay.trangThai === 'Đã báo cáo') { 
             const mtdDuKien = mtdLichSu + mcHomNay;
-            // Chỉ cảnh báo nếu người dùng nhập MTD khác 0 và khác với giá trị dự kiến từ lịch sử
+            // Chỉ cảnh báo nếu người dùng nhập MTD khác 0 và khác với mốc cộng dồn từ quá khứ
             if (mtdHomNay !== 0 && mtdHomNay !== mtdDuKien) {
                 danhSachLoi.push({
                     ten: nvNay.ten,
@@ -101,7 +101,7 @@ export const taoCauTrucGuiBaoCao = (danhSachNhanVien, baoCaoLichSu, thongKe) => 
          }
 
          // LOGIC MTD: Nếu nhân viên OFF hoặc 0 sale, và mtd hiện tại vẫn là 0 (chưa nhập mới)
-         // Luôn lấy từ baoCaoLichSu (ngày gần nhất < hôm nay)
+         // Luôn lấy từ baoCaoLichSu (ngày gần nhất TRƯỚC HÔM NAY)
          if ((nv.trangThai === 'Off' || mcHomNay === 0) && mtd === 0 && baoCaoLichSu && baoCaoLichSu.duLieuNvLichSu) {
              const nvCu = baoCaoLichSu.duLieuNvLichSu.find(f => f.ten === nv.ten);
              if (nvCu) {

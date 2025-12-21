@@ -62,7 +62,7 @@
                         <i class="fa-solid fa-palette me-2"></i>Thay đổi giao diện
                     </a>
                     <ul class="dropdown-menu" id="menu-giao-dien-chon">
-                        <!-- Giao diện sẽ được chèn bởi JS -->
+                        <!-- Themes will be injected here by JS -->
                     </ul>
                 </li>
                 <li><hr class="dropdown-divider"></li>
@@ -88,8 +88,8 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <h3 class="mb-0 fs-5">1. Danh sách Nhân Viên</h3>
                     <div>
-                        <i class="fa-solid fa-file-import nut-bieu-tuong-them-nv me-2" title="Dán nhiều báo cáo" data-bs-toggle="modal" data-bs-target="#modalDanNhieuBaoCao"></i>
-                        <i class="fa-solid fa-user-plus nut-bieu-tuong-them-nv" title="Thêm nhân viên mới" data-bs-toggle="modal" data-bs-target="#modalThemNhanVien"></i>
+                        <i class="fa-solid fa-file-import nut-bieu-tuong-them-nv me-2" title="Dán nhiều báo cáo" data-bs-toggle="modal" data-bs-target="#modal-dan-nhieu-bao-cao"></i>
+                        <i class="fa-solid fa-user-plus nut-bieu-tuong-them-nv" title="Thêm nhân viên mới" data-bs-toggle="modal" data-bs-target="#modal-them-nhan-vien"></i>
                     </div>
                 </div>
                 
@@ -116,7 +116,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                              <h5 class="card-title mb-0">
                                 Báo cáo tổng hợp
-                                <i id="bieu-tuong-canh-bao-mtd" class="fa-solid fa-triangle-exclamation text-danger ms-2" style="display: none; cursor: pointer;" title="Cảnh báo sai MTD" data-bs-toggle="modal" data-bs-target="#modalCanhBaoMtd"></i>
+                                <i id="bieu-tuong-canh-bao-mtd" class="fa-solid fa-triangle-exclamation text-danger ms-2" style="display: none; cursor: pointer;" title="Cảnh báo sai MTD" data-bs-toggle="modal" data-bs-target="#modal-canh-bao-mtd"></i>
                             </h5>
                             <div class="d-flex flex-shrink-0">
                                 <button id="nut-xem-bao-cao-cu" class="btn btn-sm btn-outline-secondary me-2">
@@ -135,7 +135,7 @@
     </div>
 
     <!-- Modal Thêm Nhân Viên -->
-    <div class="modal fade" id="modalThemNhanVien" tabindex="-1" aria-labelledby="modalThemNhanVienLabel" aria-hidden="true">
+    <div class="modal fade" id="modal-them-nhan-vien" tabindex="-1" aria-labelledby="modalThemNhanVienLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
@@ -170,7 +170,7 @@
     </div>
     
     <!-- Modal Dán Báo Cáo Đơn -->
-    <div class="modal fade" id="modalDanBaoCao" tabindex="-1" aria-labelledby="modalDanBaoCaoLabel" aria-hidden="true">
+    <div class="modal fade" id="modal-dan-bao-cao" tabindex="-1" aria-labelledby="modalDanBaoCaoLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
@@ -203,7 +203,7 @@
     </div>
 
     <!-- Modal Sửa Báo Cáo Chi Tiết -->
-    <div class="modal fade" id="modalSuaBaoCao" tabindex="-1" aria-labelledby="modalSuaBaoCaoLabel" aria-hidden="true">
+    <div class="modal fade" id="modal-sua-bao-cao" tabindex="-1" aria-labelledby="modalSuaBaoCaoLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
@@ -234,13 +234,13 @@
                             <input type="number" class="form-control" id="pos-sua" min="0">
                         </div>
                         <div class="mb-3">
-                            <label for="saleapp-sua" class="form-label">SL nhập saleapp</label>
+                            <label for="saleapp-sua" class="form-label" title="SL nhập saleapp">SL nhập saleapp</label>
                             <input type="number" class="form-control" id="saleapp-sua" min="0">
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="mb-3">
-                            <label for="cskh-sua" class="form-label">SL gọi chăm sóc KH</label>
+                            <label for="cskh-sua" class="form-label" title="SL gọi chăm sóc KH">SL gọi chăm sóc KH</label>
                             <input type="number" class="form-control" id="cskh-sua" min="0">
                         </div>
                         <div class="mb-3">
@@ -252,7 +252,7 @@
                             <input type="number" class="form-control" id="soundbox-sua" min="0">
                         </div>
                          <div class="mb-3">
-                            <label for="mtd-sua" class="form-label fw-bold">MTD MC</label>
+                            <label for="mtd-sua" class="form-label fw-bold" title="MTD MC">MTD MC</label>
                             <input type="number" class="form-control" id="mtd-sua" min="0">
                         </div>
                     </div>
@@ -268,7 +268,7 @@
     </div>
     
     <!-- Modal Dán Nhiều Báo Cáo -->
-    <div class="modal fade" id="modalDanNhieuBaoCao" tabindex="-1" aria-labelledby="modalDanNhieuBaoCaoLabel" aria-hidden="true">
+    <div class="modal fade" id="modal-dan-nhieu-bao-cao" tabindex="-1" aria-labelledby="modalDanNhieuBaoCaoLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
@@ -293,7 +293,7 @@ Fos Giang báo cáo ngày...
     </div>
 
     <!-- Modal Xác Nhận Xoá -->
-    <div class="modal fade" id="modalXacNhanXoa" tabindex="-1" aria-labelledby="modalXacNhanXoaLabel" aria-hidden="true">
+    <div class="modal fade" id="modal-xac-nhan-xoa" tabindex="-1" aria-labelledby="modalXacNhanXoaLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
@@ -314,11 +314,11 @@ Fos Giang báo cáo ngày...
     </div>
 
     <!-- Modal Xem Báo Cáo Cũ -->
-    <div class="modal fade" id="modalXemBaoCaoCu" tabindex="-1" aria-labelledby="modalXemBaoCaoCuLabel" aria-hidden="true">
+    <div class="modal fade" id="modal-xem-bao-cao-cu" tabindex="-1" aria-labelledby="modalXemBaoCaoCuLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="modalXemBaoCaoCuLabel">Báo cáo tổng hợp hôm qua</h1>
+            <h1 class="modal-title fs-5" id="modalXemBaoCaoCuLabel">Báo cáo tổng hợp lịch sử</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -332,7 +332,7 @@ Fos Giang báo cáo ngày...
     </div>
 
     <!-- Modal Cảnh Báo MTD -->
-    <div class="modal fade" id="modalCanhBaoMtd" tabindex="-1" aria-labelledby="modalCanhBaoMtdLabel" aria-hidden="true">
+    <div class="modal fade" id="modal-canh-bao-mtd" tabindex="-1" aria-labelledby="modalCanhBaoMtdLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
