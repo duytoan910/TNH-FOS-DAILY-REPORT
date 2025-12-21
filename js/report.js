@@ -17,6 +17,8 @@ export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoLichSu, ngayBaoCaoLichSu
     
     const danhSachLoi = [];
     const banDoNvLichSu = new Map(baoCaoLichSu.duLieuNvLichSu.map(nv => [nv.ten, nv]));
+    
+    // Nhãn mốc lịch sử gần nhất (ví dụ: chốt ngày 20/12/2025)
     const nhanNgay = ngayBaoCaoLichSu ? dinhDangNgayHienThi(ngayBaoCaoLichSu) : 'trước đó';
 
     danhSachNhanVien.forEach(nvNay => {
@@ -34,36 +36,39 @@ export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoLichSu, ngayBaoCaoLichSu
 
         const mtdHomNay = trichXuatSoLieu(nvNay.baoCao, 'MTD MC');
 
+        // Kiểm tra sai lệch
         if (nvNay.trangThai === 'Off') {
+            // Khi OFF, MTD hôm nay phải bằng MTD của ngày chốt gần nhất
             if (mtdHomNay !== mtdLichSu && mtdHomNay !== 0) { 
                  danhSachLoi.push({
                     ten: nvNay.ten,
-                    lyDo: `Nghỉ nhưng MTD thay đổi`,
-                    chiTiet: `Mốc cũ (${nhanNgay}) là ${mtdLichSu}. Bạn nhập: ${mtdHomNay}.`
+                    lyDo: `Nghỉ nhưng MTD sai`,
+                    chiTiet: `Mốc chốt cũ (${nhanNgay}) là ${mtdLichSu}. Nhập: ${mtdHomNay}.`
                 });
             }
         } else if (nvNay.trangThai === 'Đã báo cáo') { 
+            // Dự kiến = MTD chốt cũ + MC mới hôm nay
             const mtdDuKien = mtdLichSu + mcHomNay;
             if (mtdHomNay !== 0 && mtdHomNay !== mtdDuKien) {
                 danhSachLoi.push({
                     ten: nvNay.ten,
-                    lyDo: `Tính MTD sai`,
-                    chiTiet: `Dự kiến: ${mtdLichSu} (ngày ${nhanNgay}) + ${mcHomNay} (nay) = ${mtdDuKien}. Nhập: ${mtdHomNay}.`
+                    lyDo: `Cộng dồn MTD sai`,
+                    chiTiet: `Dự kiến: ${mtdLichSu} (chốt ${nhanNgay}) + ${mcHomNay} (nay) = ${mtdDuKien}. Nhập: ${mtdHomNay}.`
                 });
             }
         }
     });
 
     if (danhSachLoi.length > 0) {
-        let htmlLoi = `<div class="mb-3 p-2 bg-light rounded small border">So sánh với mốc chốt: <strong class="text-primary">${nhanNgay}</strong></div><div class="list-group list-group-flush">`;
+        let htmlLoi = `<div class="alert alert-info py-2 small mb-3">So sánh chỉ số với mốc chốt gần nhất ngày <strong>${nhanNgay}</strong></div><div class="list-group list-group-flush">`;
         danhSachLoi.forEach(loi => {
             htmlLoi += `
                 <div class="list-group-item px-0 border-0 mb-2">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="fw-bold">${loi.ten}</span>
-                        <span class="badge bg-danger">${loi.lyDo}</span>
+                        <span class="badge bg-danger rounded-pill">${loi.lyDo}</span>
                     </div>
-                    <div class="text-secondary small mt-1">${loi.chiTiet}</div>
+                    <div class="text-secondary small" style="line-height: 1.3;">${loi.chiTiet}</div>
                 </div>
             `;
         });

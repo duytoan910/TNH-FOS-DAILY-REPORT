@@ -19,7 +19,27 @@
     --scrollbar-track: rgba(0, 0, 0, 0.05);
 }
 
-/* iOS 18 Dark */
+/* Lớp phủ tải trang (Loading Overlay) - QUAN TRỌNG: Cần CSS này để hiển thị Loading */
+#lop-phu-tai-trang {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    display: none; /* Mặc định ẩn, hiện bằng JS */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: white;
+}
+#chu-thich-tai-trang {
+    margin-top: 15px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Các Theme bổ sung */
 body.theme-ios18-dark {
     --bg-gradient: linear-gradient(135deg, #000000 0%, #2c2c2e 100%);
     --card-bg: rgba(28, 28, 30, 0.9);
@@ -31,7 +51,12 @@ body.theme-ios18-dark {
     --btn-fos-border: #3a3a3c;
 }
 
-/* OneUI Samsung Dark */
+body.theme-oneui-light {
+    --bg-gradient: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text-primary: #212529;
+}
+
 body.theme-oneui-dark {
     --bg-gradient: linear-gradient(180deg, #121212 0%, #212121 100%);
     --card-bg: rgba(33, 33, 33, 0.95);
@@ -39,7 +64,6 @@ body.theme-oneui-dark {
     --accent-blue: #3d5afe;
 }
 
-/* Window 11 Dark */
 body.theme-window11-dark {
     --bg-gradient: linear-gradient(135deg, #202020 0%, #1c1c1c 100%);
     --card-bg: rgba(32, 32, 32, 0.85);
@@ -47,7 +71,6 @@ body.theme-window11-dark {
     --accent-blue: #4cc2ff;
 }
 
-/* Gaming Zone Dark */
 body.theme-gaming-dark {
     --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
     --accent-blue: #00d2ff;
@@ -55,6 +78,31 @@ body.theme-gaming-dark {
     --accent-red: #ff0055;
     --card-bg: rgba(0, 0, 0, 0.7);
     --text-primary: #00ffcc;
+}
+
+body.theme-pastel-light {
+    --bg-gradient: linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%);
+    --accent-blue: #6c5ce7;
+    --card-bg: rgba(255, 255, 255, 0.65);
+}
+
+body.theme-nature-light {
+    --bg-gradient: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    --accent-blue: #2e7d32;
+    --card-bg: rgba(255, 255, 255, 0.85);
+}
+
+body.theme-carbon-dark {
+    --bg-gradient: radial-gradient(circle, #434343 0%, #000000 100%);
+    --card-bg: rgba(30, 30, 30, 0.9);
+    --text-primary: #f0f0f0;
+    --btn-fos-bg: #222;
+}
+
+body.theme-chic-light {
+    --bg-gradient: linear-gradient(to right, #fdfbfb 0%, #ebedee 100%);
+    --accent-blue: #333;
+    --card-bg: white;
 }
 
 body {
@@ -65,7 +113,7 @@ body {
     background-position: center;
     background-attachment: fixed;
     color: var(--text-primary);
-    transition: background-color 0.4s ease, color 0.4s ease, background-image 0.4s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 100vh;
 }
 
@@ -84,12 +132,11 @@ body {
     padding: 10px;
     border-radius: 50%;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, background 0.3s ease;
+    transition: transform 0.3s ease;
     backdrop-filter: blur(15px);
 }
 #nut-cai-dat:hover { transform: rotate(90deg) scale(1.1); }
 
-/* Fix Submenu Dropdown */
 .dropdown-submenu { position: relative; }
 .dropdown-submenu > .dropdown-menu {
     top: 0;
@@ -102,12 +149,6 @@ body {
     box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
 }
 .dropdown-submenu:hover > .dropdown-menu { display: block; }
-.dropdown-item.dropdown-toggle::after {
-    float: left;
-    margin-top: 8px;
-    margin-right: 8px;
-    transform: rotate(90deg);
-}
 
 .main-title { font-weight: 700; color: var(--main-title-color); letter-spacing: -0.5px; }
 
@@ -116,7 +157,6 @@ body {
     backdrop-filter: blur(25px) saturate(200%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 1.5rem;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
 }
 
 #vung-danh-sach-nv {
@@ -126,10 +166,7 @@ body {
     margin-bottom: 20px;
     border-radius: 1.25rem;
     background: rgba(0,0,0,0.04);
-    border: 1px solid rgba(0,0,0,0.05);
 }
-#vung-danh-sach-nv::-webkit-scrollbar { width: 5px; }
-#vung-danh-sach-nv::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
 
 .nut-ten-nv {
     background-color: var(--btn-fos-bg);
@@ -142,37 +179,22 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: all 0.2s ease;
 }
 .nut-ten-nv.da-bao-cao { background-color: var(--accent-green) !important; color: white !important; border-color: var(--accent-green); }
 .nut-ten-nv.nghi { background-color: var(--accent-gray) !important; color: white !important; text-decoration: line-through; opacity: 0.8; }
 .nut-ten-nv.sai-ten { background-color: var(--accent-red) !important; color: white !important; }
 
-.nut-sua-nv { background-color: var(--accent-blue); color: white; border-radius: 0 !important; width: 42px; border: none; }
+.nut-sua-nv { background-color: var(--accent-blue); color: white; width: 42px; border: none; }
 .nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 1rem 1rem 0 !important; width: 42px; border: none; }
 
-.nut-bieu-tuong-hanh-dong {
-    cursor: pointer;
-    font-size: 1.4rem;
-    color: var(--accent-blue);
-    transition: transform 0.3s ease, color 0.3s ease;
-}
-.nut-bieu-tuong-hanh-dong:hover { transform: scale(1.2); }
-
-.db-status-widget {
-    position: fixed; bottom: 15px; left: 15px;
+.db-status-widget, .build-info-widget {
+    position: fixed; bottom: 15px;
     background: var(--card-bg); padding: 8px 15px; border-radius: 14px;
     font-size: 0.7rem; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1);
 }
-
-.build-info-widget {
-    position: fixed; bottom: 15px; right: 15px;
-    background: var(--card-bg); padding: 8px 15px; border-radius: 14px;
-    font-size: 0.7rem; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-secondary);
-}
+.db-status-widget { left: 15px; }
+.build-info-widget { right: 15px; }
 
 #chi-bao-dang-luu {
     position: fixed; bottom: 70px; right: 20px;
