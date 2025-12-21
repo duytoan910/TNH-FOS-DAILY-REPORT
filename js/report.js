@@ -1,57 +1,61 @@
-import { dinhDangNgayHienThi, dinhDangNgayISO, trichXuatSoLieu } from './utils.js';
 
-export const kiemTraTenTrongBaoCao = (duLieuNv, noiDungBaoCao) => {
+import { dinhDangNgay, dinhDangNgayISO, layGiaTri } from './utils.js';
+
+export const kiemTraTenNhanVien = (fosData, noiDungBaoCao) => {
     if (!noiDungBaoCao.trim()) {
-        duLieuNv.kiemTraTen = null;
+        fosData.kiemTraTen = null;
         return;
     }
-    const tenDaEscape = duLieuNv.ten.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-    const bieuThuc = new RegExp(`^(fos\\s+)?${tenDaEscape}(?=\\s|$)`, 'i');
-    duLieuNv.kiemTraTen = bieuThuc.test(noiDungBaoCao.trim());
+    const tenDaEscape = fosData.ten.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const regex = new RegExp(`^(fos\\s+)?${tenDaEscape}(?=\\s|$)`, 'i');
+    fosData.kiemTraTen = regex.test(noiDungBaoCao.trim());
 };
 
-export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoNgayTruoc, ngayBaoCaoGanNhat) => {
-    $('#bieu-tuong-canh-bao-mtd').hide();
-    if (!baoCaoNgayTruoc || !baoCaoNgayTruoc.duLieuNv) return;
+export const kiemTraMTD = (danhSachFOS, baoCaoHomQua, ngayBaoCaoGanNhat) => {
+    $('#mtd-warning-icon').hide();
+    if (!baoCaoHomQua || !baoCaoHomQua.fosData) return;
     
     const danhSachLoi = [];
-    const banDoNvCu = new Map(baoCaoNgayTruoc.duLieuNv.map(nv => [nv.ten, nv]));
-    const nhanNgay = ngayBaoCaoGanNhat ? dinhDangNgayHienThi(ngayBaoCaoGanNhat) : 'trước';
+    const fosDataHomQuaMap = new Map(baoCaoHomQua.fosData.map(fos => [fos.ten, fos]));
+    const dateLabel = ngayBaoCaoGanNhat ? dinhDangNgay(ngayBaoCaoGanNhat) : 'trước';
 
-    danhSachNhanVien.forEach(nvNay => {
-        const nvCu = banDoNvCu.get(nvNay.ten);
-        if (!nvCu) return; 
+    danhSachFOS.forEach(fosHienTai => {
+        const fosHomQua = fosDataHomQuaMap.get(fosHienTai.ten);
+        if (!fosHomQua) return; 
 
-        const mtdNgayTruoc = nvCu.mtdMC || 0;
-        let mcHomNay = trichXuatSoLieu(nvNay.baoCao, 'NTB') + trichXuatSoLieu(nvNay.baoCao, 'ETB');
+        const mtdHomQua = fosHomQua.mtdMC || 0;
+        let mcHomNay = layGiaTri(fosHienTai.baoCao, 'NTB') + layGiaTri(fosHienTai.baoCao, 'ETB');
         if (mcHomNay === 0) {
-            mcHomNay = trichXuatSoLieu(nvNay.baoCao, ['Tổng MC', 'MC']);
+            mcHomNay = layGiaTri(fosHienTai.baoCao, ['Tổng MC', 'MC']);
         }
 
-        const mtdHomNay = trichXuatSoLieu(nvNay.baoCao, 'MTD MC');
+        const mtdHomNay = layGiaTri(fosHienTai.baoCao, 'MTD MC');
 
-        if (nvNay.trangThai === 'Off') {
-            if (mtdHomNay !== mtdNgayTruoc && mtdHomNay !== 0) { 
+        if (fosHienTai.trangThai === 'Off') {
+            // Khi OFF, MTD hôm nay phải bằng MTD hôm qua
+            if (mtdHomNay !== mtdHomQua && mtdHomNay !== 0) { 
                  danhSachLoi.push({
-                    ten: nvNay.ten,
+                    ten: fosHienTai.ten,
                     lyDo: `Sai MTD (OFF)`,
-                    chiTiet: `Dữ liệu ngày ${nhanNgay} là ${mtdNgayTruoc}. Bạn nhập: ${mtdHomNay}. (OFF nên giữ nguyên MTD)`
+                    chiTiet: `Dữ liệu ngày ${dateLabel} là ${mtdHomQua}. Bạn nhập: ${mtdHomNay}. (OFF nên giữ nguyên MTD)`
                 });
             }
-        } else if (nvNay.trangThai === 'Đã báo cáo') { 
-            const mtdDuKien = mtdNgayTruoc + mcHomNay;
+        } else if (fosHienTai.trangThai === 'Đã báo cáo') { 
+            const mtdDuKien = mtdHomQua + mcHomNay;
+            // Cho phép bỏ qua kiểm tra nếu không nhập mtd (mtdHomNay === 0) 
+            // vì hệ thống sẽ tự động điền khi tạo báo cáo. Chỉ cảnh báo nếu nhập mà sai.
             if (mtdHomNay !== 0 && mtdHomNay !== mtdDuKien) {
                 danhSachLoi.push({
-                    ten: nvNay.ten,
+                    ten: fosHienTai.ten,
                     lyDo: `Cộng dồn MTD không chính xác.`,
-                    chiTiet: `Dự kiến: ${mtdNgayTruoc} (${nhanNgay}) + ${mcHomNay} (nay) = ${mtdDuKien}. Thực tế nhập: ${mtdHomNay}`
+                    chiTiet: `Dự kiến: ${mtdHomQua} (${dateLabel}) + ${mcHomNay} (nay) = ${mtdDuKien}. Thực tế nhập: ${mtdHomNay}`
                 });
             }
         }
     });
 
     if (danhSachLoi.length > 0) {
-        let htmlLoi = `<p>Phát hiện sai sót MTD so với dữ liệu ngày ${nhanNgay}:</p><ul class="list-group">`;
+        let htmlLoi = `<p>Phát hiện sai sót MTD so với dữ liệu ngày ${dateLabel}:</p><ul class="list-group">`;
         danhSachLoi.forEach(loi => {
             htmlLoi += `
                 <li class="list-group-item">
@@ -62,70 +66,71 @@ export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoNgayTruoc, ngayBaoCaoGan
             `;
         });
         htmlLoi += '</ul>';
-        $('#vung-danh-sach-loi-mtd').html(htmlLoi);
-        $('#bieu-tuong-canh-bao-mtd').show();
+        $('#mtd-warning-list').html(htmlLoi);
+        $('#mtd-warning-icon').show();
     }
 };
 
-export const taoCauTrucGuiBaoCao = (danhSachNhanVien, baoCaoNgayTruoc, thongKe) => {
-     const homNayStr = dinhDangNgayISO(new Date());
+export const generateReportPayload = (danhSachFOS, baoCaoHomQua, stats) => {
+     const todayStr = dinhDangNgayISO(new Date());
      
      const tongKetToanDoi = {
-         tongSoFOS: thongKe.tongFOS,
-         tongSoMC: thongKe.tongMC,
-         tongSoNTB: thongKe.tongNTB,
-         NSBQ_NTB: parseFloat(thongKe.nsbqNTB),
-         tongSoETB: thongKe.tongETB,
-         NSBQ_ETB: parseFloat(thongKe.nsbqETB),
-         tongSoAEPlus: thongKe.tongAEPlus,
-         tyLePOS: `${thongKe.tongPosThucHien}/${thongKe.posChiTieu}`,
-         tyLeActiveFOS: `${thongKe.activeFOS}/${thongKe.tongFOS}`
+         tongSoFOS: stats.tongFOS,
+         tongSoMC: stats.tongMC,
+         tongSoNTB: stats.tongNTB,
+         NSBQ_NTB: parseFloat(stats.nsbqNTB),
+         tongSoETB: stats.tongETB,
+         NSBQ_ETB: parseFloat(stats.nsbqETB),
+         tongSoAEPlus: stats.tongAEPlus,
+         tyLePOS: `${stats.tongPosThucHien}/${stats.posChiTieu}`,
+         tyLeActiveFOS: `${stats.activeFOS}/${stats.tongFOS}`
      };
      
-     const baoCaoNhanVien = danhSachNhanVien.map(nv => {
-         const noiDung = nv.baoCao || '';
-         let mtd = trichXuatSoLieu(noiDung, 'MTD MC');
-         let mcHomNay = trichXuatSoLieu(noiDung, 'NTB') + trichXuatSoLieu(noiDung, 'ETB');
+     const baoCaoFOS = danhSachFOS.map(fos => {
+         const noiDung = fos.baoCao || '';
+         let mtd = layGiaTri(noiDung, 'MTD MC');
+         let mcHomNay = layGiaTri(noiDung, 'NTB') + layGiaTri(noiDung, 'ETB');
          if (mcHomNay === 0) {
-            mcHomNay = trichXuatSoLieu(noiDung, ['Tổng MC', 'MC']);
+            mcHomNay = layGiaTri(noiDung, ['Tổng MC', 'MC']);
          }
          
-         let giaTriOff = 0;
-         if (nv.trangThai === 'Off') {
-             const khopLyDo = noiDung.match(/^Fos\s+\S+\s+(.*)$/i);
-             const chuLyDo = (khopLyDo && khopLyDo[1]) ? khopLyDo[1].trim() : 'OFF';
+         let offValue = 0;
+         if (fos.trangThai === 'Off') {
+             const matchReason = noiDung.match(/^Fos\s+\S+\s+(.*)$/i);
+             const reasonText = (matchReason && matchReason[1]) ? matchReason[1].trim() : 'OFF';
              
-             if (chuLyDo.toUpperCase() === 'OFF') {
-                 giaTriOff = 1;
+             if (reasonText.toUpperCase() === 'OFF') {
+                 offValue = 1;
              } else {
-                 giaTriOff = chuLyDo;
+                 offValue = reasonText;
              }
          } else {
-             giaTriOff = 0;
+             offValue = 0;
          }
 
-         if ((nv.trangThai === 'Off' || mcHomNay === 0) && mtd === 0 && baoCaoNgayTruoc && baoCaoNgayTruoc.duLieuNv) {
-             const nvCu = baoCaoNgayTruoc.duLieuNv.find(f => f.ten === nv.ten);
-             if (nvCu) {
-                 mtd = nvCu.mtdMC || 0;
+         // Tự động lấy MTD cũ nếu OFF hoặc 0 SALE mà không nhập MTD
+         if ((fos.trangThai === 'Off' || mcHomNay === 0) && mtd === 0 && baoCaoHomQua && baoCaoHomQua.fosData) {
+             const oldFos = baoCaoHomQua.fosData.find(f => f.ten === fos.ten);
+             if (oldFos) {
+                 mtd = oldFos.mtdMC || 0;
              }
          }
 
          return {
-             tenNhanVien: nv.ten,
-             OFF: giaTriOff,
+             tenNhanVien: fos.ten,
+             OFF: offValue,
              chiSoHieuSuat: {
-                 saleHomNay: nv.trangThai === 'Off' ? 0 : mcHomNay,
+                 saleHomNay: fos.trangThai === 'Off' ? 0 : mcHomNay,
                  saleTrongThang: mtd,
-                 chiTieu: nv.chiTieu
+                 chiTieu: fos.chiTieu
              },
-             rawReport: nv.baoCao 
+             rawReport: fos.baoCao 
          };
      });
 
      return {
-         ngayBaoCao: homNayStr,
+         ngayBaoCao: todayStr,
          tongKetToanDoi: tongKetToanDoi,
-         baoCaoFOS: baoCaoNhanVien
+         baoCaoFOS: baoCaoFOS
      };
 };

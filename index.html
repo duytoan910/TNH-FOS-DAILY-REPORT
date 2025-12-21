@@ -19,41 +19,41 @@
 </head>
 <body class="py-4">
 
-    <!-- Lớp phủ tải trang -->
-    <div id="lop-phu-tai-trang">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
         <div class="spinner-border text-light mb-2" role="status" style="width: 3rem; height: 3rem;">
             <span class="visually-hidden">Loading...</span>
         </div>
-        <div id="chu-thich-tai-trang">Đang xử lý...</div>
+        <div id="loading-text">Đang xử lý...</div>
     </div>
     
-    <!-- Chỉ báo xử lý ngầm -->
-    <div id="chi-bao-dang-luu">
+    <!-- Background Processing Indicator -->
+    <div id="bg-processing-indicator">
         <div class="spinner-border spinner-border-sm" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
         <span>Đang lưu...</span>
     </div>
     
-    <!-- Widget trạng thái DB -->
+    <!-- DB Status Widget -->
     <div class="db-status-widget">
         <div class="status-header">
-            <span id="cham-trang-thai-db" class="status-dot"></span>
-            <span id="chu-trang-thai-db">Đang kết nối...</span>
+            <span id="db-status-dot" class="status-dot"></span>
+            <span id="db-status-text">Đang kết nối...</span>
         </div>
         <div class="status-detail">
-            <span id="so-luong-nv-db">NV: -</span> | <span id="so-luong-bao-cao-db">Rpt: -</span>
-            <span id="luong-truy-cap-api" class="ms-1 text-muted small" title="Số lần gọi API hôm nay">(-)</span>
+            <span id="db-count-nv">NV: -</span> | <span id="db-count-report">Rpt: -</span>
+            <span id="db-api-usage" class="ms-1 text-muted small" title="Số lần gọi API hôm nay">(-)</span>
         </div>
     </div>
     
-    <!-- Menu cài đặt -->
+    <!-- Settings Menu -->
     <div class="settings-container">
         <div class="dropdown">
-            <i class="fa-solid fa-gear" id="nut-cai-dat" data-bs-toggle="dropdown" aria-expanded="false" title="Cài đặt"></i>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nut-cai-dat">
+            <i class="fa-solid fa-gear" id="settings-btn" data-bs-toggle="dropdown" aria-expanded="false" title="Cài đặt"></i>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settings-btn">
                 <li>
-                    <a class="dropdown-item" id="nut-giao-dien-ngau-nhien" href="#">
+                    <a class="dropdown-item" id="random-theme-btn" href="#">
                         <i class="fa-solid fa-shuffle me-2"></i>Giao diện ngẫu nhiên
                     </a>
                 </li>
@@ -61,8 +61,8 @@
                     <a class="dropdown-item" href="#">
                         <i class="fa-solid fa-palette me-2"></i>Thay đổi giao diện
                     </a>
-                    <ul class="dropdown-menu" id="menu-giao-dien">
-                        <!-- Giao diện sẽ được chèn bởi JS -->
+                    <ul class="dropdown-menu">
+                        <!-- Themes will be injected here by JS -->
                     </ul>
                 </li>
                 <li><hr class="dropdown-divider"></li>
@@ -79,30 +79,30 @@
     <div class="container">
         <div class="text-center mb-4">
             <h1 class="main-title">Trình Tạo Báo Cáo Hàng Ngày</h1>
-            <p class="fs-6" style="color: var(--text-secondary);">Nhấp vào tên nhân viên để nhập báo cáo và tự động tổng hợp.</p>
+            <p class="fs-6" style="color: var(--text-secondary);">Nhấp vào tên FOS để nhập báo cáo và tự động tổng hợp.</p>
         </div>
 
         <div class="row g-4">
             <!-- Cột nhập liệu -->
             <div class="col-lg-6">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h3 class="mb-0 fs-5">1. Danh sách Nhân Viên</h3>
+                    <h3 class="mb-0 fs-5">1. Danh sách FOS</h3>
                     <div>
-                        <i class="fa-solid fa-file-import nut-bieu-tuong-them-nv me-2" title="Dán nhiều báo cáo" data-bs-toggle="modal" data-bs-target="#modalDanNhieuBaoCao"></i>
-                        <i class="fa-solid fa-user-plus nut-bieu-tuong-them-nv" title="Thêm nhân viên mới" data-bs-toggle="modal" data-bs-target="#modalThemNhanVien"></i>
+                        <i class="fa-solid fa-file-import add-fos-icon-btn me-2" title="Dán nhiều báo cáo" data-bs-toggle="modal" data-bs-target="#danNhieuBaoCaoModal"></i>
+                        <i class="fa-solid fa-user-plus add-fos-icon-btn" title="Thêm FOS mới" data-bs-toggle="modal" data-bs-target="#themFosModal"></i>
                     </div>
                 </div>
                 
                 <div class="row g-2">
                     <div class="col-12">
-                        <div id="vung-danh-sach-nv">
-                            <!-- Danh sách nhân viên sẽ được chèn vào đây -->
+                        <div id="fos-list-area">
+                            <!-- Danh sách FOS sẽ được chèn vào đây -->
                             <div class="text-center py-3 text-muted">Đang tải danh sách từ máy chủ...</div>
                         </div>
                     </div>
                     <div class="col-12">
                         <div class="d-grid mt-2">
-                            <button id="nut-tao-bao-cao" class="btn btn-primary btn-lg">Tạo & Lưu Báo Cáo</button>
+                            <button id="tao-bao-cao-btn" class="btn btn-primary btn-lg">Tạo & Lưu Báo Cáo</button>
                         </div>
                     </div>
                 </div>
@@ -116,144 +116,146 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                              <h5 class="card-title mb-0">
                                 Báo cáo tổng hợp
-                                <i id="bieu-tuong-canh-bao-mtd" class="fa-solid fa-triangle-exclamation text-danger ms-2" style="display: none; cursor: pointer;" title="Cảnh báo sai MTD" data-bs-toggle="modal" data-bs-target="#modalCanhBaoMtd"></i>
+                                <i id="mtd-warning-icon" class="fa-solid fa-triangle-exclamation text-danger ms-2" style="display: none; cursor: pointer;" title="Cảnh báo sai MTD" data-bs-toggle="modal" data-bs-target="#mtdCanhBaoModal"></i>
                             </h5>
                             <div class="d-flex flex-shrink-0">
-                                <button id="nut-xem-bao-cao-cu" class="btn btn-sm btn-outline-secondary me-2">
+                                <button id="xem-bao-cao-cu-btn" class="btn btn-sm btn-outline-secondary me-2">
                                     <i class="fa-solid fa-clock-rotate-left"></i> Xem hôm qua
                                 </button>
-                                <button id="nut-sao-chep" class="btn btn-sm btn-primary">
+                                <button id="sao-chep-btn" class="btn btn-sm btn-primary">
                                     <i class="fa-regular fa-copy"></i> Sao chép
                                 </button>
                             </div>
                         </div>
-                        <textarea id="vung-ket-qua-bao-cao" class="form-control" rows="8"></textarea>
+                        <textarea id="bao-cao-ket-qua" class="form-control" rows="8"></textarea>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Thêm Nhân Viên -->
-    <div class="modal fade" id="modalThemNhanVien" tabindex="-1" aria-labelledby="modalThemNhanVienLabel" aria-hidden="true">
+    <!-- Modal Thêm FOS -->
+    <div class="modal fade" id="themFosModal" tabindex="-1" aria-labelledby="themFosModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="modalThemNhanVienLabel">Thêm Nhân Viên Mới</h1>
+            <h1 class="modal-title fs-5" id="themFosModalLabel">Thêm FOS Mới</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form id="bieu-mau-them-nv">
+            <form id="them-fos-form">
               <div class="mb-3">
-                <label for="ten-nv-modal" class="form-label">Tên Nhân Viên</label>
-                <input type="text" class="form-control" id="ten-nv-modal" required>
+                <label for="ten-fos-modal" class="form-label">Tên FOS</label>
+                <input type="text" class="form-control" id="ten-fos-modal" required>
               </div>
               <div class="mb-3">
-                <label for="gioi-tinh-nv-modal" class="form-label">Giới tính</label>
-                <select class="form-select" id="gioi-tinh-nv-modal">
+                <label for="gioi-tinh-modal" class="form-label">Giới tính</label>
+                <select class="form-select" id="gioi-tinh-modal">
                   <option value="Nam">Nam</option>
                   <option value="Nữ">Nữ</option>
                 </select>
               </div>
               <div class="mb-3">
-                <label for="chi-tieu-nv-modal" class="form-label">Chỉ tiêu MC (tháng)</label>
-                <input type="number" class="form-control" id="chi-tieu-nv-modal" required min="0" value="50">
+                <label for="chi-tieu-modal" class="form-label">Chỉ tiêu MC (tháng)</label>
+                <input type="number" class="form-control" id="chi-tieu-modal" required min="0" value="50">
               </div>
             </form>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-            <button type="button" class="btn btn-primary" id="nut-luu-nv-moi">Lưu lên Server</button>
+            <button type="button" class="btn btn-primary" id="luu-fos-btn">Lưu lên Server</button>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- Modal Dán Báo Cáo Đơn -->
-    <div class="modal fade" id="modalDanBaoCao" tabindex="-1" aria-labelledby="modalDanBaoCaoLabel" aria-hidden="true">
+    <!-- Modal Dán Báo Cáo -->
+    <div class="modal fade" id="danBaoCaoModal" tabindex="-1" aria-labelledby="danBaoCaoModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="modalDanBaoCaoLabel">Báo cáo của...</h1>
+            <h1 class="modal-title fs-5" id="danBaoCaoModalLabel">Báo cáo của...</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <textarea id="noi-dung-bao-cao-nhap" class="form-control" rows="6" placeholder="Dán nội dung báo cáo vào đây..."></textarea>
+            <textarea id="noi-dung-bao-cao-modal" class="form-control" rows="6" placeholder="Dán nội dung báo cáo vào đây..."></textarea>
           </div>
           <div class="modal-footer justify-content-between">
             <div class="btn-group dropup">
-                <button type="button" class="btn btn-danger" id="nut-danh-dau-off">OFF (Nghỉ)</button>
+                <button type="button" class="btn btn-danger" id="danh-dau-off-btn">OFF (Nghỉ)</button>
                 <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
                     <span class="visually-hidden">Toggle Dropdown</span>
                 </button>
                 <div class="dropdown-menu p-3 shadow" style="min-width: 250px;">
-                     <label for="ly-do-off-nhap" class="form-label small mb-1">Lý do nghỉ:</label>
-                     <input type="text" class="form-control form-control-sm mb-2" id="ly-do-off-nhap" placeholder="VD: Phép năm, Ốm...">
-                     <button type="button" class="btn btn-sm btn-danger w-100" id="nut-xac-nhan-off-co-ly-do">Xác nhận</button>
+                     <label for="ly-do-off-input" class="form-label small mb-1">Lý do nghỉ:</label>
+                     <input type="text" class="form-control form-control-sm mb-2" id="ly-do-off-input" placeholder="VD: Phép năm, Ốm...">
+                     <button type="button" class="btn btn-sm btn-danger w-100" id="luu-off-co-ly-do-btn">Xác nhận</button>
                 </div>
             </div>
             <div>
-                 <button type="button" class="btn btn-info text-white me-1" id="nut-dan-tu-bo-nho"><i class="fa-solid fa-paste"></i> Dán</button>
+                 <button type="button" class="btn btn-info text-white me-1" id="paste-single-btn"><i class="fa-solid fa-paste"></i> Dán</button>
                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                 <button type="button" class="btn btn-primary" id="nut-luu-bao-cao-don">Lưu (Enter)</button>
+                 <button type="button" class="btn btn-primary" id="luu-bao-cao-btn">Lưu (Enter)</button>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Modal Sửa Báo Cáo Chi Tiết -->
-    <div class="modal fade" id="modalSuaBaoCao" tabindex="-1" aria-labelledby="modalSuaBaoCaoLabel" aria-hidden="true">
+    <!-- Modal Sửa Báo Cáo -->
+    <div class="modal fade" id="suaBaoCaoModal" tabindex="-1" aria-labelledby="suaBaoCaoModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="modalSuaBaoCaoLabel">
-                <span id="tieu-de-modal-sua-bao-cao">Chỉnh sửa báo cáo...</span>
+            <h1 class="modal-title fs-5" id="suaBaoCaoModalLabel">
+                <span id="suaBaoCaoModalTitleText">Chỉnh sửa báo cáo...</span>
             </h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p class="text-center mb-3 fs-6">Tổng MC (ngày): <strong id="hien-thi-mc-tong-sua" style="color: var(--accent-blue);">0</strong></p>
-            <form id="bieu-mau-sua-bao-cao">
+            <p class="text-center mb-3 fs-6">Tổng MC (ngày): <strong id="mc-edit-display" style="color: var(--accent-blue);">0</strong></p>
+            <form id="sua-bao-cao-form">
                 <div class="row g-3">
+                    <!-- Cột Trái -->
                     <div class="col-6">
                         <div class="mb-3">
-                            <label for="ntb-sua" class="form-label">NTB</label>
-                            <input type="number" class="form-control" id="ntb-sua" min="0">
+                            <label for="ntb-edit-modal" class="form-label">NTB</label>
+                            <input type="number" class="form-control" id="ntb-edit-modal" min="0">
                         </div>
                         <div class="mb-3">
-                            <label for="etb-sua" class="form-label">ETB</label>
-                            <input type="number" class="form-control" id="etb-sua" min="0">
+                            <label for="etb-edit-modal" class="form-label">ETB</label>
+                            <input type="number" class="form-control" id="etb-edit-modal" min="0">
                         </div>
                         <div class="mb-3">
-                            <label for="aeplus-sua" class="form-label fw-bold text-primary">AE+</label>
-                            <input type="number" class="form-control" id="aeplus-sua" min="0">
+                            <label for="aeplus-edit-modal" class="form-label fw-bold text-primary">AE+</label>
+                            <input type="number" class="form-control" id="aeplus-edit-modal" min="0">
                         </div>
                         <div class="mb-3">
-                            <label for="pos-sua" class="form-label">Pos</label>
-                            <input type="number" class="form-control" id="pos-sua" min="0">
+                            <label for="pos-edit-modal" class="form-label">Pos</label>
+                            <input type="number" class="form-control" id="pos-edit-modal" min="0">
                         </div>
                         <div class="mb-3">
-                            <label for="saleapp-sua" class="form-label">SL nhập saleapp</label>
-                            <input type="number" class="form-control" id="saleapp-sua" min="0">
+                            <label for="saleapp-edit-modal" class="form-label" title="SL nhập saleapp">SL nhập saleapp</label>
+                            <input type="number" class="form-control" id="saleapp-edit-modal" min="0">
                         </div>
                     </div>
+                    <!-- Cột Phải -->
                     <div class="col-6">
                         <div class="mb-3">
-                            <label for="cskh-sua" class="form-label">SL gọi chăm sóc KH</label>
-                            <input type="number" class="form-control" id="cskh-sua" min="0">
+                            <label for="cskh-edit-modal" class="form-label" title="SL gọi chăm sóc KH">SL gọi chăm sóc KH</label>
+                            <input type="number" class="form-control" id="cskh-edit-modal" min="0">
                         </div>
                         <div class="mb-3">
-                            <label for="ca-sua" class="form-label">CA</label>
-                            <input type="number" class="form-control" id="ca-sua" min="0">
+                            <label for="ca-edit-modal" class="form-label">CA</label>
+                            <input type="number" class="form-control" id="ca-edit-modal" min="0">
                         </div>
                         <div class="mb-3">
-                            <label for="soundbox-sua" class="form-label">Soundbox</label>
-                            <input type="number" class="form-control" id="soundbox-sua" min="0">
+                            <label for="soundbox-edit-modal" class="form-label">Soundbox</label>
+                            <input type="number" class="form-control" id="soundbox-edit-modal" min="0">
                         </div>
                          <div class="mb-3">
-                            <label for="mtd-sua" class="form-label fw-bold">MTD MC</label>
-                            <input type="number" class="form-control" id="mtd-sua" min="0">
+                            <label for="mtd-edit-modal" class="form-label fw-bold" title="MTD MC">MTD MC</label>
+                            <input type="number" class="form-control" id="mtd-edit-modal" min="0">
                         </div>
                     </div>
                 </div>
@@ -261,23 +263,23 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-            <button type="button" class="btn btn-primary" id="nut-xac-nhan-sua-bao-cao">Lưu thay đổi</button>
+            <button type="button" class="btn btn-primary" id="luu-sua-bao-cao-btn">Lưu thay đổi</button>
           </div>
         </div>
       </div>
     </div>
     
     <!-- Modal Dán Nhiều Báo Cáo -->
-    <div class="modal fade" id="modalDanNhieuBaoCao" tabindex="-1" aria-labelledby="modalDanNhieuBaoCaoLabel" aria-hidden="true">
+    <div class="modal fade" id="danNhieuBaoCaoModal" tabindex="-1" aria-labelledby="danNhieuBaoCaoModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="modalDanNhieuBaoCaoLabel">Xử lý báo cáo hàng loạt</h1>
+            <h1 class="modal-title fs-5" id="danNhieuBaoCaoModalLabel">Xử lý báo cáo hàng loạt</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <p>Dán toàn bộ nội dung báo cáo của các nhân viên vào đây. Hệ thống sẽ tự động tách và cập nhật.</p>
-            <textarea id="noi-dung-nhieu-bao-cao-nhap" class="form-control" rows="10" placeholder="Ví dụ:
+            <p>Dán toàn bộ nội dung báo cáo của các FOS vào đây. Hệ thống sẽ tự động tách và cập nhật cho từng người.</p>
+            <textarea id="noi-dung-nhieu-bao-cao-modal" class="form-control" rows="10" placeholder="Ví dụ:
 Fos Toàn báo cáo ngày...
 ...
 Fos Giang báo cáo ngày...
@@ -285,44 +287,44 @@ Fos Giang báo cáo ngày...
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-            <button type="button" class="btn btn-info text-white" id="nut-dan-hang-loat"><i class="fa-solid fa-paste"></i> Dán</button>
-            <button type="button" class="btn btn-primary" id="nut-xu-ly-nhieu-bao-cao">Xử lý</button>
+            <button type="button" class="btn btn-info text-white" id="paste-bulk-btn"><i class="fa-solid fa-paste"></i> Dán</button>
+            <button type="button" class="btn btn-primary" id="xu-ly-nhieu-bao-cao-btn">Xử lý</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Modal Xác Nhận Xoá -->
-    <div class="modal fade" id="modalXacNhanXoa" tabindex="-1" aria-labelledby="modalXacNhanXoaLabel" aria-hidden="true">
+    <div class="modal fade" id="xacNhanXoaModal" tabindex="-1" aria-labelledby="xacNhanXoaModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="modalXacNhanXoaLabel">
+            <h1 class="modal-title fs-5" id="xacNhanXoaModalLabel">
                 <i class="fa-solid fa-trash-can me-2"></i>Xác nhận Xoá
             </h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body" id="noi-dung-xac-nhan-xoa">
-            Bạn có chắc chắn muốn xoá nhân viên này khỏi cơ sở dữ liệu không?
+          <div class="modal-body">
+            Bạn có chắc chắn muốn xoá FOS này khỏi cơ sở dữ liệu không?
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
-            <button type="button" class="btn btn-danger" id="nut-xac-nhan-xoa-vinh-vien">Xoá vĩnh viễn</button>
+            <button type="button" class="btn btn-danger" id="xac-nhan-xoa-btn">Xoá vĩnh viễn</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Modal Xem Báo Cáo Cũ -->
-    <div class="modal fade" id="modalXemBaoCaoCu" tabindex="-1" aria-labelledby="modalXemBaoCaoCuLabel" aria-hidden="true">
+    <div class="modal fade" id="xemBaoCaoCuModal" tabindex="-1" aria-labelledby="xemBaoCaoCuModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="modalXemBaoCaoCuLabel">Báo cáo tổng hợp hôm qua</h1>
+            <h1 class="modal-title fs-5" id="xemBaoCaoCuModalLabel">Báo cáo tổng hợp hôm qua</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-             <textarea id="vung-ket-qua-bao-cao-cu" class="form-control" rows="12" readonly></textarea>
+             <textarea id="bao-cao-cu-ket-qua" class="form-control" rows="12" readonly></textarea>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
@@ -332,14 +334,14 @@ Fos Giang báo cáo ngày...
     </div>
 
     <!-- Modal Cảnh Báo MTD -->
-    <div class="modal fade" id="modalCanhBaoMtd" tabindex="-1" aria-labelledby="modalCanhBaoMtdLabel" aria-hidden="true">
+    <div class="modal fade" id="mtdCanhBaoModal" tabindex="-1" aria-labelledby="mtdCanhBaoModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="modalCanhBaoMtdLabel"><i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>Cảnh báo sai MTD</h1>
+            <h1 class="modal-title fs-5" id="mtdCanhBaoModalLabel"><i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>Cảnh báo sai MTD</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div id="vung-danh-sach-loi-mtd" class="modal-body">
+          <div id="mtd-warning-list" class="modal-body">
             <!-- Danh sách lỗi sẽ được chèn vào đây -->
           </div>
           <div class="modal-footer">
@@ -351,12 +353,12 @@ Fos Giang báo cáo ngày...
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <!-- Bootstrap JS Bundle -->
+    <!-- Bootstrap JS Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <!-- Toastify JS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     
-    <!-- Script chính -->
+    <!-- App Main Script (Type module) -->
     <script type="module" src="./js/app.js"></script>
 </body>
 </html>

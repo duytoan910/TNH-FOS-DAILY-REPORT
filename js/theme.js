@@ -1,4 +1,5 @@
-const DANH_SACH_GIAO_DIEN = {
+
+const themes = {
     'ios18': 'iOS 18',
     'oneui': 'OneUI',
     'window11': 'Window 11',
@@ -9,50 +10,50 @@ const DANH_SACH_GIAO_DIEN = {
     'chic': 'Chic & Modern',
 };
 
-export const xayDungMenuGiaoDien = () => {
-    const menu = $('#menu-giao-dien');
+export const buildThemeMenu = () => {
+    const menu = $('.dropdown-submenu > .dropdown-menu');
     menu.empty();
-    for (const ma in DANH_SACH_GIAO_DIEN) {
-        const ten = DANH_SACH_GIAO_DIEN[ma];
+    for (const key in themes) {
+        const name = themes[key];
         menu.append(`
             <li class="dropdown-submenu">
-                <a class="dropdown-item" href="#">${ten}</a>
+                <a class="dropdown-item" href="#">${name}</a>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item lua-chon-giao-dien" href="#" data-theme="${ma}" data-mode="light">Chế độ Sáng</a></li>
-                    <li><a class="dropdown-item lua-chon-giao-dien" href="#" data-theme="${ma}" data-mode="dark">Chế độ Tối</a></li>
+                    <li><a class="dropdown-item theme-option" href="#" data-theme="${key}" data-mode="light">Chế độ Sáng</a></li>
+                    <li><a class="dropdown-item theme-option" href="#" data-theme="${key}" data-mode="dark">Chế độ Tối</a></li>
                 </ul>
             </li>
         `);
     }
 };
 
-export const apDungGiaoDien = (tenLopGiaoDien) => {
-    const danhSachLop = $('body').attr('class')?.split(' ') || [];
-    for (let lop of danhSachLop) {
-        if (lop.startsWith('theme-')) {
-            $('body').removeClass(lop);
+export const applyTheme = (themeClass) => {
+    const classes = $('body').attr('class').split(' ');
+    for (let cls of classes) {
+        if (cls.startsWith('theme-')) {
+            $('body').removeClass(cls);
         }
     }
-    $('body').addClass(tenLopGiaoDien);
+    $('body').addClass(themeClass);
 };
 
-export const luuCauHinhGiaoDien = (luaChon) => {
-    localStorage.setItem('cau_hinh_giao_dien', luaChon);
+export const saveThemePreference = (preference) => {
+    localStorage.setItem('appTheme', preference);
 };
 
-export const apDungGiaoDienNgauNhien = () => {
-    const danhSachMa = Object.keys(DANH_SACH_GIAO_DIEN);
-    const maNgauNhien = danhSachMa[Math.floor(Math.random() * danhSachMa.length)];
-    const cheDoNgauNhien = Math.random() < 0.5 ? 'light' : 'dark';
-    const lopGiaoDienNgauNhien = `theme-${maNgauNhien}-${cheDoNgauNhien}`;
-    apDungGiaoDien(lopGiaoDienNgauNhien);
+export const applyRandomTheme = () => {
+    const themeKeys = Object.keys(themes);
+    const randomThemeKey = themeKeys[Math.floor(Math.random() * themeKeys.length)];
+    const randomMode = Math.random() < 0.5 ? 'light' : 'dark';
+    const randomThemeClass = `theme-${randomThemeKey}-${randomMode}`;
+    applyTheme(randomThemeClass);
 };
 
-export const khoiTaoGiaoDien = () => {
-    const cauHinhCu = localStorage.getItem('cau_hinh_giao_dien') || 'theme-ios18-light';
-    if (cauHinhCu === 'random') {
-        apDungGiaoDienNgauNhien();
+export const initializeTheme = () => {
+    const savedPreference = localStorage.getItem('appTheme') || 'theme-ios18-light';
+    if (savedPreference === 'random') {
+        applyRandomTheme();
     } else {
-        apDungGiaoDien(cauHinhCu);
+        applyTheme(savedPreference);
     }
 };

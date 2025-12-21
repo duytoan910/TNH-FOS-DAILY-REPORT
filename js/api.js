@@ -1,92 +1,95 @@
-import { DUONG_DAN_CSDL, TIEU_DE_TRUY_VAN } from './config.js';
+
+import { DB_URL, DB_HEADERS } from './config.js';
 import { dinhDangNgayISO } from './utils.js';
 
-let cheDoHienTai = 'online';
+let appMode = 'online';
 
-export const datCheDoUngDung = (cheDo) => {
-    cheDoHienTai = cheDo;
+export const setAppMode = (mode) => {
+    appMode = mode;
 };
 
-export const layCheDoUngDung = () => {
-    return cheDoHienTai;
+export const getAppMode = () => {
+    return appMode;
 };
 
-export const thucHienGoiApi = async (diemCuoi, phuongThuc = 'GET', duLieu = null) => {
-    const tuyChon = {
-        method: phuongThuc,
-        headers: TIEU_DE_TRUY_VAN
+export const apiCall = async (endpoint, method = 'GET', data = null) => {
+    // Note: Tracking logic is handled in the main app to avoid circular dependencies or moved here if self-contained
+    const options = {
+        method: method,
+        headers: DB_HEADERS
     };
-    if (duLieu) {
-        tuyChon.body = JSON.stringify(duLieu);
+    if (data) {
+        options.body = JSON.stringify(data);
     }
-    const phanHoi = await fetch(`${DUONG_DAN_CSDL}/${diemCuoi}`, tuyChon);
-    if (!phanHoi.ok) {
-        const noiDungLoi = await phanHoi.text();
-        throw new Error(`Lỗi API: ${phanHoi.status} - ${noiDungLoi}`);
+    const response = await fetch(`${DB_URL}/${endpoint}`, options);
+    // updateApiUsage(response.headers); 
+    if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`API Error: ${response.status} - ${errText}`);
     }
-    return phanHoi.json();
+    return response.json();
 };
 
-export const ghiNhanTuongTacApi = async () => {
-    if (cheDoHienTai === 'offline') return;
+export const trackApiInteraction = async () => {
+    if (appMode === 'offline') return;
 
-    const homNayStr = dinhDangNgayISO(new Date());
+    const today = dinhDangNgayISO(new Date());
     
     try {
-        const danhSachCaiDat = await thucHienGoiApi(`setting?max=1`);
+        const settings = await apiCall(`setting?max=1`);
         
-        if (danhSachCaiDat.length > 0) {
-            const caiDat = danhSachCaiDat[0];
-            let soLuotMoi = (caiDat.connectionCount || 0) + 1;
+        if (settings.length > 0) {
+            const setting = settings[0];
+            let newCount = (setting.connectionCount || 0) + 1;
             
-            if (caiDat.date !== homNayStr) {
-                soLuotMoi = 1;
+            if (setting.date !== today) {
+                newCount = 1;
             }
             
-            $('#luong-truy-cap-api').text(`(${soLuotMoi})`);
+            $('#db-api-usage').text(`(${newCount})`);
 
-            await thucHienGoiApi(`setting/${caiDat._id}`, 'PUT', { 
-                connectionCount: soLuotMoi,
-                date: homNayStr 
+            await apiCall(`setting/${setting._id}`, 'PUT', { 
+                connectionCount: newCount,
+                date: today 
             });
         } else {
-             $('#luong-truy-cap-api').text(`(1)`);
-            await thucHienGoiApi('setting', 'POST', {
+             $('#db-api-usage').text(`(1)`);
+            await apiCall('setting', 'POST', {
                 connectionCount: 1,
-                date: homNayStr
+                date: today
             });
         }
     } catch (e) {
-        console.warn("Ghi nhận tương tác thất bại (không nghiêm trọng):", e);
+        console.warn("Tracking failed (non-critical):", e);
     }
 };
 
-export const lamMoiThongKeCsdl = async (hamCapNhatWidget) => {
+export const refreshDbStats = async (updateWidgetCallback) => {
     try {
-        const tieuDe = { ...TIEU_DE_TRUY_VAN };
+        const headers = { ...DB_HEADERS };
         
-        const phanHoiBaoCao = await fetch(`${DUONG_DAN_CSDL}/report?q={}&h={"$fields":{"_id":1}}`, {method: 'GET', headers: tieuDe});
-        if (!phanHoiBaoCao.ok) throw new Error("Kết nối thất bại");
-        const dsIdBaoCao = await phanHoiBaoCao.json();
+        const resReport = await fetch(`${DB_URL}/report?q={}&h={"$fields":{"_id":1}}`, {method: 'GET', headers: headers});
+        if (!resReport.ok) throw new Error("Connection failed");
+        const reportIds = await resReport.json();
         
-        const phanHoiNv = await fetch(`${DUONG_DAN_CSDL}/nhanvien?q={}&h={"$fields":{"_id":1}}`, {method: 'GET', headers: tieuDe});
-        const dsIdNv = await phanHoiNv.json();
+        const resNv = await fetch(`${DB_URL}/nhanvien?q={}&h={"$fields":{"_id":1}}`, {method: 'GET', headers: headers});
+        const nvIds = await resNv.json();
         
-        const phanHoiCaiDat = await fetch(`${DUONG_DAN_CSDL}/setting?max=1`, {method: 'GET', headers: tieuDe});
-        const dsCaiDat = await phanHoiCaiDat.json();
-        let soLuotKetNoi = 0;
-        if(dsCaiDat.length > 0) {
-            const c = dsCaiDat[0];
-            const homNayStr = dinhDangNgayISO(new Date());
-            if (c.date === homNayStr) {
-                 soLuotKetNoi = c.connectionCount || 0;
+        const resSetting = await fetch(`${DB_URL}/setting?max=1`, {method: 'GET', headers: headers});
+        const settings = await resSetting.json();
+        let connCount = 0;
+        if(settings.length > 0) {
+            const s = settings[0];
+            const today = dinhDangNgayISO(new Date());
+            if (s.date === today) {
+                 connCount = s.connectionCount || 0;
             }
         }
         
-        if (hamCapNhatWidget) {
-            hamCapNhatWidget(true, dsIdNv.length, dsIdBaoCao.length, soLuotKetNoi);
+        if (updateWidgetCallback) {
+            updateWidgetCallback(true, nvIds.length, reportIds.length, connCount);
         }
     } catch (e) {
-        console.warn("Lấy thống kê DB thất bại", e);
+        console.warn("DB Stat check failed", e);
     }
 };
