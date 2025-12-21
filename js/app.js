@@ -60,7 +60,7 @@ $(function() {
         
         let html = '<div class="row g-2">';
         danhSachNhanVien.forEach(nv => {
-            let lopNut = 'nut-ten-nv';
+            let lopNut = 'nut-ten-nv btn';
             if (nv.kiemTraTen === false) {
                 lopNut += ' sai-ten';
             } else if (nv.trangThai === 'Đã báo cáo') {
@@ -72,7 +72,7 @@ $(function() {
             html += `
                 <div class="col-6">
                     <div class="input-group">
-                        <button class="btn ${lopNut}" data-nv-ten="${nv.ten}">
+                        <button class="${lopNut}" data-nv-ten="${nv.ten}">
                             ${nv.ten}
                         </button>
                         <button class="btn nut-sua-nv nut-sua-nhanh-nv" data-nv-ten="${nv.ten}">
@@ -142,11 +142,10 @@ $(function() {
             lamMoiThongKeCsdl(capNhatWidgetDb);
             await khoiPhuPhienLamViec();
         } catch (error) {
-            console.warn("Lỗi kết nối server, sử dụng fallback...", error);
+            console.warn("Dùng dữ liệu fallback...", error);
             datCheDoUngDung('offline');
-            hienThiThongBao("Đang ở chế độ Offline", "info");
+            hienThiThongBao("Chế độ Offline", "info");
             
-            // Fallback từ file fos.txt nếu có thể
             try {
                 const phanHoi = await fetch('fos.txt');
                 const text = await phanHoi.text();
@@ -193,7 +192,7 @@ $(function() {
                 baoCaoLichSuGanNhat.duLieuNvLichSu = baoCaoLichSuGanNhat.baoCaoFOS.map(item => ({
                     ten: item.tenNhanVien, mtdMC: item.chiSoHieuSuat.saleTrongThang
                 }));
-                let txt = `Dữ liệu lịch sử (${dinhDangNgayHienThi(ngayBaoCaoLichSu)}):\n`;
+                let txt = `Lịch sử (${dinhDangNgayHienThi(ngayBaoCaoLichSu)}):\n`;
                 baoCaoLichSuGanNhat.duLieuNvLichSu.forEach(n => txt += `${n.ten}: MTD ${n.mtdMC}\n`);
                 $('#vung-ket-qua-bao-cao-cu').val(txt);
                 thucHienTaoBaoCao(null, true);
@@ -347,24 +346,8 @@ $(function() {
             const mtd = $('#mtd-sua').val() || 0;
             nv.baoCao = `Fos ${nv.ten}\nTổng MC: ${n+e}\nNTB: ${n}\nETB: ${e}\nAE+: ${ae}\nPos: ${pos}\nMTD MC: ${mtd}`;
             nv.trangThai = 'Đã báo cáo'; 
-            hienThiDanhSachNhanVien(); 
-            luuVaoBoNhoTam(); 
-            modalSuaBaoCao.hide();
+            hienThiDanhSachNhanVien(); luuVaoBoNhoTam(); modalSuaBaoCao.hide();
         }
-    });
-
-    $('#nut-dan-hang-loat').on('click', async () => {
-        try { 
-            const txt = await navigator.clipboard.readText(); 
-            if (txt) $('#noi-dung-nhieu-bao-cao-nhap').val(txt); 
-        } catch(e){ hienThiThongBao("Vui lòng cấp quyền truy cập bộ nhớ tạm.", "error"); }
-    });
-
-    $('#nut-dan-tu-bo-nho').on('click', async () => {
-        try { 
-            const txt = await navigator.clipboard.readText(); 
-            if (txt) $('#noi-dung-bao-cao-nhap').val(txt); 
-        } catch(e){ hienThiThongBao("Vui lòng cấp quyền truy cập bộ nhớ tạm.", "error"); }
     });
 
     $('#nut-xu-ly-nhieu-bao-cao').on('click', () => {
@@ -377,29 +360,15 @@ $(function() {
                 const tenEscape = n.ten.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
                 return new RegExp(`^Fos\\s+${tenEscape}(?=\\s|$)`, 'i').test(khoiTrim);
             });
-            if (nv) { 
-                nv.baoCao = khoiTrim; 
-                nv.trangThai = 'Đã báo cáo'; 
-                kiemTraTenTrongBaoCao(nv, khoiTrim); 
-            }
+            if (nv) { nv.baoCao = khoiTrim; nv.trangThai = 'Đã báo cáo'; kiemTraTenTrongBaoCao(nv, khoiTrim); }
         });
-        modalDanNhieuBaoCao.hide(); 
-        hienThiDanhSachNhanVien(); 
-        luuVaoBoNhoTam();
-        hienThiThongBao("Đã xử lý xong các báo cáo dán hàng loạt.", "success");
+        modalDanNhieuBaoCao.hide(); hienThiDanhSachNhanVien(); luuVaoBoNhoTam();
     });
 
     $('#nut-tao-bao-cao').on('click', () => thucHienTaoBaoCao());
-    
-    $('#nut-sao-chep').on('click', function() {
-        const $btn = $(this);
-        navigator.clipboard.writeText($('#vung-ket-qua-bao-cao').val()).then(() => {
-            hienThiThongBao('Đã chép báo cáo vào bộ nhớ tạm!');
-            $btn.addClass('copied').html('<i class="fa-solid fa-check"></i> Đã chép');
-            setTimeout(() => $btn.removeClass('copied').html('<i class="fa-regular fa-copy"></i> Sao chép'), 2000);
-        });
+    $('#nut-sao-chep').on('click', () => {
+        navigator.clipboard.writeText($('#vung-ket-qua-bao-cao').val()).then(() => hienThiThongBao('Đã chép!'));
     });
-
     $('#nut-xem-bao-cao-cu').on('click', () => modalXemBaoCaoCu.show());
     
     // KHỞI CHẠY

@@ -11,12 +11,13 @@ const DANH_SACH_GIAO_DIEN = {
 
 export const xayDungMenuGiaoDien = () => {
     const menu = $('#menu-giao-dien-chon');
+    if (!menu.length) return;
     menu.empty();
     for (const ma in DANH_SACH_GIAO_DIEN) {
         const ten = DANH_SACH_GIAO_DIEN[ma];
         menu.append(`
             <li class="dropdown-submenu">
-                <a class="dropdown-item" href="#">${ten}</a>
+                <a class="dropdown-item dropdown-toggle" href="#">${ten}</a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item lua-chon-giao-dien" href="#" data-theme="${ma}" data-mode="light">Chế độ Sáng</a></li>
                     <li><a class="dropdown-item lua-chon-giao-dien" href="#" data-theme="${ma}" data-mode="dark">Chế độ Tối</a></li>

@@ -4,7 +4,7 @@
 :root {
     --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     --bg-image: none;
-    --card-bg: rgba(255, 255, 255, 0.65);
+    --card-bg: rgba(255, 255, 255, 0.7);
     --text-primary: #1c1c1e;
     --text-secondary: #636366;
     --main-title-color: #1c1c1e;
@@ -27,7 +27,7 @@
 /* 2. iOS 18 Dark */
 body.theme-ios18-dark {
     --bg-gradient: linear-gradient(135deg, #1d2b34 0%, #2c3e50 100%);
-    --card-bg: rgba(28, 28, 30, 0.75);
+    --card-bg: rgba(28, 28, 30, 0.85);
     --text-primary: #f5f5f7;
     --text-secondary: #a0a0a5;
     --main-title-color: #ffffff;
@@ -39,27 +39,7 @@ body.theme-ios18-dark {
     --scrollbar-track: rgba(255, 255, 255, 0.1);
 }
 
-/* 3. OneUI Light */
-body.theme-oneui-light {
-    --bg-gradient: linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%);
-    --card-bg: rgba(255, 255, 255, 0.9);
-    --accent-blue: #0366d6;
-    --input-focus-shadow: rgba(3, 102, 214, 0.2);
-}
-
-/* 4. OneUI Dark */
-body.theme-oneui-dark {
-    --bg-gradient: linear-gradient(135deg, #000000 0%, #1c1c1e 100%);
-    --card-bg: rgba(28, 28, 30, 0.85);
-    --text-primary: #f5f5f7;
-    --text-secondary: #a0a0a5;
-    --main-title-color: #ffffff;
-    --accent-blue: #1e90ff;
-    --input-focus-shadow: rgba(30, 144, 255, 0.25);
-    --input-bg: #1c1c1e;
-    --input-border: rgba(255, 255, 255, 0.2);
-    --btn-fos-bg: #2c2c2e;
-}
+/* Các theme khác dùng biến tương tự... */
 
 /* --- CẤU TRÚC CƠ BẢN --- */
 body {
@@ -71,42 +51,62 @@ body {
     background-attachment: fixed;
     color: var(--text-primary);
     transition: background 0.5s ease;
+    min-height: 100vh;
 }
 
-h1.main-title {
-    font-weight: 700 !important;
-    color: var(--main-title-color);
-    padding-bottom: 5px;
+.settings-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1100;
 }
+
+#nut-cai-dat {
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: var(--accent-blue);
+    background: var(--card-bg);
+    padding: 8px;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+#nut-cai-dat:hover { transform: rotate(45deg); scale: 1.1; }
+
+/* CSS cho Submenu Dropdown */
+.dropdown-submenu { position: relative; }
+.dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: auto;
+    right: 100%;
+    margin-top: -6px;
+    margin-right: -1px;
+    display: none;
+}
+.dropdown-submenu:hover > .dropdown-menu { display: block; }
+
+.main-title { font-weight: 700; color: var(--main-title-color); }
 
 .card, .modal-content {
     background: var(--card-bg);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 1.25rem;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-    transition: background 0.5s ease;
 }
 
-.form-control, .form-select {
-    background-color: var(--input-bg);
-    border: 1px solid var(--input-border);
-    color: var(--text-primary);
+#vung-danh-sach-nv {
+    max-height: 350px;
+    overflow-y: auto;
+    padding: 10px;
+    margin-bottom: 15px;
     border-radius: 0.75rem;
-    padding: 0.75rem 1rem;
+    background: rgba(0,0,0,0.02);
 }
-
-#nut-tao-bao-cao {
-    background-color: var(--accent-blue);
-    border: none;
-    border-radius: 0.75rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px 0 rgba(0, 122, 255, 0.2);
-    color: white;
-    font-weight: 600;
-    padding: 0.75rem;
-}
+#vung-danh-sach-nv::-webkit-scrollbar { width: 4px; }
+#vung-danh-sach-nv::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
 
 .nut-ten-nv {
     background-color: var(--btn-fos-bg);
@@ -114,82 +114,28 @@ h1.main-title {
     color: var(--text-primary);
     flex-grow: 1;
     text-align: left;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: all 0.3s ease;
-    border-radius: 0.75rem 0 0 0.75rem !important;
     font-weight: 600;
+    border-radius: 0.75rem 0 0 0.75rem !important;
 }
+.nut-ten-nv.da-bao-cao { background-color: var(--accent-green) !important; color: white !important; border-color: var(--accent-green); }
+.nut-ten-nv.nghi { background-color: var(--accent-gray) !important; color: white !important; text-decoration: line-through; }
+.nut-ten-nv.sai-ten { background-color: var(--accent-red) !important; color: white !important; }
 
-.nut-ten-nv.da-bao-cao {
-    background-color: var(--accent-green);
-    border-color: var(--accent-green);
-    color: #fff;
-}
-.nut-ten-nv.nghi {
-    background-color: var(--accent-gray);
-    border-color: var(--accent-gray);
-    color: #fff;
-    text-decoration: line-through;
-}
-.nut-ten-nv.sai-ten {
-    background-color: var(--accent-red);
-    border-color: var(--accent-red);
-    color: #fff;
-}
-
-.nut-sua-nv {
-    background-color: var(--accent-blue);
-    border-color: var(--accent-blue);
-    color: #fff;
-    border-radius: 0 !important;
-    opacity: 0.8;
-}
-
-.nut-xoa-nv {
-    background-color: var(--accent-red);
-    border-color: var(--accent-red);
-    color: #fff;
-    border-radius: 0 0.75rem 0.75rem 0 !important;
-}
-
-.nut-bieu-tuong-them-nv, #nut-cai-dat {
-    cursor: pointer;
-    font-size: 2rem;
-    color: var(--accent-blue);
-    transition: all 0.3s ease;
-}
-
-#nut-sao-chep.copied {
-    background-color: var(--accent-green);
-    border-color: var(--accent-green);
-}
-
-#vung-ket-qua-bao-cao, #vung-ket-qua-bao-cao-cu {
-    white-space: pre-wrap;
-    font-family: 'Courier New', Courier, monospace;
-}
-
-#vung-danh-sach-nv {
-    max-height: 280px;
-    overflow-y: auto;
-}
+.nut-sua-nv { background-color: var(--accent-blue); color: white; border-radius: 0 !important; }
+.nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 0.75rem 0.75rem 0 !important; }
 
 #lop-phu-tai-trang {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 2000;
-    display: none;
-    justify-content: center; align-items: center; flex-direction: column;
-    color: white; backdrop-filter: blur(5px);
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4); z-index: 2000;
+    display: none; justify-content: center; align-items: center; flex-direction: column;
+    color: white; backdrop-filter: blur(8px);
 }
 
 .db-status-widget {
     position: fixed; bottom: 15px; left: 15px;
     background: var(--card-bg); padding: 8px 12px; border-radius: 12px;
     font-size: 0.75rem; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
 }
 
 #chi-bao-dang-luu {
@@ -198,4 +144,5 @@ h1.main-title {
     border-radius: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     display: none; align-items: center; gap: 10px;
     border: 1px solid var(--accent-blue); color: var(--accent-blue);
+    backdrop-filter: blur(10px);
 }
