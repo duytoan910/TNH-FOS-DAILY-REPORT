@@ -32,12 +32,12 @@ export const kiemTraChiSoMtd = (danhSachNhanVien, baoCaoLichSu, ngayBaoCaoLichSu
         const mtdHomNay = trichXuatSoLieu(nvNay.baoCao, 'MTD MC');
 
         if (nvNay.trangThai === 'Off') {
-            // Khi OFF, MTD nhập vào (nếu có) phải khớp với lịch sử
+            // Khi OFF, MTD nhập vào (nếu có) phải khớp với lịch sử (loại trừ hôm nay)
             if (mtdHomNay !== mtdLichSu && mtdHomNay !== 0) { 
                  danhSachLoi.push({
                     ten: nvNay.ten,
                     lyDo: `Sai MTD (Nghỉ)`,
-                    chiTiet: `Mốc lịch sử (${nhanNgay}) là ${mtdLichSu}. Bạn nhập: ${mtdHomNay}. (Nghỉ nên giữ nguyên MTD)`
+                    chiTiet: `Dữ liệu ngày gần nhất (${nhanNgay}) là ${mtdLichSu}. Bạn nhập: ${mtdHomNay}. (Nghỉ nên giữ nguyên MTD)`
                 });
             }
         } else if (nvNay.trangThai === 'Đã báo cáo') { 
@@ -100,8 +100,8 @@ export const taoCauTrucGuiBaoCao = (danhSachNhanVien, baoCaoLichSu, thongKe) => 
              giaTriOff = chuLyDo.toUpperCase() === 'OFF' ? 1 : chuLyDo;
          }
 
-         // LOGIC MTD TRONG PAYLOAD: 
-         // Nếu nhân viên OFF hoặc 0 sale, và mtd hiện tại vẫn là 0 (chưa nhập mới)
+         // LOGIC MTD: Nếu nhân viên OFF hoặc 0 sale, và mtd hiện tại vẫn là 0 (chưa nhập mới)
+         // Luôn lấy từ baoCaoLichSu (ngày gần nhất < hôm nay)
          if ((nv.trangThai === 'Off' || mcHomNay === 0) && mtd === 0 && baoCaoLichSu && baoCaoLichSu.duLieuNvLichSu) {
              const nvCu = baoCaoLichSu.duLieuNvLichSu.find(f => f.ten === nv.ten);
              if (nvCu) {
