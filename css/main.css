@@ -49,19 +49,50 @@ body {
 }
 #nut-cai-dat:hover { transform: rotate(90deg) scale(1.1); background: rgba(255,255,255,0.9); }
 
+/* --- DROPDOWN & SUBMENU FIX --- */
 .dropdown-menu {
     border-radius: 1rem; padding: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: var(--card-bg); backdrop-filter: blur(25px);
     box-shadow: 0 15px 45px rgba(0,0,0,0.2) !important;
+    min-width: 200px;
 }
 
 .dropdown-item {
     border-radius: 0.6rem; padding: 0.6rem 1rem;
     color: var(--text-primary) !important;
     display: flex; align-items: center;
+    justify-content: space-between;
 }
 .dropdown-item:hover { background-color: rgba(0, 122, 255, 0.1); color: var(--accent-blue) !important; }
+
+/* CSS hỗ trợ Menu đa cấp (Submenu) */
+.dropdown-submenu { position: relative; }
+
+.dropdown-submenu > .dropdown-menu {
+    top: 0;
+    right: 100%; /* Đẩy sang bên trái vì nút nằm bên phải màn hình */
+    left: auto;
+    margin-top: -5px;
+    margin-right: 0.2rem;
+    display: none;
+}
+
+.dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+}
+
+/* Đổi mũi tên chỉ sang trái cho submenu */
+.dropdown-submenu > .dropdown-toggle::after {
+    display: inline-block;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    content: "";
+    border-top: .3em solid transparent;
+    border-right: .3em solid;
+    border-bottom: .3em solid transparent;
+    border-left: 0;
+}
 
 .modal-header .btn-close { filter: var(--close-btn-filter); }
 
@@ -99,14 +130,32 @@ body {
 .nut-sua-nv { background-color: var(--accent-blue); color: white; width: 44px; border: none; }
 .nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 0.75rem 0.75rem 0 !important; width: 44px; border: none; }
 
+/* DB Status Widget Tinh chỉnh */
 .db-status-widget {
     position: fixed; bottom: 15px; left: 15px;
-    background: var(--card-bg); padding: 10px 18px; border-radius: 18px;
+    background: var(--card-bg); padding: 12px 18px; border-radius: 18px;
     font-size: 0.7rem; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.12);
     backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex; flex-direction: column; gap: 6px;
+    min-width: 240px;
 }
 
-.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.status-header, .status-detail {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    line-height: 1;
+}
+
+.status-divider {
+    width: 1px;
+    height: 12px;
+    background-color: var(--text-secondary);
+    opacity: 0.2;
+}
+
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; flex-shrink: 0; }
 .status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
 .status-dot.offline { background-color: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
 

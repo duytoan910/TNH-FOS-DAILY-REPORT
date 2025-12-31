@@ -1,3 +1,4 @@
+
 const DANH_SACH_GIAO_DIEN = {
     'ios18': 'iOS 18',
     'oneui': 'OneUI',
@@ -17,8 +18,8 @@ export const xayDungMenuGiaoDien = () => {
         const ten = DANH_SACH_GIAO_DIEN[ma];
         menu.append(`
             <li class="dropdown-submenu">
-                <a class="dropdown-item dropdown-toggle" href="#">${ten}</a>
-                <ul class="dropdown-menu">
+                <a class="dropdown-item dropdown-toggle" href="javascript:void(0)">${ten}</a>
+                <ul class="dropdown-menu shadow border-0">
                     <li><a class="dropdown-item lua-chon-giao-dien" href="#" data-theme="${ma}" data-mode="light">Chế độ Sáng</a></li>
                     <li><a class="dropdown-item lua-chon-giao-dien" href="#" data-theme="${ma}" data-mode="dark">Chế độ Tối</a></li>
                 </ul>
