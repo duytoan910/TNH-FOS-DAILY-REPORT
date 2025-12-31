@@ -74,8 +74,19 @@ body {
     right: 100%; /* Đẩy sang bên trái vì nút nằm bên phải màn hình */
     left: auto;
     margin-top: -5px;
-    margin-right: 0.2rem;
+    margin-right: 0px; /* Sát mép để không bị mất hover */
     display: none;
+}
+
+/* Pseudo-element tạo "vùng đệm" vô hình bắc cầu giữa cha và con */
+.dropdown-submenu > .dropdown-menu::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -15px; /* Vùng đệm lấn sang mục cha 15px */
+    width: 20px;
+    height: 100%;
+    z-index: -1;
 }
 
 .dropdown-submenu:hover > .dropdown-menu {

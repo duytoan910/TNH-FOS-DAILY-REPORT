@@ -79,6 +79,7 @@ export const taiDuLieuTuServer = async () => {
             chiTieu: parseInt(item.ChiTieu, 10) || 50, baoCao: '',
             trangThai: 'Chưa báo cáo', kiemTraTen: null
         }));
+        
         hienThiDanhSachNhanVien();
         
         const tam = JSON.parse(localStorage.getItem(KHOA_BO_NHO_TAM_CUC_BO) || '{}');
@@ -90,12 +91,14 @@ export const taiDuLieuTuServer = async () => {
             if(tam.vanBanKetQua) $('#vung-ket-qua-bao-cao').val(tam.vanBanKetQua);
             hienThiDanhSachNhanVien();
         }
+
+        anTaiTrang();
+
         lamMoiThongKeCsdl(capNhatWidgetDb).catch(() => {});
         await khoiPhuPhienLamViec();
     } catch (error) {
         datCheDoUngDung('offline');
         hienThiThongBao("Chế độ ngoại tuyến", "info");
-    } finally {
         anTaiTrang();
     }
 };
@@ -174,8 +177,18 @@ export const reconstructReportText = (reportObj) => {
     let ds = reportObj.baoCaoFOS.map(item => {
         const nv = state.danhSachNhanVien.find(n => n.ten === item.tenNhanVien);
         const icon = nv ? (nv.gioiTinh === 'Nữ' ? '👵' : '👨') : '👤';
-        const val = (item.OFF !== 0 && item.OFF !== "0") ? (item.OFF === 1 || item.OFF === "1" ? "OFF" : item.OFF) : `${item.chiSoHieuSuat.saleHomNay}/${item.chiSoHieuSuat.saleTrongThang}`;
-        return `${icon}${item.tenNhanVien}: ${val}/${item.chiSoHieuSuat.chiTieu}`;
+        const chiTieu = item.chiSoHieuSuat.chiTieu;
+        const mtd = item.chiSoHieuSuat.saleTrongThang;
+        
+        let val;
+        if (item.OFF !== 0 && item.OFF !== "0") {
+            const lyDo = (item.OFF === 1 || item.OFF === "1") ? "OFF" : item.OFF;
+            val = lyDo;
+        } else {
+            val = item.chiSoHieuSuat.saleHomNay;
+        }
+        
+        return `${icon}${item.tenNhanVien}: ${val}/${mtd}/${chiTieu}`;
     });
     return `TNH ngày ${dinhDangNgayHienThi(reportObj.ngayBaoCao)}\n🔥${tk.tongSoFOS} FOS – ${tk.tongSoMC} MC\n✅NTB: ${tk.tongSoNTB}\n✅NSBQ: ${tk.NSBQ_NTB}\n✅ETB: ${tk.tongSoETB}\n✅AE+: ${tk.tongSoAEPlus}\n✅Pos: ${tk.tyLePOS}\n\n⭐️Active ${tk.tyLeActiveFOS}\n${ds.join('\n')}`;
 };
