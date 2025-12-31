@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trình Tạo Báo Cáo Hàng Ngày</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23007AFF' d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z'/%3E%3C/svg%3E">
     <!-- Google Fonts: Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,14 +51,16 @@
 
     <!-- Widget Phiên bản (Góc phải) -->
     <div class="build-info-widget">
-        <span class="fw-bold">v1.3.1-stable</span> | <span id="thoi-gian-build">Build: 2025.02.21 19:15</span>
+        <span class="fw-bold">v1.3.3-stable</span> | <span id="thoi-gian-build">Build: 2025.02.21 20:10</span>
     </div>
     
     <!-- Menu cài đặt -->
     <div class="settings-container">
         <div class="dropdown">
-            <button class="btn p-0 border-0" type="button" id="nut-cai-dat-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-gear" id="nut-cai-dat" title="Cài đặt"></i>
+            <button class="btn p-0 border-0" type="button" id="nut-cai-dat-dropdown" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                <div id="nut-cai-dat" title="Cài đặt">
+                    <i class="fa-solid fa-gear"></i>
+                </div>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="nut-cai-dat-dropdown">
                 <li>
@@ -96,8 +99,8 @@
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <h3 class="mb-0 fs-5">1. Danh sách Nhân Viên</h3>
                     <div>
-                        <i class="fa-solid fa-file-import nut-bieu-tuong-hanh-dong me-2" title="Dán nhiều báo cáo" data-bs-toggle="modal" data-bs-target="#modal-dan-nhieu-bao-cao"></i>
-                        <i class="fa-solid fa-user-plus nut-bieu-tuong-hanh-dong" title="Thêm nhân viên mới" data-bs-toggle="modal" data-bs-target="#modal-them-nhan-vien"></i>
+                        <i class="fa-solid fa-file-import nut-bieu-tuong-hanh-dong me-2" title="Dán nhiều báo cáo" data-bs-toggle="modal" data-bs-target="#modal-dan-nhieu-bao-cao" style="cursor: pointer; color: var(--accent-blue);"></i>
+                        <i class="fa-solid fa-user-plus nut-bieu-tuong-hanh-dong" title="Thêm nhân viên mới" data-bs-toggle="modal" data-bs-target="#modal-them-nhan-vien" style="cursor: pointer; color: var(--accent-blue);"></i>
                     </div>
                 </div>
                 
@@ -127,7 +130,7 @@
                                 </button>
                             </div>
                         </div>
-                        <textarea id="vung-ket-qua-bao-cao" class="form-control" rows="12"></textarea>
+                        <textarea id="vung-ket-qua-bao-cao" class="form-control" rows="12" style="font-family: 'Courier New', Courier, monospace; font-size: 0.9rem;"></textarea>
                     </div>
                 </div>
             </div>
@@ -303,7 +306,7 @@ Fos Giang báo cáo ngày...
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-             <textarea id="vung-ket-qua-bao-cao-cu" class="form-control" rows="12" readonly></textarea>
+             <textarea id="vung-ket-qua-bao-cao-cu" class="form-control" rows="12" readonly style="font-family: 'Courier New', Courier, monospace; font-size: 0.9rem;"></textarea>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
@@ -311,7 +314,7 @@ Fos Giang báo cáo ngày...
         </div>
       </div>
     </div>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <!-- Bootstrap JS Bundle -->

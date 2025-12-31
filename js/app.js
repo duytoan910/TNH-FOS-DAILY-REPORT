@@ -1,3 +1,4 @@
+
 import { KHOA_BO_NHO_TAM_CUC_BO } from './config.js';
 import { hienThiThongBao, hienThiTaiTrang, anTaiTrang, dinhDangNgayHienThi, dinhDangNgayISO, trichXuatSoLieu } from './utils.js';
 import { khoiTaoGiaoDien, xayDungMenuGiaoDien, apDungGiaoDien, luuCauHinhGiaoDien, apDungGiaoDienNgauNhien } from './theme.js';
@@ -21,8 +22,8 @@ $(function() {
     const modalXemBaoCaoCu = new bootstrap.Modal('#modal-xem-bao-cao-cu');
 
     // --- CẬP NHẬT THÔNG TIN BUILD ---
-    const phienBanBuild = "v1.3.2-stable";
-    const thoiGianBuildStr = "2025.02.21 19:45"; 
+    const phienBanBuild = "v1.3.3-stable";
+    const thoiGianBuildStr = "2025.02.21 20:10"; 
     $('#thoi-gian-build').html(`Build: ${thoiGianBuildStr}`);
     $('.build-info-widget .fw-bold').text(phienBanBuild);
 
