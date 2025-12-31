@@ -22,8 +22,8 @@ $(function() {
     const modalXemBaoCaoCu = new bootstrap.Modal('#modal-xem-bao-cao-cu');
 
     // --- CẬP NHẬT THÔNG TIN BUILD ---
-    const phienBanBuild = "v1.3.3-stable";
-    const thoiGianBuildStr = "2025.02.21 20:10"; 
+    const phienBanBuild = "v1.3.4-stable";
+    const thoiGianBuildStr = "2025.02.21 20:30"; 
     $('#thoi-gian-build').html(`Build: ${thoiGianBuildStr}`);
     $('.build-info-widget .fw-bold').text(phienBanBuild);
 
@@ -125,7 +125,7 @@ $(function() {
     };
 
     const taiDuLieuTuServer = async () => {
-        hienThiTaiTrang("Đang kết nối hệ thống...");
+        hienThiTaiTrang("Đang tải danh sách FOS...");
         try {
             ghiNhanTuongTacApi().catch(() => {});
             
@@ -136,10 +136,17 @@ $(function() {
                 chiTieu: parseInt(item.ChiTieu, 10) || 50, baoCao: '',
                 trangThai: 'Chưa báo cáo', kiemTraTen: null
             }));
+            
             hienThiDanhSachNhanVien();
+            
+            // Ẩn loader ngay khi danh sách nhân viên hiện ra để user thao tác ngay
+            anTaiTrang(); 
+
+            // Các công việc nền tiếp tục chạy ngầm sau khi user đã có thể thao tác
             khoiPhuTuBoNhoTam();
-            lamMoiThongKeCsdl(capNhatWidgetDb);
-            await khoiPhuPhienLamViec();
+            lamMoiThongKeCsdl(capNhatWidgetDb).catch(() => {});
+            khoiPhuPhienLamViec().catch(() => {});
+            
         } catch (error) {
             datCheDoUngDung('offline');
             hienThiThongBao("Đang hoạt động ngoại tuyến", "info");
@@ -155,10 +162,11 @@ $(function() {
                     };
                 });
                 hienThiDanhSachNhanVien();
+                anTaiTrang();
                 khoiPhuTuBoNhoTam();
-            } catch (e) {}
-        } finally { 
-            anTaiTrang(); 
+            } catch (e) {
+                anTaiTrang();
+            }
         }
     };
 
