@@ -6,7 +6,6 @@ import { thucHienGoiApi, ghiNhanTuongTacApi, lamMoiThongKeCsdl, datCheDoUngDung,
 import { kiemTraTenTrongBaoCao, taoCauTrucGuiBaoCao } from './report.js';
 import { initUIHandlers } from './ui.js';
 
-// --- TRẠNG THÁI TOÀN CỤC ---
 export const state = {
     danhSachNhanVien: [],
     baoCaoLichSuGanNhat: null,
@@ -14,7 +13,6 @@ export const state = {
     nhanVienCanXoa: null
 };
 
-// --- CÁC HÀM CỐT LÕI ---
 export const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
     const $cham = $('#cham-trang-thai-db');
     const $chu = $('#chu-trang-thai-db');
@@ -74,7 +72,7 @@ export const taiDuLieuTuServer = async () => {
     hienThiTaiTrang("Đang tải danh sách FOS...");
     try {
         ghiNhanTuongTacApi().catch(() => {});
-        const duLieuGoc = await thucHienGoiApi('nhanvien?h={"$orderby": {"Ten": 1}}');
+        const duLieuGoc = await thucHienGoiApi('nhanvien?h={"$orderby":{"Ten":1}}');
         datCheDoUngDung('online');
         state.danhSachNhanVien = duLieuGoc.map(item => ({
             _id: item._id, ten: item.Ten, gioiTinh: item.GioiTinh,
@@ -82,9 +80,7 @@ export const taiDuLieuTuServer = async () => {
             trangThai: 'Chưa báo cáo', kiemTraTen: null
         }));
         hienThiDanhSachNhanVien();
-        anTaiTrang(); 
         
-        // Khôi phục bộ nhớ tạm
         const tam = JSON.parse(localStorage.getItem(KHOA_BO_NHO_TAM_CUC_BO) || '{}');
         if (tam.ngay === dinhDangNgayISO(new Date())) {
             tam.duLieuNv.forEach(itemTam => {
@@ -94,12 +90,12 @@ export const taiDuLieuTuServer = async () => {
             if(tam.vanBanKetQua) $('#vung-ket-qua-bao-cao').val(tam.vanBanKetQua);
             hienThiDanhSachNhanVien();
         }
-
         lamMoiThongKeCsdl(capNhatWidgetDb).catch(() => {});
-        khoiPhuPhienLamViec();
+        await khoiPhuPhienLamViec();
     } catch (error) {
         datCheDoUngDung('offline');
         hienThiThongBao("Chế độ ngoại tuyến", "info");
+    } finally {
         anTaiTrang();
     }
 };
@@ -118,13 +114,58 @@ export const khoiPhuPhienLamViec = async () => {
             });
             hienThiDanhSachNhanVien();
         }
-        
         const cu = await thucHienGoiApi(`report?q={"ngayBaoCao":{"$lt":"${homNay}"}}&h={"$orderby":{"ngayBaoCao":-1}}&max=1`);
         if (cu.length > 0) {
             state.baoCaoLichSuGanNhat = cu[0];
             state.baoCaoLichSuGanNhat.duLieuNvLichSu = cu[0].baoCaoFOS.map(i => ({ ten: i.tenNhanVien, mtdMC: i.chiSoHieuSuat.saleTrongThang }));
         }
     } catch (e) {}
+};
+
+export const thucHienTaoBaoCao = async (chiXem = false) => {
+    state.danhSachNhanVien.sort((a, b) => b.chiTieu - a.chiTieu);
+    hienThiDanhSachNhanVien();
+    const ngayHienThi = dinhDangNgayHienThi(new Date());
+    let tMC = 0, tNTB = 0, tETB = 0, nvActive = 0, tPos = 0, tAE = 0;
+    let dsChiTiet = [];
+    const mapLs = new Map();
+    if (state.baoCaoLichSuGanNhat?.duLieuNvLichSu) state.baoCaoLichSuGanNhat.duLieuNvLichSu.forEach(n => mapLs.set(n.ten, n));
+
+    state.danhSachNhanVien.forEach(nv => {
+        const icon = nv.gioiTinh === 'Nữ' ? '👵' : '👨';
+        const bc = nv.baoCao;
+        let mtd = trichXuatSoLieu(bc, 'MTD MC');
+        let ntb = trichXuatSoLieu(bc, 'NTB'), etb = trichXuatSoLieu(bc, 'ETB');
+        let mcNay = ntb + etb;
+        if (mcNay === 0) mcNay = trichXuatSoLieu(bc, ['Tổng MC', 'MC']);
+        if ((nv.trangThai === 'Off' || mcNay === 0) && mtd === 0 && state.baoCaoLichSuGanNhat) {
+            const ls = mapLs.get(nv.ten); mtd = ls ? (ls.mtdMC || 0) : 0;
+        }
+        if (nv.trangThai === 'Off') {
+            const m = bc.match(/^Fos\s+\S+\s+(.*)$/i);
+            dsChiTiet.push(`${icon}${nv.ten}: ${(m && m[1]) ? m[1].toUpperCase() : 'OFF'}/${mtd}/${nv.chiTieu}`);
+        } else {
+            nvActive++; tMC += mcNay; tNTB += ntb; tETB += etb;
+            tPos += trichXuatSoLieu(bc, 'Pos'); tAE += trichXuatSoLieu(bc, ['AE+', 'AE Plus']);
+            dsChiTiet.push(`${icon}${nv.ten}: ${mcNay}/${mtd}/${nv.chiTieu}`);
+        }
+    });
+
+    const nsbqNTB = (nvActive > 0) ? (tNTB / nvActive).toFixed(2) : '0.00';
+    const nsbqETB = (nvActive > 0) ? (tETB / nvActive).toFixed(2) : '0.00';
+    const res = `TNH ngày ${ngayHienThi}\n🔥${state.danhSachNhanVien.length} FOS – ${tMC} MC\n✅NTB: ${tNTB}\n✅NSBQ NTB: ${nsbqNTB}\n✅ETB: ${tETB}\n✅NSBQ ETB: ${nsbqETB}\n✅AE+: ${tAE}\n✅Pos: ${tPos}/${state.danhSachNhanVien.length * 3}\n\n⭐️Active ${nvActive}/${state.danhSachNhanVien.length}\n${dsChiTiet.join('\n')}`;
+    $('#vung-ket-qua-bao-cao').val(res);
+    
+    if (!chiXem && layCheDoUngDung() === 'online') {
+        const cauTruc = taoCauTrucGuiBaoCao(state.danhSachNhanVien, state.baoCaoLichSuGanNhat, { tongFOS: state.danhSachNhanVien.length, tongMC: tMC, tongNTB: tNTB, nsbqNTB, tongETB: tETB, nsbqETB, tongPosThucHien: tPos, posChiTieu: state.danhSachNhanVien.length * 3, activeFOS: nvActive, tongAEPlus: tAE });
+        $('#chi-bao-dang-luu').css('display', 'flex');
+        try {
+            const check = await thucHienGoiApi(`report?q={"ngayBaoCao":"${cauTruc.ngayBaoCao}"}`);
+            if (check.length > 0) await thucHienGoiApi(`report/${check[0]._id}`, 'PUT', cauTruc);
+            else await thucHienGoiApi('report', 'POST', cauTruc);
+            lamMoiThongKeCsdl(capNhatWidgetDb);
+        } catch(e) {} finally { setTimeout(() => $('#chi-bao-dang-luu').fadeOut(), 1000); }
+    }
 };
 
 export const reconstructReportText = (reportObj) => {
@@ -139,7 +180,6 @@ export const reconstructReportText = (reportObj) => {
     return `TNH ngày ${dinhDangNgayHienThi(reportObj.ngayBaoCao)}\n🔥${tk.tongSoFOS} FOS – ${tk.tongSoMC} MC\n✅NTB: ${tk.tongSoNTB}\n✅NSBQ: ${tk.NSBQ_NTB}\n✅ETB: ${tk.tongSoETB}\n✅AE+: ${tk.tongSoAEPlus}\n✅Pos: ${tk.tyLePOS}\n\n⭐️Active ${tk.tyLeActiveFOS}\n${ds.join('\n')}`;
 };
 
-// --- KHỞI CHẠY ---
 $(() => {
     khoiTaoGiaoDien();
     xayDungMenuGiaoDien();
