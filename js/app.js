@@ -22,10 +22,10 @@ $(function() {
     const modalXemBaoCaoCu = new bootstrap.Modal('#modal-xem-bao-cao-cu');
 
     // --- CẬP NHẬT THÔNG TIN BUILD ---
-    const phienBanBuild = "v1.3.6-stable";
-    const thoiGianBuildStr = "2025.02.21 21:15"; 
-    $('#thoi-gian-build').html(`Build: ${thoiGianBuildStr}`);
-    $('.build-info-widget .fw-bold').text(phienBanBuild);
+    const phienBanBuild = "v1.3.8-stable";
+    const thoiGianBuildStr = "2025.02.21 21:35"; 
+    $('#phien-ban-build-text').text(phienBanBuild);
+    $('#thoi-gian-build-text').text(`Build: ${thoiGianBuildStr}`);
 
     const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
         const $cham = $('#cham-trang-thai-db');
@@ -382,6 +382,13 @@ $(function() {
     });
 
     $('#nut-tao-bao-cao').on('click', () => thucHienTaoBaoCao());
+    
+    // Fix: Using robust delegation for the history button
+    $(document).on('click', '#nut-xem-bao-cao-cu', (e) => {
+        e.preventDefault();
+        modalXemBaoCaoCu.show();
+    });
+
     $('#nut-sao-chep').on('click', function() {
         const $btn = $(this);
         navigator.clipboard.writeText($('#vung-ket-qua-bao-cao').val()).then(() => {
@@ -390,7 +397,6 @@ $(function() {
             setTimeout(() => $btn.html('<i class="fa-regular fa-copy"></i> Sao chép').removeClass('btn-success').addClass('btn-primary'), 2000);
         });
     });
-    $('#nut-xem-bao-cao-cu').on('click', () => modalXemBaoCaoCu.show());
     
     // KHỞI CHẠY
     khoiTaoGiaoDien(); 

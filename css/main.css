@@ -300,17 +300,23 @@ body {
 .nut-sua-nv { background-color: var(--accent-blue); color: white; width: 44px; border: none; }
 .nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 0.75rem 0.75rem 0 !important; width: 44px; border: none; }
 
-.db-status-widget, .build-info-widget {
-    position: fixed; bottom: 15px;
-    background: var(--card-bg); padding: 8px 15px; border-radius: 14px;
-    font-size: 0.7rem; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1);
+.db-status-widget {
+    position: fixed; bottom: 15px; left: 15px;
+    background: var(--card-bg); padding: 10px 18px; border-radius: 18px;
+    font-size: 0.7rem; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex; flex-direction: column; gap: 4px;
+    min-width: 220px;
 }
-.db-status-widget { left: 15px; }
-.build-info-widget { right: 15px; }
+
+.status-dot {
+    height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px;
+}
+.status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+.status-dot.offline { background-color: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
 
 #chi-bao-dang-luu {
-    position: fixed; bottom: 75px; right: 20px;
+    position: fixed; bottom: 85px; right: 20px;
     z-index: 2000; background: var(--accent-blue); padding: 12px 24px;
     border-radius: 50px; box-shadow: 0 10px 25px rgba(0,122,255,0.3);
     display: none; align-items: center; gap: 10px; color: white;
