@@ -2,145 +2,76 @@
 :root {
     --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     --bg-image: none;
-    --card-bg: rgba(255, 255, 255, 0.85);
+    --card-bg: rgba(255, 255, 255, 0.8);
     --text-primary: #1c1c1e;
     --text-secondary: #636366;
+    --main-title-color: #1c1c1e;
     --accent-blue: #007AFF;
     --accent-green: #34C759;
     --accent-red: #FF3B30;
     --accent-gray: #8E8E93;
-    --input-bg: rgba(242, 242, 247, 0.8);
+    --input-bg: #F2F2F7;
     --input-border: rgba(0, 0, 0, 0.1);
     --btn-fos-bg: #ffffff;
     --btn-fos-border: #e0e0e0;
     --close-btn-filter: none;
 }
 
-/* iOS 18 */
-body.theme-ios18-light { /* Default */ }
+/* Themes blocks */
 body.theme-ios18-dark {
-    --bg-gradient: linear-gradient(135deg, #000 0%, #1c1c1e 100%);
-    --card-bg: rgba(28, 28, 30, 0.9);
+    --bg-gradient: linear-gradient(135deg, #000000 0%, #1c1c1e 100%);
+    --card-bg: rgba(28, 28, 30, 0.95);
     --text-primary: #ffffff;
     --text-secondary: #a0a0a5;
-    --input-bg: rgba(44, 44, 46, 0.8);
+    --main-title-color: #ffffff;
+    --input-bg: #2c2c2e;
     --btn-fos-bg: #1c1c1e;
     --btn-fos-border: #3a3a3c;
+    --close-btn-filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+body.theme-oneui-dark {
+    --bg-gradient: linear-gradient(180deg, #121212 0%, #212121 100%);
+    --card-bg: rgba(33, 33, 33, 0.98);
+    --text-primary: #e0e0e0;
+    --text-secondary: #999;
+    --accent-blue: #3d5afe;
+    --btn-fos-bg: #2a2a2a;
+    --btn-fos-border: #333;
+    --input-bg: #222;
     --close-btn-filter: invert(1);
 }
 
-/* OneUI */
-body.theme-oneui-light {
-    --bg-gradient: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
-    --accent-blue: #0381fe;
-    --card-bg: rgba(255, 255, 255, 0.95);
-    --text-primary: #212529;
-}
-body.theme-oneui-dark {
-    --bg-gradient: linear-gradient(180deg, #121212 0%, #1a1a1a 100%);
-    --card-bg: rgba(33, 33, 33, 0.95);
-    --text-primary: #e0e0e0;
-    --text-secondary: #aaaaaa;
-    --btn-fos-bg: #2a2a2a;
-    --btn-fos-border: #333333;
-    --input-bg: #222222;
-}
-
-/* Window 11 */
-body.theme-window11-light {
-    --bg-gradient: linear-gradient(135deg, #eef5ff 0%, #dae9ff 100%);
-    --accent-blue: #0067c0;
-    --card-bg: rgba(255, 255, 255, 0.75);
-    --text-primary: #1a1a1a;
-}
 body.theme-window11-dark {
     --bg-gradient: linear-gradient(135deg, #202020 0%, #1c1c1c 100%);
-    --card-bg: rgba(32, 32, 32, 0.85);
+    --card-bg: rgba(32, 32, 32, 0.9);
     --text-primary: #ffffff;
-    --text-secondary: #cccccc;
+    --text-secondary: #bbb;
     --accent-blue: #4cc2ff;
     --btn-fos-bg: #2d2d2d;
-    --input-bg: #1f1f1f;
+    --btn-fos-border: #444;
+    --input-bg: #1e1e1e;
+    --close-btn-filter: invert(1);
 }
 
-/* Pastel */
-body.theme-pastel-light {
-    --bg-gradient: linear-gradient(135deg, #fff5f5 0%, #f0f4ff 100%);
-    --accent-blue: #ff8080;
-    --accent-green: #80ffbf;
-    --card-bg: rgba(255, 255, 255, 0.9);
-    --text-primary: #4a4a4a;
-}
-body.theme-pastel-dark {
-    --bg-gradient: linear-gradient(135deg, #2d2424 0%, #24262d 100%);
-    --card-bg: rgba(45, 36, 36, 0.9);
-    --text-primary: #ffd6d6;
-    --text-secondary: #bbaaaa;
-    --accent-blue: #ff9999;
-    --input-bg: #3d3030;
-}
-
-/* Nature */
-body.theme-nature-light {
-    --bg-gradient: linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%);
-    --accent-blue: #059669;
-    --accent-green: #10b981;
-    --text-primary: #064e3b;
-}
-body.theme-nature-dark {
-    --bg-gradient: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
-    --card-bg: rgba(6, 78, 59, 0.85);
-    --text-primary: #ecfdf5;
-    --text-secondary: #34d399;
-    --accent-blue: #34d399;
-    --input-bg: #042f24;
-}
-
-/* Carbon */
-body.theme-carbon-light {
-    --bg-gradient: linear-gradient(135deg, #f2f2f2 0%, #d9d9d9 100%);
-    --accent-blue: #333333;
-    --text-primary: #222222;
-}
-body.theme-carbon-dark {
-    --bg-gradient: linear-gradient(135deg, #111111 0%, #000000 100%);
-    --card-bg: rgba(20, 20, 20, 0.95);
-    --text-primary: #e5e5e5;
-    --text-secondary: #888888;
-    --accent-blue: #aaaaaa;
-    --btn-fos-bg: #1a1a1a;
-    --input-bg: #0f0f0f;
-}
-
-/* Gaming */
-body.theme-gaming-light {
-    --bg-gradient: linear-gradient(135deg, #ff005511 0%, #00d2ff11 100%);
-    --accent-blue: #ff0055;
-    --text-primary: #333333;
-}
 body.theme-gaming-dark {
     --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
     --accent-blue: #00d2ff;
     --accent-green: #39ff14;
     --accent-red: #ff0055;
-    --card-bg: rgba(10, 10, 30, 0.9);
+    --card-bg: rgba(0, 0, 0, 0.85);
     --text-primary: #00ffcc;
-    --text-secondary: #008f7a;
-    --btn-fos-bg: #0a0a25;
-    --input-bg: #050515;
+    --text-secondary: #00ccaa;
+    --input-bg: #0a0a1a;
+    --close-btn-filter: invert(1) hue-rotate(180deg);
 }
 
-/* Chic */
-body.theme-chic-light {
-    --bg-gradient: linear-gradient(to right, #ffffff 0%, #fdfcfb 100%);
-    --accent-blue: #c5a059;
-    --text-primary: #333333;
-}
 body.theme-chic-dark {
     --bg-gradient: linear-gradient(to right, #434343 0%, #000000 100%);
-    --card-bg: rgba(20, 20, 20, 0.95);
+    --card-bg: #1a1a1a;
     --text-primary: #ffffff;
-    --text-secondary: #d4af37;
+    --text-secondary: #ccc;
     --accent-blue: #d4af37;
-    --input-bg: #1a1a1a;
+    --input-bg: #222;
+    --close-btn-filter: invert(1);
 }

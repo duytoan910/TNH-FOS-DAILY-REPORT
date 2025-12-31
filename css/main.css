@@ -1,116 +1,40 @@
 
 @import "./themes.css";
 
-/* --- Glow Engine --- */
-@property --glow-angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
+/* --- ÉP MÀU CHỮ --- */
+h1, h2, h3, h4, h5, h6, 
+.card-title, .modal-title, .form-label, 
+.main-title, strong, b, .fs-5 {
+    color: var(--text-primary) !important;
 }
 
-:root {
-  --glow-size: 350px;
-  --glow-opacity: 0.2;
+body, p, span, li, a:not(.btn), label {
+    color: var(--text-primary);
 }
 
-[data-glow] {
-  --border-size: 1px;
-  --spotlight-size: var(--glow-size);
-  position: relative;
-  border-radius: 1.5rem;
-  background: var(--card-bg);
-  overflow: hidden;
+.text-muted, .subtitle-text, .status-detail, #thoi-gian-build-text {
+    color: var(--text-secondary) !important;
 }
 
-[data-glow]::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border: var(--border-size) solid transparent;
-  border-radius: inherit;
-  background-image: radial-gradient(
-    circle at var(--x, 0) var(--y, 0),
-    var(--accent-blue) 0%,
-    transparent 60%
-  );
-  background-attachment: fixed;
-  mask: linear-gradient(transparent, transparent), linear-gradient(white, white);
-  mask-clip: padding-box, border-box;
-  mask-composite: intersect;
-  pointer-events: none;
-  z-index: 1;
-}
-
-[data-glow] > [data-glow-child] {
-  position: relative;
-  z-index: 2;
-  background: transparent;
-  backdrop-filter: blur(20px) saturate(180%);
-  height: 100%;
-}
-
-/* --- Material Loader (Pirrera style) --- */
+/* --- UI BASE --- */
 #lop-phu-tai-trang {
     position: fixed; top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
     display: none; flex-direction: column;
     justify-content: center; align-items: center;
     z-index: 9999; color: white;
 }
 
-.loader-container { text-align: center; }
-
-.loader-pirrera {
-  position: relative;
-  margin: 0 auto 20px;
-  width: 60px;
-}
-.loader-pirrera:before { content: ''; display: block; padding-top: 100%; }
-
-.circular {
-  animation: rotate 2s linear infinite;
-  height: 100%;
-  transform-origin: center center;
-  width: 100%;
-  position: absolute;
-  top: 0; bottom: 0; left: 0; right: 0;
-  margin: auto;
-}
-
-.path {
-  stroke-dasharray: 1, 200;
-  stroke-dashoffset: 0;
-  animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
-  stroke-linecap: round;
-}
-
-@keyframes rotate { 100% { transform: rotate(360deg); } }
-@keyframes dash {
-  0% { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
-  50% { stroke-dasharray: 89, 200; stroke-dashoffset: -35px; }
-  100% { stroke-dasharray: 89, 200; stroke-dashoffset: -124px; }
-}
-@keyframes color {
-  100%, 0% { stroke: #4285F4; }
-  40% { stroke: #EA4335; }
-  66% { stroke: #34A853; }
-  80%, 90% { stroke: #FBBC05; }
-}
-
-#chu-thich-tai-trang { font-weight: 500; font-size: 1rem; letter-spacing: 0.5px; }
-
-/* --- UI BASE --- */
 body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--bg-gradient);
     background-image: var(--bg-image), var(--bg-gradient);
     background-size: cover; background-position: center; background-attachment: fixed;
     color: var(--text-primary);
-    transition: background 0.5s ease, color 0.3s ease;
+    transition: background 0.4s ease, color 0.4s ease;
     min-height: 100vh;
-    margin: 0;
 }
 
 .settings-container { position: fixed; top: 25px; right: 25px; z-index: 1100; }
@@ -123,45 +47,81 @@ body {
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1);
 }
-#nut-cai-dat:hover { transform: rotate(90deg) scale(1.1); }
+#nut-cai-dat:hover { transform: rotate(90deg) scale(1.1); background: rgba(255,255,255,0.9); }
 
-/* --- DROPDOWN & SUBMENU --- */
+/* --- DROPDOWN & SUBMENU FIX --- */
 .dropdown-menu {
     border-radius: 1rem; padding: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: var(--card-bg); backdrop-filter: blur(25px);
     box-shadow: 0 15px 45px rgba(0,0,0,0.2) !important;
+    min-width: 200px;
 }
+
 .dropdown-item {
     border-radius: 0.6rem; padding: 0.6rem 1rem;
     color: var(--text-primary) !important;
+    display: flex; align-items: center;
+    justify-content: space-between;
 }
 .dropdown-item:hover { background-color: rgba(0, 122, 255, 0.1); color: var(--accent-blue) !important; }
 
+/* CSS hỗ trợ Menu đa cấp (Submenu) */
 .dropdown-submenu { position: relative; }
-.dropdown-submenu > .dropdown-menu { top: 0; right: 100%; left: auto; display: none; margin-right: 0px; }
-.dropdown-submenu > .dropdown-menu::before { content: ""; position: absolute; top: 0; right: -15px; width: 20px; height: 100%; }
-.dropdown-submenu:hover > .dropdown-menu { display: block; }
 
-/* --- ÉP MÀU CHỮ --- */
-h1, h2, h3, h4, h5, h6, .main-title, .card-title, .modal-title, .form-label, strong, b {
-    color: var(--text-primary) !important;
+.dropdown-submenu > .dropdown-menu {
+    top: 0;
+    right: 100%; /* Đẩy sang bên trái vì nút nằm bên phải màn hình */
+    left: auto;
+    margin-top: -5px;
+    margin-right: 0px; /* Sát mép để không bị mất hover */
+    display: none;
 }
-body, p, span, li, a:not(.btn), label, textarea, select {
-    color: var(--text-primary);
+
+/* Pseudo-element tạo "vùng đệm" vô hình bắc cầu giữa cha và con */
+.dropdown-submenu > .dropdown-menu::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -15px; /* Vùng đệm lấn sang mục cha 15px */
+    width: 20px;
+    height: 100%;
+    z-index: -1;
 }
-.text-muted, .subtitle-text, .status-detail {
-    color: var(--text-secondary) !important;
+
+.dropdown-submenu:hover > .dropdown-menu {
+    display: block;
 }
+
+/* Đổi mũi tên chỉ sang trái cho submenu */
+.dropdown-submenu > .dropdown-toggle::after {
+    display: inline-block;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    content: "";
+    border-top: .3em solid transparent;
+    border-right: .3em solid;
+    border-bottom: .3em solid transparent;
+    border-left: 0;
+}
+
+.modal-header .btn-close { filter: var(--close-btn-filter); }
 
 .form-control, .form-select {
     background-color: var(--input-bg);
+    color: var(--text-primary);
     border: 1px solid var(--input-border);
-    border-radius: 0.75rem;
+}
+
+.card, .modal-content {
+    background: var(--card-bg);
+    backdrop-filter: blur(25px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1.5rem;
 }
 
 #vung-danh-sach-nv {
-    max-height: 450px; overflow-y: auto;
+    max-height: 420px; overflow-y: auto;
     padding: 12px; margin-bottom: 20px;
     border-radius: 1.25rem; background: rgba(0,0,0,0.03);
 }
@@ -172,19 +132,41 @@ body, p, span, li, a:not(.btn), label, textarea, select {
     color: var(--text-primary);
     flex: 1; text-align: left; font-weight: 600;
     border-radius: 0.75rem 0 0 0.75rem !important;
-    padding: 10px 15px; transition: all 0.2s;
+    padding: 10px 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .nut-ten-nv.da-bao-cao { background-color: var(--accent-green) !important; color: white !important; }
 .nut-ten-nv.nghi { background-color: var(--accent-gray) !important; color: white !important; text-decoration: line-through; opacity: 0.8; }
 .nut-ten-nv.sai-ten { background-color: var(--accent-red) !important; color: white !important; }
 
+.nut-sua-nv { background-color: var(--accent-blue); color: white; width: 44px; border: none; }
+.nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 0.75rem 0.75rem 0 !important; width: 44px; border: none; }
+
+/* DB Status Widget Tinh chỉnh */
 .db-status-widget {
     position: fixed; bottom: 15px; left: 15px;
     background: var(--card-bg); padding: 12px 18px; border-radius: 18px;
     font-size: 0.7rem; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.12);
     backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex; flex-direction: column; gap: 6px;
+    min-width: 240px;
 }
 
+.status-header, .status-detail {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    line-height: 1;
+}
+
+.status-divider {
+    width: 1px;
+    height: 12px;
+    background-color: var(--text-secondary);
+    opacity: 0.2;
+}
+
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; flex-shrink: 0; }
 .status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
 .status-dot.offline { background-color: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
 
