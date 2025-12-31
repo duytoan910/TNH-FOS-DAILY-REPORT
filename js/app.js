@@ -22,8 +22,8 @@ $(function() {
     const modalXemBaoCaoCu = new bootstrap.Modal('#modal-xem-bao-cao-cu');
 
     // --- CẬP NHẬT THÔNG TIN BUILD ---
-    const phienBanBuild = "v1.3.5-stable";
-    const thoiGianBuildStr = "2025.02.21 21:05"; 
+    const phienBanBuild = "v1.3.6-stable";
+    const thoiGianBuildStr = "2025.02.21 21:15"; 
     $('#thoi-gian-build').html(`Build: ${thoiGianBuildStr}`);
     $('.build-info-widget .fw-bold').text(phienBanBuild);
 
