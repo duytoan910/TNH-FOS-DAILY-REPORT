@@ -7,172 +7,137 @@
     <title>Trình Tạo Báo Cáo Hàng Ngày</title>
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23E2E2E2' d='M400 0H112C85.5 0 64 21.5 64 48v416c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V112L400 0z'/%3E%3Cpath fill='%23BDBDBD' d='M448 112h-64V48L448 112z'/%3E%3Crect x='112' y='48' width='224' height='48' rx='8' fill='%23F5A623'/%3E%3Crect x='112' y='272' width='160' height='16' rx='8' fill='%239B9B9B'/%3E%3Crect x='112' y='304' width='288' height='16' rx='8' fill='%239B9B9B'/%3E%3Crect x='112' y='336' width='224' height='16' rx='8' fill='%239B9B9B'/%3E%3Crect x='112' y='432' width='120' height='16' rx='8' fill='%239B9B9B'/%3E%3Crect x='144' y='184' width='32' height='56' rx='4' fill='%234A90E2'/%3E%3Crect x='192' y='144' width='32' height='96' rx='4' fill='%23D0021B'/%3E%3Crect x='240' y='112' width='32' height='128' rx='4' fill='%23706CB0'/%3E%3Cpath fill='%23F8E71C' d='M312 408l-40 40 160 160 40-40L312 408z' transform='rotate(-45 350 350)'/%3E%3Cpath fill='%23D0021B' d='M430 240l30 30-20 20-30-30z' transform='rotate(-45 440 250)'/%3E%3Cpath fill='%23333' d='M275 445l15 35 35-15z' transform='rotate(-45 290 460)'/%3E%3C/svg%3E">
-    <!-- Google Fonts: Poppins -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS -->
+    <!-- Bootstrap & Plugins -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Toastify CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <!-- Main CSS -->
     <link rel="stylesheet" href="./css/main.css">
 </head>
 <body class="py-4">
 
-    <!-- Lớp phủ tải trang -->
+    <!-- Lớp phủ tải trang phong cách Material -->
     <div id="lop-phu-tai-trang">
-        <div class="spinner-border text-light mb-2" role="status" style="width: 3rem; height: 3rem;">
-            <span class="visually-hidden">Loading...</span>
+        <div class="loader-container">
+            <div class="loader-pirrera">
+                <svg class="circular" viewBox="25 25 50 50">
+                    <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10"/>
+                </svg>
+            </div>
+            <div id="chu-thich-tai-trang">Đang khởi tạo...</div>
         </div>
-        <div id="chu-thich-tai-trang">Đang xử lý...</div>
     </div>
     
-    <!-- Chỉ báo xử lý ngầm -->
     <div id="chi-bao-dang-luu">
-        <div class="spinner-border spinner-border-sm" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
+        <div class="spinner-border spinner-border-sm" role="status"></div>
         <span>Đang lưu...</span>
     </div>
     
-    <!-- Widget trạng thái hệ thống -->
     <div class="db-status-widget">
-        <div class="status-header">
-            <div class="d-flex align-items-center">
-                <span id="cham-trang-thai-db" class="status-dot"></span>
-                <span id="chu-trang-thai-db">Kết nối...</span>
-            </div>
+        <div class="status-header d-flex align-items-center gap-2">
+            <span id="cham-trang-thai-db" class="status-dot"></span>
+            <span id="chu-trang-thai-db">Đang kết nối...</span>
             <span class="status-divider"></span>
-            <span id="phien-ban-build-text" class="fw-bold">v1.4.5-stable</span>
+            <span class="fw-bold">v1.4.7-final</span>
         </div>
-        <div class="status-detail">
-            <div class="d-flex align-items-center gap-1">
-                <span id="so-luong-nv-db">NV: -</span> 
-                <span class="opacity-50">|</span> 
-                <span id="so-luong-bao-cao-db">Rpt: -</span>
-                <span id="luong-truy-cap-api" class="text-muted small" title="Số lần gọi API hôm nay">(-)</span>
-            </div>
-            <span class="status-divider"></span>
-            <span id="thoi-gian-build-text" class="text-muted" style="font-size: 0.65rem;">Build: 2025.02.21 23:30</span>
+        <div class="status-detail mt-1">
+            <span id="so-luong-nv-db">NV: -</span> 
+            <span class="opacity-50">|</span> 
+            <span id="so-luong-bao-cao-db">BC: -</span>
+            <span id="luong-truy-cap-api" class="text-muted small">(-)</span>
         </div>
     </div>
     
-    <!-- Menu cài đặt -->
     <div class="settings-container">
         <div class="dropdown">
-            <button class="btn p-0 border-0" type="button" id="nut-cai-dat-dropdown" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
-                <div id="nut-cai-dat" title="Cài đặt">
-                    <i class="fa-solid fa-gear"></i>
-                </div>
+            <button class="btn p-0 border-0" type="button" id="nut-cai-dat-dropdown" data-bs-toggle="dropdown">
+                <div id="nut-cai-dat"><i class="fa-solid fa-gear"></i></div>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="nut-cai-dat-dropdown">
-                <li>
-                    <a class="dropdown-item py-2" id="nut-giao-dien-ngau-nhien" href="#">
-                        <i class="fa-solid fa-shuffle me-2 text-primary"></i>Giao diện ngẫu nhiên
-                    </a>
-                </li>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                <li><a class="dropdown-item py-2" id="nut-giao-dien-ngau-nhien" href="#"><i class="fa-solid fa-shuffle me-2 text-primary"></i>Giao diện ngẫu nhiên</a></li>
                 <li class="dropdown-submenu">
-                    <a class="dropdown-item dropdown-toggle py-2" href="#">
-                        <i class="fa-solid fa-palette me-2 text-primary"></i>Thay đổi giao diện
-                    </a>
-                    <ul class="dropdown-menu shadow border-0" id="menu-giao-dien-chon">
-                        <!-- Themes injected by JS -->
-                    </ul>
+                    <a class="dropdown-item dropdown-toggle py-2" href="#"><i class="fa-solid fa-palette me-2 text-primary"></i>Thay đổi giao diện</a>
+                    <ul class="dropdown-menu shadow border-0" id="menu-giao-dien-chon"></ul>
                 </li>
                 <li><hr class="dropdown-divider"></li>
-                <li>
-                    <a class="dropdown-item py-2" href="https://github.com/duytoan910/TNH" target="_blank">
-                        <i class="fa-brands fa-github me-2 text-primary"></i>Dự án TNH (GitHub)
-                    </a>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                 <li>
-                    <a class="dropdown-item disabled" href="#" style="font-size: 0.75rem; font-style: italic;">
-                        <i class="fa-solid fa-server me-2"></i>Dữ liệu: restdb.io
-                    </a>
-                </li>
+                <li><a class="dropdown-item py-2" href="https://github.com/duytoan910/TNH" target="_blank"><i class="fa-brands fa-github me-2 text-primary"></i>Dự án GitHub</a></li>
             </ul>
         </div>
     </div>
 
     <div class="container">
-        <div class="text-center mb-4">
-            <h1 class="main-title">Trình Tạo Báo Cáo Hàng Ngày</h1>
-            <p class="fs-6 subtitle-text" style="color: var(--text-secondary);">Nhấp vào tên nhân viên để nhập báo cáo và tự động tổng hợp.</p>
+        <div class="text-center mb-5">
+            <h1 class="main-title fw-bold">Trình Tạo Báo Cáo Hàng Ngày</h1>
+            <p class="subtitle-text opacity-75">Hệ thống tổng hợp báo cáo kinh doanh chuyên nghiệp dành cho FOS.</p>
         </div>
 
         <div class="row g-4">
             <!-- Cột nhập liệu -->
             <div class="col-lg-6">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h3 class="mb-0 fs-5">1. Danh sách Nhân Viên</h3>
-                    <div>
-                        <i class="fa-solid fa-file-import nut-bieu-tuong-hanh-dong me-2" title="Dán nhiều báo cáo" data-bs-toggle="modal" data-bs-target="#modal-dan-nhieu-bao-cao" style="cursor: pointer;"></i>
-                        <i class="fa-solid fa-user-plus nut-bieu-tuong-hanh-dong" title="Thêm nhân viên mới" data-bs-toggle="modal" data-bs-target="#modal-them-nhan-vien" style="cursor: pointer;"></i>
+                <div data-glow>
+                    <div data-glow-child class="p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="mb-0 fs-5 fw-bold">1. Danh sách Nhân Viên</h3>
+                            <div class="d-flex gap-3">
+                                <i class="fa-solid fa-file-import text-primary" title="Dán nhiều" data-bs-toggle="modal" data-bs-target="#modal-dan-nhieu-bao-cao" style="cursor: pointer;"></i>
+                                <i class="fa-solid fa-user-plus text-primary" title="Thêm NV" data-bs-toggle="modal" data-bs-target="#modal-them-nhan-vien" style="cursor: pointer;"></i>
+                            </div>
+                        </div>
+                        <div id="vung-danh-sach-nv">
+                            <div class="text-center py-4 opacity-50">Đang tải danh sách...</div>
+                        </div>
+                        <div class="d-grid mt-3">
+                            <button id="nut-tao-bao-cao" class="btn btn-primary btn-lg shadow-sm">Tạo & Lưu Báo Cáo</button>
+                        </div>
                     </div>
-                </div>
-                
-                <div id="vung-danh-sach-nv">
-                    <div class="text-center py-3 text-muted">Đang tải danh sách...</div>
-                </div>
-
-                <div class="d-grid mt-2">
-                    <button id="nut-tao-bao-cao" class="btn btn-primary btn-lg">Tạo & Lưu Báo Cáo</button>
                 </div>
             </div>
 
             <!-- Cột kết quả -->
             <div class="col-lg-6">
-                <h3 class="mb-3 fs-5">2. Kết quả báo cáo</h3>
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                             <h5 class="card-title mb-0">Báo cáo tổng hợp</h5>
-                            <div class="d-flex flex-shrink-0">
-                                <button id="nut-xem-bao-cao-cu-kich-hoat" class="btn btn-sm btn-outline-secondary me-2">
-                                    <i class="fa-solid fa-clock-rotate-left"></i> Xem lịch sử
-                                </button>
-                                <button id="nut-sao-chep" class="btn btn-sm btn-primary">
-                                    <i class="fa-regular fa-copy"></i> Sao chép
-                                </button>
+                <div data-glow>
+                    <div data-glow-child class="p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="mb-0 fs-5 fw-bold">2. Kết quả báo cáo</h3>
+                            <div class="d-flex gap-2">
+                                <button id="nut-xem-bao-cao-cu-kich-hoat" class="btn btn-sm btn-outline-secondary">Lịch sử</button>
+                                <button id="nut-sao-chep" class="btn btn-sm btn-primary">Sao chép</button>
                             </div>
                         </div>
-                        <textarea id="vung-ket-qua-bao-cao" class="form-control" rows="12" style="font-family: 'Courier New', Courier, monospace; font-size: 0.9rem;"></textarea>
+                        <textarea id="vung-ket-qua-bao-cao" class="form-control" rows="13" style="font-family: 'Courier New', monospace;" placeholder="Kết quả báo cáo tổng hợp sẽ hiển thị tại đây..."></textarea>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Lịch Sử -->
+    <!-- Modals -->
     <div class="modal fade" id="modal-xem-bao-cao-cu" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5">Tra cứu lịch sử</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-             <div class="mb-3">
-                 <label class="form-label">Chọn ngày báo cáo:</label>
-                 <select id="chon-ngay-lich-su" class="form-select shadow-sm">
-                     <option value="">-- Chọn ngày --</option>
-                 </select>
-             </div>
-             <textarea id="vung-ket-qua-bao-cao-cu" class="form-control shadow-sm" rows="12" readonly style="font-family: 'Courier New', Courier, monospace; font-size: 0.9rem;"></textarea>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-            <button type="button" class="btn btn-primary" id="nut-sao-chep-lich-su">Sao chép</button>
-          </div>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" data-glow>
+                <div data-glow-child class="p-4">
+                    <div class="modal-header border-0 p-0 mb-3">
+                        <h5 class="modal-title fw-bold">Tra cứu lịch sử</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <label class="form-label small opacity-75">Chọn ngày cần xem:</label>
+                        <select id="chon-ngay-lich-su" class="form-select mb-3 shadow-sm"></select>
+                        <textarea id="vung-ket-qua-bao-cao-cu" class="form-control" rows="10" readonly style="font-family: 'Courier New', monospace;"></textarea>
+                    </div>
+                    <div class="modal-footer border-0 p-0 mt-3">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="button" class="btn btn-primary" id="nut-sao-chep-lich-su">Sao chép</button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Script Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>

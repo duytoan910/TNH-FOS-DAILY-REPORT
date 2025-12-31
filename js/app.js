@@ -13,6 +13,12 @@ export const state = {
     nhanVienCanXoa: null
 };
 
+// Glow Engine Sync
+const syncPointer = ({ x, y }) => {
+    document.documentElement.style.setProperty('--x', x.toFixed(2));
+    document.documentElement.style.setProperty('--y', y.toFixed(2));
+};
+
 export const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
     const $cham = $('#cham-trang-thai-db');
     const $chu = $('#chu-trang-thai-db');
@@ -93,7 +99,6 @@ export const taiDuLieuTuServer = async () => {
         }
 
         anTaiTrang();
-
         lamMoiThongKeCsdl(capNhatWidgetDb).catch(() => {});
         await khoiPhuPhienLamViec();
     } catch (error) {
@@ -194,6 +199,9 @@ export const reconstructReportText = (reportObj) => {
 };
 
 $(() => {
+    // Glow Pointer Event
+    document.body.addEventListener('pointermove', syncPointer);
+    
     khoiTaoGiaoDien();
     xayDungMenuGiaoDien();
     taiDuLieuTuServer();
