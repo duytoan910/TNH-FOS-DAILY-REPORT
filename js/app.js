@@ -12,21 +12,15 @@ export const state = {
     nhanVienCanXoa: null
 };
 
-// Glow Engine Sync
-const syncPointer = ({ x, y }) => {
-    document.documentElement.style.setProperty('--x', x.toFixed(2));
-    document.documentElement.style.setProperty('--y', y.toFixed(2));
-};
-
 export const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
     const $cham = $('#cham-trang-thai-db');
     const $chu = $('#chu-trang-thai-db');
     if (trucTuyen) {
         $cham.removeClass('offline').addClass('online');
-        $chu.text('RestDB Connected');
+        $chu.text('RestDB: Online');
     } else {
         $cham.removeClass('online').addClass('offline');
-        $chu.text('Offline Mode');
+        $chu.text('RestDB: Offline');
     }
     if (slTruyCap !== null) $('#luong-truy-cap-api').text(slTruyCap);
 };
@@ -34,23 +28,23 @@ export const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
 export const hienThiDanhSachNhanVien = () => {
     const $vungDsNv = $('#vung-danh-sach-nv');
     if (state.danhSachNhanVien.length === 0) {
-        $vungDsNv.html('<div class="text-center py-3 text-muted">Danh sách trống.</div>');
+        $vungDsNv.html('<div class="text-center py-5 text-muted opacity-50">Chưa có dữ liệu nhân viên.</div>');
         return;
     }
     
     let html = '<div class="row g-2">';
     state.danhSachNhanVien.forEach(nv => {
-        let lopNut = 'nut-ten-nv btn';
+        let lopNut = 'nut-ten-nv';
         if (nv.kiemTraTen === false) lopNut += ' sai-ten';
         else if (nv.trangThai === 'Đã báo cáo') lopNut += ' da-bao-cao';
         else if (nv.trangThai === 'Off') lopNut += ' nghi';
 
         html += `
-            <div class="col-6">
-                <div class="input-group shadow-sm" style="border-radius: 0.75rem; overflow: hidden;">
+            <div class="col-6 col-md-6 col-lg-6">
+                <div class="employee-item-group">
                     <button class="${lopNut}" data-nv-ten="${nv.ten}" title="${nv.ten}">${nv.ten}</button>
-                    <button class="btn nut-sua-nv nut-sua-nhanh-nv" data-nv-ten="${nv.ten}"><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button class="btn nut-xoa-nv nut-xoa-nv-kich-hoat" data-nv-id="${nv._id}" data-nv-ten="${nv.ten}"><i class="fa-solid fa-trash-can"></i></button>
+                    <button class="action-btn-mini btn-edit-fast nut-sua-nhanh-nv" data-nv-ten="${nv.ten}"><i class="fa-solid fa-bolt"></i></button>
+                    <button class="action-btn-mini btn-delete-fast nut-xoa-nv-kich-hoat" data-nv-id="${nv._id}" data-nv-ten="${nv.ten}"><i class="fa-solid fa-trash-can"></i></button>
                 </div>
             </div>
         `;
@@ -59,7 +53,7 @@ export const hienThiDanhSachNhanVien = () => {
     $vungDsNv.html(html);
     
     const daBaoCao = state.danhSachNhanVien.filter(nv => nv.trangThai !== 'Chưa báo cáo').length;
-    $('#nut-tao-bao-cao').html(`Tạo & Lưu Báo Cáo (${daBaoCao}/${state.danhSachNhanVien.length})`);
+    $('#nut-tao-bao-cao').html(`TẠO & LƯU BÁO CÁO (${daBaoCao}/${state.danhSachNhanVien.length})`);
 };
 
 export const luuVaoBoNhoTam = () => {
@@ -72,7 +66,7 @@ export const luuVaoBoNhoTam = () => {
 };
 
 export const taiDuLieuTuServer = async () => {
-    hienThiTaiTrang("Đang đồng bộ dữ liệu...");
+    hienThiTaiTrang("Đang tải dữ liệu từ server...");
     try {
         ghiNhanTuongTacApi().catch(() => {});
         const duLieuGoc = await thucHienGoiApi('nhanvien?h={"$orderby":{"Ten":1}}');
@@ -83,25 +77,28 @@ export const taiDuLieuTuServer = async () => {
             trangThai: 'Chưa báo cáo', kiemTraTen: null
         }));
         
-        hienThiDanhSachNhanVien();
-        
         const tam = JSON.parse(localStorage.getItem(KHOA_BO_NHO_TAM_CUC_BO) || '{}');
         if (tam.ngay === dinhDangNgayISO(new Date())) {
             tam.duLieuNv.forEach(itemTam => {
                 const nv = state.danhSachNhanVien.find(n => n._id === itemTam._id);
-                if (nv) { nv.baoCao = itemTam.baoCao; nv.trangThai = itemTam.trangThai; nv.kiemTraTen = itemTam.kiemTraTen; }
+                if (nv) { 
+                    nv.baoCao = itemTam.baoCao; 
+                    nv.trangThai = itemTam.trangThai; 
+                    nv.kiemTraTen = itemTam.kiemTraTen; 
+                }
             });
             if(tam.vanBanKetQua) $('#vung-ket-qua-bao-cao').val(tam.vanBanKetQua);
-            hienThiDanhSachNhanVien();
         }
 
+        hienThiDanhSachNhanVien();
         anTaiTrang();
         lamMoiThongKeCsdl(capNhatWidgetDb).catch(() => {});
         await khoiPhuPhienLamViec();
     } catch (error) {
         datCheDoUngDung('offline');
-        hienThiThongBao("Đang ở chế độ ngoại tuyến", "info");
+        hienThiThongBao("Lỗi kết nối server, đang dùng dữ liệu offline", "info");
         anTaiTrang();
+        hienThiDanhSachNhanVien();
     }
 };
 
@@ -112,7 +109,7 @@ export const khoiPhuPhienLamViec = async () => {
         if (bc.length > 0) {
             bc[0].baoCaoFOS.forEach(item => {
                 const nv = state.danhSachNhanVien.find(n => n.ten === item.tenNhanVien);
-                if (nv && nv.baoCao === '') {
+                if (nv && (nv.baoCao === '' || !nv.baoCao)) {
                     nv.trangThai = (item.OFF === 0 || item.OFF === '0') ? 'Đã báo cáo' : 'Off';
                     nv.baoCao = item.rawReport || `Fos ${item.tenNhanVien} ${nv.trangThai === 'Off' ? 'OFF' : ''}`;
                 }
@@ -124,17 +121,23 @@ export const khoiPhuPhienLamViec = async () => {
             state.baoCaoLichSuGanNhat = cu[0];
             state.baoCaoLichSuGanNhat.duLieuNvLichSu = cu[0].baoCaoFOS.map(i => ({ ten: i.tenNhanVien, mtdMC: i.chiSoHieuSuat.saleTrongThang }));
         }
-    } catch (e) {}
+    } catch (e) {
+        console.warn("Không thể khôi phục phiên làm việc:", e);
+    }
 };
 
 export const thucHienTaoBaoCao = async (chiXem = false) => {
     state.danhSachNhanVien.sort((a, b) => b.chiTieu - a.chiTieu);
     hienThiDanhSachNhanVien();
+    
     const ngayHienThi = dinhDangNgayHienThi(new Date());
     let tMC = 0, tNTB = 0, tETB = 0, nvActive = 0, tPos = 0, tAE = 0;
     let dsChiTiet = [];
+    
     const mapLs = new Map();
-    if (state.baoCaoLichSuGanNhat?.duLieuNvLichSu) state.baoCaoLichSuGanNhat.duLieuNvLichSu.forEach(n => mapLs.set(n.ten, n));
+    if (state.baoCaoLichSuGanNhat?.duLieuNvLichSu) {
+        state.baoCaoLichSuGanNhat.duLieuNvLichSu.forEach(n => mapLs.set(n.ten, n));
+    }
 
     state.danhSachNhanVien.forEach(nv => {
         const icon = nv.gioiTinh === 'Nữ' ? '👵' : '👨';
@@ -142,40 +145,60 @@ export const thucHienTaoBaoCao = async (chiXem = false) => {
         let mtd = trichXuatSoLieu(bc, 'MTD MC');
         let ntb = trichXuatSoLieu(bc, 'NTB'), etb = trichXuatSoLieu(bc, 'ETB');
         let mcNay = ntb + etb;
+        
         if (mcNay === 0) mcNay = trichXuatSoLieu(bc, ['Tổng MC', 'MC']);
+        
         if ((nv.trangThai === 'Off' || mcNay === 0) && mtd === 0 && state.baoCaoLichSuGanNhat) {
-            const ls = mapLs.get(nv.ten); mtd = ls ? (ls.mtdMC || 0) : 0;
+            const ls = mapLs.get(nv.ten);
+            mtd = ls ? (ls.mtdMC || 0) : 0;
         }
+        
         if (nv.trangThai === 'Off') {
             const m = bc.match(/^Fos\s+\S+\s+(.*)$/i);
             dsChiTiet.push(`${icon}${nv.ten}: ${(m && m[1]) ? m[1].toUpperCase() : 'OFF'}/${mtd}/${nv.chiTieu}`);
         } else {
             nvActive++; tMC += mcNay; tNTB += ntb; tETB += etb;
-            tPos += trichXuatSoLieu(bc, 'Pos'); tAE += trichXuatSoLieu(bc, ['AE+', 'AE Plus']);
+            tPos += trichXuatSoLieu(bc, 'Pos');
+            tAE += trichXuatSoLieu(bc, ['AE+', 'AE Plus']);
             dsChiTiet.push(`${icon}${nv.ten}: ${mcNay}/${mtd}/${nv.chiTieu}`);
         }
     });
 
     const nsbqNTB = (nvActive > 0) ? (tNTB / nvActive).toFixed(2) : '0.00';
     const nsbqETB = (nvActive > 0) ? (tETB / nvActive).toFixed(2) : '0.00';
+    
     const res = `TNH ngày ${ngayHienThi}\n🔥${state.danhSachNhanVien.length} FOS – ${tMC} MC\n✅NTB: ${tNTB}\n✅NSBQ NTB: ${nsbqNTB}\n✅ETB: ${tETB}\n✅NSBQ ETB: ${nsbqETB}\n✅AE+: ${tAE}\n✅Pos: ${tPos}/${state.danhSachNhanVien.length * 3}\n\n⭐️Active ${nvActive}/${state.danhSachNhanVien.length}\n${dsChiTiet.join('\n')}`;
     $('#vung-ket-qua-bao-cao').val(res);
     
     if (!chiXem && layCheDoUngDung() === 'online') {
-        $('#chi-bao-dang-luu').css('display', 'flex').hide().fadeIn();
-        const cauTruc = taoCauTrucGuiBaoCao(state.danhSachNhanVien, state.baoCaoLichSuGanNhat, { tongFOS: state.danhSachNhanVien.length, tongMC: tMC, tongNTB: tNTB, nsbqNTB, tongETB: tETB, nsbqETB, tongPosThucHien: tPos, posChiTieu: state.danhSachNhanVien.length * 3, activeFOS: nvActive, tongAEPlus: tAE });
+        $('#chi-bao-dang-luu').css('display', 'flex').hide().fadeIn(200);
+        const cauTruc = taoCauTrucGuiBaoCao(state.danhSachNhanVien, state.baoCaoLichSuGanNhat, { 
+            tongFOS: state.danhSachNhanVien.length, 
+            tongMC: tMC, tongNTB: tNTB, nsbqNTB, 
+            tongETB: tETB, nsbqETB, 
+            tongPosThucHien: tPos, 
+            posChiTieu: state.danhSachNhanVien.length * 3, 
+            activeFOS: nvActive, 
+            tongAEPlus: tAE 
+        });
+        
         try {
-            const check = await thucHienGoiApi(`report?q={"ngayBaoCao":"${cauTruc.ngayBaoCao}"}`);
-            if (check.length > 0) await thucHienGoiApi(`report/${check[0]._id}`, 'PUT', cauTruc);
-            else await thucHienGoiApi('report', 'POST', cauTruc);
-            hienThiThongBao("Đã lưu báo cáo lên hệ thống!");
+            const homNay = dinhDangNgayISO(new Date());
+            const check = await thucHienGoiApi(`report?q={"ngayBaoCao":"${homNay}"}`);
+            if (check.length > 0) {
+                await thucHienGoiApi(`report/${check[0]._id}`, 'PUT', cauTruc);
+            } else {
+                await thucHienGoiApi('report', 'POST', cauTruc);
+            }
+            hienThiThongBao("Đã đồng bộ báo cáo lên hệ thống!");
             lamMoiThongKeCsdl(capNhatWidgetDb);
         } catch(e) {
-            hienThiThongBao("Lỗi khi lưu: " + e.message, "error");
+            hienThiThongBao("Lỗi lưu trữ: " + e.message, "error");
         } finally { 
-            setTimeout(() => $('#chi-bao-dang-luu').fadeOut(), 1000); 
+            setTimeout(() => $('#chi-bao-dang-luu').fadeOut(300), 1000); 
         }
     }
+    luuVaoBoNhoTam();
 };
 
 export const reconstructReportText = (reportObj) => {
@@ -201,9 +224,6 @@ export const reconstructReportText = (reportObj) => {
 };
 
 $(() => {
-    // Glow Pointer Event
-    document.body.addEventListener('pointermove', syncPointer);
-    
     khoiTaoGiaoDien();
     xayDungMenuGiaoDien();
     taiDuLieuTuServer();
