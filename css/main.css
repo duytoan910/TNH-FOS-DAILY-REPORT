@@ -1,7 +1,23 @@
 
 @import "./themes.css";
 
-/* --- Glow Engine (jh3y style) --- */
+/* --- Fixed Viewport Core --- */
+html, body {
+    height: 100vh;
+    height: -webkit-fill-available;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Quan trọng: Triệt tiêu thanh cuộn toàn trang */
+}
+
+.main-wrapper {
+    height: 100vh;
+    height: -webkit-fill-available;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Glow Engine --- */
 @property --glow-angle {
   syntax: '<angle>';
   initial-value: 0deg;
@@ -17,7 +33,7 @@
   --border-size: 1px;
   --spotlight-size: var(--glow-size);
   position: relative;
-  border-radius: 1.5rem;
+  border-radius: 1rem;
   background: var(--card-bg);
   overflow: hidden;
 }
@@ -49,7 +65,57 @@
   height: 100%;
 }
 
-/* --- Material Loader (Pirrera style) --- */
+/* --- UI BASE --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-gradient);
+    background-image: var(--bg-image), var(--bg-gradient);
+    background-size: cover; background-position: center; background-attachment: fixed;
+    color: var(--text-primary);
+    transition: background 0.5s ease;
+}
+
+h1.main-title { font-size: 1.5rem; }
+.subtitle-text { font-size: 0.8rem; }
+
+/* Custom Scrollbar cho các vùng nội bộ */
+#vung-danh-sach-nv::-webkit-scrollbar,
+textarea::-webkit-scrollbar {
+    width: 6px;
+}
+#vung-danh-sach-nv::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+#vung-danh-sach-nv {
+    background: rgba(0,0,0,0.02);
+    border-radius: 0.75rem;
+    padding: 8px;
+}
+
+.nut-ten-nv {
+    background-color: var(--btn-fos-bg);
+    border: 1px solid var(--btn-fos-border);
+    color: var(--text-primary);
+    flex: 1; text-align: left; font-weight: 600; font-size: 0.85rem;
+    border-radius: 0.5rem 0 0 0.5rem !important;
+    padding: 8px 12px; transition: all 0.2s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.nut-ten-nv.da-bao-cao { background-color: var(--accent-green) !important; color: white !important; border-color: transparent; }
+.nut-ten-nv.nghi { background-color: var(--accent-gray) !important; color: white !important; text-decoration: line-through; opacity: 0.7; border-color: transparent; }
+.nut-ten-nv.sai-ten { background-color: var(--accent-red) !important; color: white !important; border-color: transparent; }
+
+.nut-sua-nv, .nut-xoa-nv { 
+    width: 38px; border: none; font-size: 0.85rem; 
+    display: flex; align-items: center; justify-content: center;
+}
+.nut-sua-nv { background-color: var(--accent-blue); color: white; }
+.nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 0.5rem 0.5rem 0 !important; }
+
+/* Loader & Overlays */
 #lop-phu-tai-trang {
     position: fixed; top: 0; left: 0;
     width: 100%; height: 100%;
@@ -60,32 +126,21 @@
     z-index: 9999; color: white;
 }
 
-.loader-container { text-align: center; }
-
 .loader-pirrera {
-  position: relative;
-  margin: 0 auto 20px;
-  width: 60px;
+  position: relative; margin: 0 auto 10px; width: 50px;
 }
 .loader-pirrera:before { content: ''; display: block; padding-top: 100%; }
 
 .circular {
   animation: rotate 2s linear infinite;
-  height: 100%;
-  transform-origin: center center;
-  width: 100%;
-  position: absolute;
-  top: 0; bottom: 0; left: 0; right: 0;
-  margin: auto;
+  height: 100%; transform-origin: center center; width: 100%;
+  position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: auto;
 }
-
 .path {
-  stroke-dasharray: 1, 200;
-  stroke-dashoffset: 0;
+  stroke-dasharray: 1, 200; stroke-dashoffset: 0;
   animation: dash 1.5s ease-in-out infinite, color 6s ease-in-out infinite;
   stroke-linecap: round;
 }
-
 @keyframes rotate { 100% { transform: rotate(360deg); } }
 @keyframes dash {
   0% { stroke-dasharray: 1, 200; stroke-dashoffset: 0; }
@@ -99,100 +154,30 @@
   80%, 90% { stroke: #FBBC05; }
 }
 
-#chu-thich-tai-trang { font-weight: 500; font-size: 1rem; letter-spacing: 0.5px; margin-top: 10px; }
-
-/* --- UI BASE --- */
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--bg-gradient);
-    background-image: var(--bg-image), var(--bg-gradient);
-    background-size: cover; background-position: center; background-attachment: fixed;
-    color: var(--text-primary);
-    transition: background 0.5s ease, color 0.3s ease;
-    min-height: 100vh;
-    margin: 0;
+/* Toastify Fix */
+.toastify {
+    z-index: 11000 !important; /* Phải cao hơn Loader và Modal */
+    font-family: 'Poppins', sans-serif !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
 }
-
-/* Ép màu chữ dựa trên theme */
-h1, h2, h3, h4, h5, h6, .main-title, .card-title, .modal-title, .form-label, .fs-5, strong, b {
-    color: var(--text-primary) !important;
-}
-body, p, span, li, a:not(.btn), label, textarea, select {
-    color: var(--text-primary);
-}
-.text-muted, .subtitle-text, .status-detail {
-    color: var(--text-secondary) !important;
-}
-
-.settings-container { position: fixed; top: 25px; right: 25px; z-index: 1100; }
-
-#nut-cai-dat {
-    cursor: pointer; font-size: 1.5rem; color: var(--accent-blue);
-    background: var(--card-bg); width: 50px; height: 50px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 50%; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1);
-}
-#nut-cai-dat:hover { transform: rotate(90deg) scale(1.1); }
-
-.dropdown-menu {
-    border-radius: 1rem; padding: 0.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: var(--card-bg); backdrop-filter: blur(25px);
-    box-shadow: 0 15px 45px rgba(0,0,0,0.2) !important;
-}
-.dropdown-item {
-    border-radius: 0.6rem; padding: 0.6rem 1rem;
-    color: var(--text-primary) !important;
-}
-.dropdown-item:hover { background-color: rgba(0, 122, 255, 0.1); color: var(--accent-blue) !important; }
-
-.dropdown-submenu { position: relative; }
-.dropdown-submenu > .dropdown-menu { top: 0; right: 100%; left: auto; display: none; }
-.dropdown-submenu:hover > .dropdown-menu { display: block; }
-
-.form-control, .form-select {
-    background-color: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: 0.75rem;
-    color: var(--text-primary) !important;
-}
-
-#vung-danh-sach-nv {
-    max-height: 450px; overflow-y: auto;
-    padding: 12px; margin-bottom: 20px;
-    border-radius: 1.25rem; background: rgba(0,0,0,0.03);
-}
-
-.nut-ten-nv {
-    background-color: var(--btn-fos-bg);
-    border: 1px solid var(--btn-fos-border);
-    color: var(--text-primary);
-    flex: 1; text-align: left; font-weight: 600;
-    border-radius: 0.75rem 0 0 0.75rem !important;
-    padding: 10px 15px; transition: all 0.2s;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.nut-ten-nv.da-bao-cao { background-color: var(--accent-green) !important; color: white !important; }
-.nut-ten-nv.nghi { background-color: var(--accent-gray) !important; color: white !important; text-decoration: line-through; opacity: 0.8; }
-.nut-ten-nv.sai-ten { background-color: var(--accent-red) !important; color: white !important; }
-
-.nut-sua-nv { background-color: var(--accent-blue); color: white; width: 44px; border: none; }
-.nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 0.75rem 0.75rem 0 !important; width: 44px; border: none; }
 
 .db-status-widget {
-    position: fixed; bottom: 15px; left: 15px;
-    background: var(--card-bg); padding: 12px 18px; border-radius: 18px;
-    font-size: 0.7rem; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-    backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15);
+    position: fixed; bottom: 10px; left: 10px;
+    background: var(--card-bg); padding: 6px 12px; border-radius: 12px;
+    font-size: 0.65rem; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
-.status-dot.offline { background-color: var(--accent-red); box-shadow: 0 0 8px var(--accent-red); }
+.settings-container { position: fixed; top: 15px; right: 15px; z-index: 1100; }
+#nut-cai-dat {
+    width: 40px; height: 40px; font-size: 1.2rem;
+    background: var(--card-bg); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+}
 
-#chi-bao-dang-luu {
-    position: fixed; bottom: 85px; right: 20px;
-    z-index: 2000; background: var(--accent-blue); padding: 12px 24px;
-    border-radius: 50px; color: white; display: none; align-items: center; gap: 10px;
+@media (max-width: 991px) {
+    .content-section { display: flex; flex-direction: column; }
+    .col-lg-6 { flex: 1; min-height: 0; }
+    #vung-danh-sach-nv { max-height: none; }
+    .main-wrapper { padding-bottom: 40px; } /* Chừa chỗ cho widget status */
 }

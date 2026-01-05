@@ -1,3 +1,4 @@
+
 export const hienThiThongBao = (noiDung, loai = 'success') => {
     let mauNen = "linear-gradient(to right, #00b09b, #96c93d)"; // Thành công
     if (loai === 'danger' || loai === 'error') {
@@ -10,17 +11,18 @@ export const hienThiThongBao = (noiDung, loai = 'success') => {
         window.Toastify({
             text: noiDung,
             duration: 3000,
-            gravity: "bottom",
-            position: "right",
+            gravity: "top", // Đổi lên top để dễ thấy hơn trên mobile khi đang gõ phím
+            position: "center",
             stopOnFocus: true,
             style: {
                 background: mauNen,
                 borderRadius: "12px",
                 boxShadow: "0 5px 15px rgba(0,0,0,0.15)",
                 fontFamily: "'Poppins', sans-serif",
-                padding: "12px 20px",
+                padding: "10px 18px",
                 fontWeight: "500",
-                fontSize: "0.9rem"
+                fontSize: "0.85rem",
+                zIndex: "11001" // Đảm bảo luôn trên cùng
             }
         }).showToast();
     } else {
