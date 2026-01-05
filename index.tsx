@@ -1,6 +1,5 @@
 
 // Daily Report Generator - Consolidated Stable v1.4.5
-// All logic merged into one file to prevent module loading/MIME type errors.
 
 // Add global declarations for external libraries
 declare var $: any;
@@ -346,7 +345,7 @@ $(function() {
         }
     };
 
-    // --- Event Bindings ---
+    // --- EVENT BINDINGS (APP) ---
     $('#nut-tao-bao-cao').on('click', thucHienTaoBaoCao);
     $('#nut-sao-chep').on('click', () => { navigator.clipboard.writeText($('#vung-ket-qua-bao-cao').val() as string).then(() => hienThiThongBao("Đã sao chép báo cáo!")); });
     $('body').on('click', '.nut-ten-nv', function() { nhanVienHienTai = $(this).data('nv-ten'); const nv: any = danhSachNhanVien.find((n: any) => n.ten === nhanVienHienTai); if (nv) { $('#modalDanBaoCaoLabel').text(`Báo cáo: ${nhanVienHienTai}`); $('#noi-dung-bao-cao-nhap').val(nv.baoCao); modalDanBaoCao.show(); } });
