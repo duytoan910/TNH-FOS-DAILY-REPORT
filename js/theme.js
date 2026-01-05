@@ -1,58 +1,53 @@
-const DANH_SACH_GIAO_DIEN = {
-    'ios18': 'Apple iOS 18',
-    'ios26': 'Apple iOS 26 (Future)',
-    'oneui': 'Samsung OneUI',
-    'window11': 'Windows 11',
-    'pixel': 'Google Pixel',
+
+const THEMES = [
+    { name: 'iOS 18', id: 'ios18' },
+    { name: 'OneUI', id: 'oneui' },
+    { name: 'Window 11', id: 'window11' },
+    { name: 'Pastel', id: 'pastel' },
+    { name: 'Nature', id: 'nature' },
+    { name: 'Carbon', id: 'carbon' },
+    { name: 'Gaming', id: 'gaming' },
+    { name: 'Chic', id: 'chic' }
+];
+
+export const khoiTaoGiaoDien = () => {
+    let saved = localStorage.getItem('theme_preference');
+    if (saved === 'random') {
+        apDungGiaoDienNgauNhien();
+    } else if (saved) {
+        apDungGiaoDien(saved);
+    } else {
+        apDungGiaoDien('theme-ios18-light');
+    }
 };
 
 export const xayDungMenuGiaoDien = () => {
-    const menu = $('#menu-giao-dien-chon');
-    if (!menu.length) return;
-    menu.empty();
-    
-    for (const ma in DANH_SACH_GIAO_DIEN) {
-        const ten = DANH_SACH_GIAO_DIEN[ma];
-        menu.append(`
-            <div class="theme-option-group">
-                <div class="theme-option-title">${ten}</div>
-                <div class="d-flex px-3 gap-2 pb-2">
-                    <button class="btn btn-xs btn-outline-primary flex-grow-1 py-1 px-2 small lua-chon-giao-dien" data-theme="${ma}" data-mode="light" style="font-size: 0.7rem;">Sáng</button>
-                    <button class="btn btn-xs btn-outline-dark flex-grow-1 py-1 px-2 small lua-chon-giao-dien" data-theme="${ma}" data-mode="dark" style="font-size: 0.7rem;">Tối</button>
+    const $menu = $('#menu-giao-dien-chon');
+    let html = '';
+    THEMES.forEach(t => {
+        html += `
+            <li class="dropdown-submenu px-3 py-1">
+                <span class="fw-bold small text-uppercase opacity-50">${t.name}</span>
+                <div class="d-flex gap-2 mt-1">
+                    <a class="btn btn-xs btn-outline-primary lua-chon-giao-dien flex-grow-1 py-1" href="#" data-theme="${t.id}" data-mode="light">Sáng</a>
+                    <a class="btn btn-xs btn-outline-dark lua-chon-giao-dien flex-grow-1 py-1" href="#" data-theme="${t.id}" data-mode="dark">Tối</a>
                 </div>
-            </div>
-        `);
-    }
+            </li>
+        `;
+    });
+    $menu.html(html);
 };
 
-export const apDungGiaoDien = (tenLopGiaoDien) => {
-    const danhSachLop = $('body').attr('class')?.split(' ') || [];
-    for (let lop of danhSachLop) {
-        if (lop.startsWith('theme-')) {
-            $('body').removeClass(lop);
-        }
-    }
-    $('body').addClass(tenLopGiaoDien);
+export const apDungGiaoDien = (className) => {
+    $('body').attr('class', 'py-4 ' + className);
 };
 
-export const luuCauHinhGiaoDien = (luaChon) => {
-    localStorage.setItem('cau_hinh_giao_dien', luaChon);
+export const luuCauHinhGiaoDien = (className) => {
+    localStorage.setItem('theme_preference', className);
 };
 
 export const apDungGiaoDienNgauNhien = () => {
-    const danhSachMa = Object.keys(DANH_SACH_GIAO_DIEN);
-    const maNgauNhien = danhSachMa[Math.floor(Math.random() * danhSachMa.length)];
-    const cheDoNgauNhien = Math.random() < 0.5 ? 'light' : 'dark';
-    const lopGiaoDienNgauNhien = `theme-${maNgauNhien}-${cheDoNgauNhien}`;
-    apDungGiaoDien(lopGiaoDienNgauNhien);
-    luuCauHinhGiaoDien(lopGiaoDienNgauNhien);
-};
-
-export const khoiTaoGiaoDien = () => {
-    const cauHinhCu = localStorage.getItem('cau_hinh_giao_dien') || 'theme-ios18-light';
-    if (cauHinhCu === 'random') {
-        apDungGiaoDienNgauNhien();
-    } else {
-        apDungGiaoDien(cauHinhCu);
-    }
+    const t = THEMES[Math.floor(Math.random() * THEMES.length)];
+    const m = Math.random() > 0.5 ? 'light' : 'dark';
+    apDungGiaoDien(`theme-${t.id}-${m}`);
 };

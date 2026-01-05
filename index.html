@@ -1,247 +1,237 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Trình Tạo Báo Cáo TNH</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trình Tạo Báo Cáo Hàng Ngày | v1.4.5-stable</title>
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%23E2E2E2' d='M400 0H112C85.5 0 64 21.5 64 48v416c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V112L400 0z'/%3E%3Cpath fill='%23BDBDBD' d='M448 112h-64V48L448 112z'/%3E%3Crect x='112' y='48' width='224' height='48' rx='8' fill='%23F5A623'/%3E%3Crect x='112' y='272' width='160' height='16' rx='8' fill='%239B9B9B'/%3E%3Crect x='112' y='304' width='288' height='16' rx='8' fill='%239B9B9B'/%3E%3Crect x='112' y='336' width='224' height='16' rx='8' fill='%239B9B9B'/%3E%3Crect x='112' y='432' width='120' height='16' rx='8' fill='%239B9B9B'/%3E%3Crect x='144' y='184' width='32' height='56' rx='4' fill='%234A90E2'/%3E%3Crect x='192' y='144' width='32' height='96' rx='4' fill='%23D0021B'/%3E%3Crect x='240' y='112' width='32' height='128' rx='4' fill='%23706CB0'/%3E%3Cpath fill='%23F8E71C' d='M312 408l-40 40 160 160 40-40L312 408z' transform='rotate(-45 350 350)'/%3E%3Cpath fill='%23D0021B' d='M430 240l30 30-20 20-30-30z' transform='rotate(-45 440 250)'/%3E%3Cpath fill='%23333' d='M275 445l15 35 35-15z' transform='rotate(-45 290 460)'/%3E%3C/svg%3E">
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap & Plugins -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="./css/main.css">
 </head>
-<body class="theme-ios18-light">
+<body class="py-4">
 
     <!-- Loading Overlay -->
     <div id="lop-phu-tai-trang">
-        <div class="loader-container text-center">
-            <div class="spinner-border text-light mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
-            <div id="chu-thich-tai-trang" class="text-light">Đang tải dữ liệu...</div>
+        <div class="loader-container">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+            <div id="chu-thich-tai-trang" class="mt-3 fw-bold">Đang tải dữ liệu...</div>
         </div>
     </div>
     
-    <!-- Toast Indicator -->
     <div id="chi-bao-dang-luu">
-        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-        <span>Đang đồng bộ...</span>
+        <div class="spinner-border spinner-border-sm" role="status"></div>
+        <span>Đang lưu...</span>
     </div>
     
-    <!-- Status Bar (Toggleable) -->
-    <div class="db-status-widget shadow-sm" id="widget-he-thong">
-        <div id="widget-toggle-btn" class="d-flex align-items-center gap-2" style="cursor: pointer;">
+    <!-- Widget Trạng thái -->
+    <div class="db-status-widget">
+        <div class="status-header d-flex align-items-center gap-2">
             <span id="cham-trang-thai-db" class="status-dot"></span>
-            <span class="small fw-bold">Trạng thái</span>
-            <i class="fa-solid fa-chevron-up ms-1" id="widget-chevron" style="font-size: 0.6rem; transition: transform 0.3s;"></i>
+            <span id="chu-trang-thai-db">Kết nối...</span>
+            <span class="status-divider"></span>
+            <span class="fw-bold">v1.4.5-stable</span>
         </div>
-        <div id="widget-noi-dung-mo-rong" style="display: none; padding-top: 8px; margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.05);">
-            <div class="small">Kết nối: <span id="chu-trang-thai-db">Checking...</span></div>
-            <div class="small">Truy cập: <span id="luong-truy-cap-api" class="badge bg-secondary rounded-pill">0</span></div>
-            <div class="mt-1 pt-1 border-top" style="font-size: 0.6rem; line-height: 1.2;">
-                <div class="text-muted">Build: <span class="fw-bold text-primary">v2.5.1-stable</span></div>
-                <div class="text-muted">Updated: 24/05/2024</div>
-            </div>
+        <div class="status-detail mt-1">
+            <span id="so-luong-nv-db">NV: -</span> 
+            <span class="opacity-50">|</span> 
+            <span id="so-luong-bao-cao-db">BC: -</span>
+            <span id="luong-truy-cap-api" class="text-muted small">(-)</span>
         </div>
     </div>
     
-    <!-- Theme Switcher -->
     <div class="settings-container">
         <div class="dropdown">
-            <button class="btn btn-light shadow-sm rounded-circle p-2" type="button" id="nut-cai-dat-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-gear"></i>
+            <button class="btn p-0 border-0" type="button" id="nut-cai-dat-dropdown" data-bs-toggle="dropdown">
+                <div id="nut-cai-dat"><i class="fa-solid fa-gear"></i></div>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2" style="min-width: 220px;" aria-labelledby="nut-cai-dat-dropdown">
-                <li><h6 class="dropdown-header">Cài đặt & Công cụ</h6></li>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                 <li><a class="dropdown-item py-2" id="nut-giao-dien-ngau-nhien" href="#"><i class="fa-solid fa-shuffle me-2 text-primary"></i>Giao diện ngẫu nhiên</a></li>
-                
-                <!-- Submenu Giao diện -->
                 <li class="dropdown-submenu">
-                    <button class="dropdown-item dropdown-toggle py-2" id="nut-mo-submenu-giao-dien">
-                        <i class="fa-solid fa-palette me-2 text-success"></i>Đổi giao diện
-                    </button>
-                    <div id="container-submenu-giao-dien" style="display: none; background: rgba(0,0,0,0.02); border-radius: 8px; margin: 5px 10px; padding: 5px 0;">
-                        <div id="menu-giao-dien-chon"></div>
-                    </div>
+                    <a class="dropdown-item dropdown-toggle py-2" href="#"><i class="fa-solid fa-palette me-2 text-primary"></i>Thay đổi giao diện</a>
+                    <ul class="dropdown-menu shadow border-0" id="menu-giao-dien-chon"></ul>
                 </li>
-
                 <li><hr class="dropdown-divider"></li>
-                <li><h6 class="dropdown-header">Liên kết ngoài</h6></li>
-                <li><a class="dropdown-item py-2" href="https://github.com/duytoan910/TNH" target="_blank"><i class="fa-brands fa-github me-2"></i>GitHub Repository</a></li>
-                <li><a class="dropdown-item py-2" href="https://aistudio.google.com/" target="_blank"><i class="fa-solid fa-robot me-2 text-warning"></i>Google AI Studio</a></li>
+                <li><a class="dropdown-item py-2" href="https://github.com/duytoan910/TNH" target="_blank"><i class="fa-brands fa-github me-2 text-primary"></i>GitHub Project</a></li>
             </ul>
         </div>
     </div>
 
-    <div class="main-content container-fluid py-3 py-md-4">
-        <header class="text-center mb-4">
-            <h1 class="fw-bold h3 mb-1">Trình Tạo Báo Cáo TNH</h1>
-            <p class="text-muted small">Hệ thống tổng hợp báo cáo kinh doanh chuyên nghiệp.</p>
-        </header>
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="main-title fw-bold">Trình Tạo Báo Cáo Hàng Ngày</h1>
+            <p class="subtitle-text opacity-75">Hệ thống tổng hợp báo cáo kinh doanh chuyên nghiệp.</p>
+        </div>
 
-        <div class="row g-3">
-            <!-- Employee List Section -->
+        <div class="row g-4">
             <div class="col-lg-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body d-flex flex-column" style="min-height: 400px;">
+                <div class="card glass-card h-100">
+                    <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="card-title mb-0 fw-bold"><i class="fa-solid fa-users me-2 text-primary"></i>Nhân Viên</h5>
-                            <div class="d-flex gap-3 text-primary">
-                                <i class="fa-solid fa-file-import action-icon" title="Dán hàng loạt" data-bs-toggle="modal" data-bs-target="#modal-dan-nhieu-bao-cao"></i>
-                                <i class="fa-solid fa-user-plus action-icon" title="Thêm nhân viên" data-bs-toggle="modal" data-bs-target="#modal-them-nhan-vien"></i>
+                            <h3 class="mb-0 fs-5 fw-bold">1. Danh sách Nhân Viên</h3>
+                            <div class="d-flex gap-3">
+                                <i class="fa-solid fa-file-import text-primary" title="Dán nhiều" data-bs-toggle="modal" data-bs-target="#modal-dan-nhieu-bao-cao" style="cursor: pointer; font-size: 1.2rem;"></i>
+                                <i class="fa-solid fa-user-plus text-primary" title="Thêm NV" data-bs-toggle="modal" data-bs-target="#modal-them-nhan-vien" style="cursor: pointer; font-size: 1.2rem;"></i>
                             </div>
                         </div>
-                        <div id="vung-danh-sach-nv" class="flex-grow-1 overflow-auto pe-2 custom-scrollbar">
-                            <div class="text-center py-5 text-muted">Đang tải danh sách...</div>
+                        <div id="vung-danh-sach-nv">
+                            <div class="text-center py-4 opacity-50">Đang tải danh sách...</div>
                         </div>
-                        <div class="mt-3">
-                            <button id="nut-tao-bao-cao" class="btn btn-primary w-100 py-2 fw-bold shadow-sm">TẠO & LƯU BÁO CÁO</button>
+                        <div class="d-grid mt-3">
+                            <button id="nut-tao-bao-cao" class="btn btn-primary btn-lg shadow-sm">Tạo & Lưu Báo Cáo</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Result Section -->
             <div class="col-lg-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body d-flex flex-column" style="min-height: 400px;">
+                <div class="card glass-card h-100">
+                    <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="card-title mb-0 fw-bold"><i class="fa-solid fa-file-lines me-2 text-success"></i>Kết Quả</h5>
+                            <h3 class="mb-0 fs-5 fw-bold">2. Kết quả báo cáo</h3>
                             <div class="d-flex gap-2">
                                 <button id="nut-xem-bao-cao-cu-kich-hoat" class="btn btn-sm btn-outline-secondary">Lịch sử</button>
-                                <button id="nut-sao-chep" class="btn btn-sm btn-success px-3">Sao chép</button>
+                                <button id="nut-sao-chep" class="btn btn-sm btn-primary">Sao chép</button>
                             </div>
                         </div>
-                        <div class="flex-grow-1">
-                            <textarea id="vung-ket-qua-bao-cao" class="form-control h-100" spellcheck="false" placeholder="Kết quả sẽ hiển thị tại đây..."></textarea>
-                        </div>
+                        <textarea id="vung-ket-qua-bao-cao" class="form-control" rows="13" style="font-family: 'Courier New', monospace;"></textarea>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modals (Không thay đổi cấu trúc modal cũ để giữ tính ổn định) -->
-    <!-- (Modal nội dung báo cáo đơn) -->
-    <div class="modal fade" id="modal-dan-bao-cao" tabindex="-1">
+    <!-- MODAL: NHẬP BÁO CÁO ĐƠN -->
+    <div class="modal fade" id="modal-dan-bao-cao" tabindex="-1" aria-labelledby="modalDanBaoCaoLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold" id="modalDanBaoCaoLabel">Báo cáo</h5>
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalDanBaoCaoLabel">Báo cáo nhân viên</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body pt-0">
-                    <textarea id="noi-dung-bao-cao-nhap" class="form-control mb-2" rows="6" placeholder="Dán nội dung báo cáo..."></textarea>
-                    <div class="text-end">
-                        <button type="button" id="nut-dan-tu-bo-nho" class="btn btn-sm btn-light text-primary border"><i class="fa-solid fa-paste me-1"></i>Dán từ Clipboard</button>
+                <div class="modal-body">
+                    <textarea id="noi-dung-bao-cao-nhap" class="form-control mb-3" rows="8" placeholder="Dán báo cáo vào đây..."></textarea>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" id="nut-danh-dau-off" class="btn btn-sm btn-outline-secondary">Đánh dấu OFF</button>
+                        <button type="button" id="nut-dan-tu-bo-nho" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-paste me-1"></i>Dán từ bộ nhớ</button>
                     </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" id="nut-luu-bao-cao-don" class="btn btn-primary btn-sm px-4">Lưu</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" id="nut-luu-bao-cao-don" class="btn btn-primary">Lưu báo cáo</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- (Modal sửa nhanh) -->
-    <div class="modal fade" id="modal-sua-bao-cao" tabindex="-1">
+    <!-- MODAL: SỬA NHANH -->
+    <div class="modal fade" id="modal-sua-bao-cao" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-0">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header">
                     <h5 class="modal-title fw-bold" id="tieu-de-modal-sua-bao-cao">Sửa nhanh</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body pt-0">
-                    <div class="row g-2">
-                        <div class="col-6"><label class="form-label small mb-1">NTB</label><input type="number" id="ntb-sua" class="form-control"></div>
-                        <div class="col-6"><label class="form-label small mb-1">ETB</label><input type="number" id="etb-sua" class="form-control"></div>
-                        <div class="col-6"><label class="form-label small mb-1">AE+</label><input type="number" id="aeplus-sua" class="form-control"></div>
-                        <div class="col-6"><label class="form-label small mb-1">Pos</label><input type="number" id="pos-sua" class="form-control"></div>
-                        <div class="col-12"><label class="form-label small mb-1">MTD MC (Lũy kế tháng)</label><input type="number" id="mtd-sua" class="form-control"></div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-6"><label class="form-label small">NTB</label><input type="number" id="ntb-sua" class="form-control"></div>
+                        <div class="col-6"><label class="form-label small">ETB</label><input type="number" id="etb-sua" class="form-control"></div>
+                        <div class="col-6"><label class="form-label small">AE+</label><input type="number" id="aeplus-sua" class="form-control"></div>
+                        <div class="col-6"><label class="form-label small">Pos</label><input type="number" id="pos-sua" class="form-control"></div>
+                        <div class="col-12"><label class="form-label small">MTD MC</label><input type="number" id="mtd-sua" class="form-control"></div>
                     </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" id="nut-xac-nhan-sua-bao-cao" class="btn btn-primary btn-sm px-4">Cập nhật</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" id="nut-xac-nhan-sua-bao-cao" class="btn btn-primary">Cập nhật</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- (Modal nhập hàng loạt) -->
-    <div class="modal fade" id="modal-dan-nhieu-bao-cao" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">Nhập dữ liệu hàng loạt</h5>
+    <!-- MODAL: DÁN NHIỀU BÁO CÁO -->
+    <div class="modal fade" id="modal-dan-nhieu-bao-cao" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Nhập hàng loạt</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body pt-0">
-                    <textarea id="noi-dung-nhieu-bao-cao-nhap" class="form-control" rows="12" placeholder="Dán toàn bộ tin nhắn báo cáo từ nhóm Zalo/Tele tại đây..."></textarea>
+                <div class="modal-body">
+                    <p class="small text-muted mb-2">Dán toàn bộ tin nhắn từ Zalo/Telegram (Yêu cầu có từ khóa "Fos [Tên]").</p>
+                    <textarea id="noi-dung-nhieu-bao-cao-nhap" class="form-control" rows="12" placeholder="Fos Toàn...&#10;Fos Giang..."></textarea>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" id="nut-xu-ly-nhieu-bao-cao" class="btn btn-primary btn-sm px-4">Xử lý dữ liệu</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" id="nut-xu-ly-nhieu-bao-cao" class="btn btn-primary">Xử lý dữ liệu</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- (Modal thêm NV) -->
-    <div class="modal fade" id="modal-them-nhan-vien" tabindex="-1">
+    <!-- MODAL: THÊM NHÂN VIÊN -->
+    <div class="modal fade" id="modal-them-nhan-vien" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">Thêm nhân viên mới</h5>
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Thêm Nhân Viên Mới</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body pt-0">
-                    <div class="mb-3"><label class="form-label small">Họ tên</label><input type="text" id="ten-nv-moi" class="form-control"></div>
-                    <div class="mb-3"><label class="form-label small">Giới tính</label><select id="gioi-tinh-nv-moi" class="form-select"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
-                    <div class="mb-0"><label class="form-label small">Chỉ tiêu MC</label><input type="number" id="chi-tieu-nv-moi" class="form-control" value="50"></div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">Tên nhân viên</label><input type="text" id="ten-nv-modal" class="form-control" placeholder="Nhập tên..."></div>
+                    <div class="mb-3"><label class="form-label">Giới tính</label><select id="gioi-tinh-nv-modal" class="form-select"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
+                    <div class="mb-0"><label class="form-label">Chỉ tiêu MC</label><input type="number" id="chi-tieu-nv-modal" class="form-control" value="50"></div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" id="nut-luu-nv-moi" class="btn btn-primary btn-sm px-4">Lưu nhân viên</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" id="nut-luu-nv-moi" class="btn btn-primary">Thêm</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- (Modal xác nhận xóa) -->
-    <div class="modal fade" id="modal-xac-nhan-xoa" tabindex="-1">
-        <div class="modal-dialog modal-sm modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-body text-center py-4">
+    <!-- MODAL: XÁC NHẬN XOÁ -->
+    <div class="modal fade" id="modal-xac-nhan-xoa" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Xác nhận xoá</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-3">
                     <i class="fa-solid fa-triangle-exclamation text-danger mb-3" style="font-size: 3rem;"></i>
-                    <h5 class="fw-bold mb-2">Xác nhận xóa?</h5>
-                    <p id="noi-dung-xac-nhan-xoa" class="text-muted small mb-0">Hành động này không thể hoàn tác.</p>
+                    <p id="noi-dung-xac-nhan-xoa" class="mb-0">Bạn có chắc muốn xoá nhân viên này?</p>
                 </div>
-                <div class="modal-footer border-0 justify-content-center pt-0">
-                    <button type="button" class="btn btn-light btn-sm px-3" data-bs-dismiss="modal">Quay lại</button>
-                    <button type="button" id="nut-xoa-nv-dong-y" class="btn btn-danger btn-sm px-3">Đồng ý xóa</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" id="nut-xac-nhan-xoa-vinh-vien" class="btn btn-danger">Đồng ý xoá</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- (Modal lịch sử) -->
-    <div class="modal fade" id="modal-xem-bao-cao-cu" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">Lịch sử báo cáo</h5>
+    <!-- MODAL LỊCH SỬ -->
+    <div class="modal fade" id="modal-xem-bao-cao-cu" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Tra cứu lịch sử</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body pt-0 d-flex flex-column" style="max-height: 70vh;">
-                    <select id="chon-ngay-lich-su" class="form-select mb-3 shadow-sm"></select>
-                    <textarea id="vung-ket-qua-bao-cao-cu" class="form-control flex-grow-1" readonly style="font-family: 'Courier New', monospace; font-size: 0.85rem; background: #f8f9fa;"></textarea>
+                <div class="modal-body">
+                    <select id="chon-ngay-lich-su" class="form-select mb-3 shadow-sm d-none"></select>
+                    <textarea id="vung-ket-qua-bao-cao-cu" class="form-control" rows="10" readonly style="font-family: 'Courier New', monospace;"></textarea>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" id="nut-sao-chep-lich-su" class="btn btn-success btn-sm">Sao chép</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
                 </div>
             </div>
         </div>
@@ -251,6 +241,6 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script type="module" src="./js/app.js"></script>
+    <script type="module" src="./index.tsx"></script>
 </body>
 </html>
