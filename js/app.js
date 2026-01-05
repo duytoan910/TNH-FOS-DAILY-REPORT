@@ -2,7 +2,6 @@
 import { thucHienGoiApi, lamMoiThongKeCsdl, ghiNhanTuongTacApi } from './api.js';
 import { dinhDangNgayHienThi, dinhDangNgayISO, trichXuatSoLieu, hienThiThongBao } from './utils.js';
 import { khoiTaoGiaoDien, xayDungMenuGiaoDien, apDungGiaoDien, luuCauHinhGiaoDien } from './theme.js';
-import { kiemTraTenTrongBaoCao, taoCauTrucGuiBaoCao } from './report.js';
 import { KHOA_BO_NHO_TAM_CUC_BO } from './config.js';
 
 $(function() {
@@ -17,13 +16,13 @@ $(function() {
     const hienThiDanhSachNhanVien = () => {
         const $vung = $('#vung-danh-sach-nv');
         if (danhSachNhanVien.length === 0) {
-            $vung.html('<div class="text-center py-4 text-muted small">Đang tải dữ liệu...</div>');
+            $vung.html('<div class="text-center py-4 text-muted small w-100">Không có dữ liệu nhân viên.</div>');
             return;
         }
 
         let html = '';
         danhSachNhanVien.forEach(nv => {
-            let lopNut = 'btn w-100 text-start py-2 px-3 rounded-4 shadow-sm nut-ten-nv';
+            let lopNut = 'btn w-100 text-start py-2 px-3 rounded-4 shadow-sm nut-ten-nv mb-2';
             if (nv.trangThai === 'Đã báo cáo') lopNut += ' btn-reported';
             else if (nv.trangThai === 'Off') lopNut += ' btn-off';
             else lopNut += ' btn-light';
@@ -42,38 +41,50 @@ $(function() {
 
     const taiDuLieuServer = async () => {
         try {
-            const data = await thucHienGoiApi('nhanvien?h={"$orderby":{"Ten":1}}');
-            danhSachNhanVien = data.map(i => ({
-                _id: i._id,
-                ten: i.Ten,
-                gioiTinh: i.GioiTinh,
-                chiTieu: parseInt(i.ChiTieu) || 50,
-                trangThai: 'Chưa báo cáo',
-                baoCao: ''
-            }));
+            // Mã hóa hint orderby cho RestDB
+            const hint = encodeURIComponent('{"Ten":1}');
+            const data = await thucHienGoiApi(`nhanvien?h={"$orderby":${hint}}`);
+            
+            if (data && Array.isArray(data)) {
+                danhSachNhanVien = data.map(i => ({
+                    _id: i._id,
+                    ten: i.Ten,
+                    gioiTinh: i.GioiTinh,
+                    chiTieu: parseInt(i.ChiTieu) || 50,
+                    trangThai: 'Chưa báo cáo',
+                    baoCao: ''
+                }));
+            }
             
             // Khôi phục từ bộ nhớ tạm
-            const tam = JSON.parse(localStorage.getItem(KHOA_BO_NHO_TAM_CUC_BO) || '{}');
-            if (tam.ngay === dinhDangNgayISO(new Date())) {
-                tam.duLieuNv?.forEach(t => {
-                    const nv = danhSachNhanVien.find(n => n._id === t._id);
-                    if (nv) {
-                        nv.trangThai = t.trangThai;
-                        nv.baoCao = t.baoCao;
-                    }
-                });
+            const tamStr = localStorage.getItem(KHOA_BO_NHO_TAM_CUC_BO);
+            if (tamStr) {
+                const tam = JSON.parse(tamStr);
+                if (tam.ngay === dinhDangNgayISO(new Date())) {
+                    tam.duLieuNv?.forEach(t => {
+                        const nv = danhSachNhanVien.find(n => n._id === t._id);
+                        if (nv) {
+                            nv.trangThai = t.trangThai;
+                            nv.baoCao = t.baoCao;
+                        }
+                    });
+                }
             }
 
             hienThiDanhSachNhanVien();
+            
             lamMoiThongKeCsdl((ok, slNv, slBc, access) => {
-                $('#cham-trang-thai-db').addClass(ok ? 'online' : 'offline');
+                const $dot = $('#cham-trang-thai-db');
+                $dot.removeClass('online offline').addClass(ok ? 'online' : 'offline');
                 $('#chu-trang-thai-db').text(ok ? 'RestDB Connected' : 'Disconnected');
                 $('#so-luong-nv-db').text(`NV: ${slNv}`);
                 $('#so-luong-bao-cao-db').text(`BC: ${slBc}`);
                 $('#luong-truy-cap-api').text(`(${access})`);
             });
+            
             ghiNhanTuongTacApi();
         } catch (e) {
+            console.error("Lỗi tải dữ liệu:", e);
             hienThiThongBao("Lỗi kết nối server", "error");
         } finally {
             $('#lop-phu-tai-trang').fadeOut();
@@ -84,10 +95,12 @@ $(function() {
     $(document).on('click', '.nut-ten-nv', function() {
         nhanVienHienTai = $(this).data('nv-ten');
         const nv = danhSachNhanVien.find(n => n.ten === nhanVienHienTai);
-        $('#modalDanBaoCaoLabel').text(`Báo cáo: ${nhanVienHienTai}`);
-        $('#noi-dung-bao-cao-nhap').val(nv.baoCao || '');
-        const modal = new bootstrap.Modal('#modal-dan-bao-cao');
-        modal.show();
+        if (nv) {
+            $('#modalDanBaoCaoLabel').text(`Báo cáo: ${nhanVienHienTai}`);
+            $('#noi-dung-bao-cao-nhap').val(nv.baoCao || '');
+            const modal = new bootstrap.Modal(document.getElementById('modal-dan-bao-cao'));
+            modal.show();
+        }
     });
 
     $('#nut-luu-bao-cao-don').on('click', function() {
@@ -96,8 +109,9 @@ $(function() {
             nv.baoCao = $('#noi-dung-bao-cao-nhap').val();
             nv.trangThai = 'Đã báo cáo';
             hienThiDanhSachNhanVien();
-            bootstrap.Modal.getInstance('#modal-dan-bao-cao').hide();
+            bootstrap.Modal.getInstance(document.getElementById('modal-dan-bao-cao')).hide();
             hienThiThongBao(`Đã cập nhật ${nv.ten}`);
+            luuTamLocalStorage();
         }
     });
 
@@ -107,12 +121,19 @@ $(function() {
             nv.baoCao = `Fos ${nv.ten} OFF`;
             nv.trangThai = 'Off';
             hienThiDanhSachNhanVien();
-            bootstrap.Modal.getInstance('#modal-dan-bao-cao').hide();
+            bootstrap.Modal.getInstance(document.getElementById('modal-dan-bao-cao')).hide();
+            luuTamLocalStorage();
         }
     });
 
+    const luuTamLocalStorage = () => {
+        localStorage.setItem(KHOA_BO_NHO_TAM_CUC_BO, JSON.stringify({
+            ngay: dinhDangNgayISO(new Date()),
+            duLieuNv: danhSachNhanVien.map(n => ({ _id: n._id, trangThai: n.trangThai, baoCao: n.baoCao }))
+        }));
+    };
+
     $('#nut-tao-bao-cao').on('click', function() {
-        // Logic tạo báo cáo tương tự bản cũ nhưng dùng report.js
         let tMC = 0, tNTB = 0, tETB = 0, tPos = 0, tAE = 0, active = 0;
         let details = [];
 
@@ -141,12 +162,7 @@ $(function() {
         
         $('#vung-ket-qua-bao-cao').val(res);
         hienThiThongBao("Đã tổng hợp báo cáo!");
-        
-        // Lưu cache
-        localStorage.setItem(KHOA_BO_NHO_TAM_CUC_BO, JSON.stringify({
-            ngay: dinhDangNgayISO(new Date()),
-            duLieuNv: danhSachNhanVien.map(n => ({ _id: n._id, trangThai: n.trangThai, baoCao: n.baoCao }))
-        }));
+        luuTamLocalStorage();
     });
 
     $('#nut-sao-chep').on('click', function() {
