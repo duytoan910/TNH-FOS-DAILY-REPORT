@@ -1,4 +1,7 @@
 
+// Add global declaration for jQuery
+declare var $: any;
+
 const THEMES = [
     { name: 'iOS 18', id: 'ios18' },
     { name: 'OneUI', id: 'oneui' },

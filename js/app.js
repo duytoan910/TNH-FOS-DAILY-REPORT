@@ -5,6 +5,10 @@ import { khoiTaoGiaoDien, xayDungMenuGiaoDien, apDungGiaoDien, luuCauHinhGiaoDie
 import { thucHienGoiApi, ghiNhanTuongTacApi, lamMoiThongKeCsdl, datCheDoUngDung, layCheDoUngDung } from './api.js';
 import { kiemTraTenTrongBaoCao, taoCauTrucGuiBaoCao } from './report.js';
 
+// Add global declarations for external libraries
+declare var $: any;
+declare var bootstrap: any;
+
 $(function() {
     let danhSachNhanVien = []; 
     let baoCaoLichSuGanNhat = null; 
@@ -239,7 +243,7 @@ $(function() {
         const ten = $('#ten-nv-modal').val().trim(), gt = $('#gioi-tinh-nv-modal').val(), ct = $('#chi-tieu-nv-modal').val();
         if (ten) {
             try { await thucHienGoiApi('nhanvien', 'POST', { Ten: ten, GioiTinh: gt, ChiTieu: ct }); modalThemNv.hide(); taiDuLieuTuServer(); }
-            catch (e) { hienThiThongBao(e.message, 'error'); }
+            catch (e: any) { hienThiThongBao(e.message, 'error'); }
         }
     });
 
@@ -251,7 +255,7 @@ $(function() {
 
     $('#nut-xac-nhan-xoa-vinh-vien').on('click', async () => {
         try { await thucHienGoiApi(`nhanvien/${nhanVienCanXoa.id}`, 'DELETE'); taiDuLieuTuServer(); modalXacNhanXoa.hide(); }
-        catch (e) { hienThiThongBao(e.message, 'error'); }
+        catch (e: any) { hienThiThongBao(e.message, 'error'); }
     });
 
     // Theme stuff

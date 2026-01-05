@@ -1,4 +1,7 @@
 
+// Add global declaration for jQuery
+declare var $: any;
+
 export const hienThiThongBao = (noiDung, loai = 'success') => {
     let bg = "linear-gradient(to right, #00b09b, #96c93d)";
     if (loai === 'error' || loai === 'danger') bg = "linear-gradient(to right, #ff5f6d, #ffc371)";

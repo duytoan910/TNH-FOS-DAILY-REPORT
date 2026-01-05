@@ -1,5 +1,9 @@
+
 import { DUONG_DAN_CSDL, TIEU_DE_TRUY_VAN } from './config.js';
 import { dinhDangNgayISO } from './utils.js';
+
+// Add global declaration for jQuery
+declare var $: any;
 
 let cheDoUngDung = 'online';
 
