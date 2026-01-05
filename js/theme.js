@@ -1,4 +1,3 @@
-
 const DANH_SACH_GIAO_DIEN = {
     'ios18': 'iOS 18',
     'oneui': 'OneUI',
@@ -14,16 +13,17 @@ export const xayDungMenuGiaoDien = () => {
     const menu = $('#menu-giao-dien-chon');
     if (!menu.length) return;
     menu.empty();
+    
     for (const ma in DANH_SACH_GIAO_DIEN) {
         const ten = DANH_SACH_GIAO_DIEN[ma];
         menu.append(`
-            <li class="dropdown-submenu">
-                <a class="dropdown-item dropdown-toggle" href="javascript:void(0)">${ten}</a>
-                <ul class="dropdown-menu shadow border-0">
-                    <li><a class="dropdown-item lua-chon-giao-dien" href="#" data-theme="${ma}" data-mode="light">Chế độ Sáng</a></li>
-                    <li><a class="dropdown-item lua-chon-giao-dien" href="#" data-theme="${ma}" data-mode="dark">Chế độ Tối</a></li>
-                </ul>
-            </li>
+            <div class="theme-option-group">
+                <div class="theme-option-title">${ten}</div>
+                <div class="d-flex px-3 gap-2 pb-2">
+                    <button class="btn btn-xs btn-outline-primary flex-grow-1 py-1 px-2 small lua-chon-giao-dien" data-theme="${ma}" data-mode="light" style="font-size: 0.7rem;">Sáng</button>
+                    <button class="btn btn-xs btn-outline-dark flex-grow-1 py-1 px-2 small lua-chon-giao-dien" data-theme="${ma}" data-mode="dark" style="font-size: 0.7rem;">Tối</button>
+                </div>
+            </div>
         `);
     }
 };
@@ -48,6 +48,7 @@ export const apDungGiaoDienNgauNhien = () => {
     const cheDoNgauNhien = Math.random() < 0.5 ? 'light' : 'dark';
     const lopGiaoDienNgauNhien = `theme-${maNgauNhien}-${cheDoNgauNhien}`;
     apDungGiaoDien(lopGiaoDienNgauNhien);
+    luuCauHinhGiaoDien(lopGiaoDienNgauNhien);
 };
 
 export const khoiTaoGiaoDien = () => {

@@ -1,4 +1,3 @@
-
 export const hienThiThongBao = (noiDung, loai = 'success') => {
     let mauNen = "linear-gradient(to right, #00b09b, #96c93d)"; // Thành công
     if (loai === 'danger' || loai === 'error') {
@@ -10,36 +9,39 @@ export const hienThiThongBao = (noiDung, loai = 'success') => {
     if (window.Toastify) {
         window.Toastify({
             text: noiDung,
-            duration: 3000,
-            gravity: "top", // Đổi lên top để dễ thấy hơn trên mobile khi đang gõ phím
+            duration: 3500,
+            gravity: "top",
             position: "center",
             stopOnFocus: true,
+            close: true,
             style: {
                 background: mauNen,
-                borderRadius: "12px",
-                boxShadow: "0 5px 15px rgba(0,0,0,0.15)",
+                borderRadius: "15px",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
                 fontFamily: "'Poppins', sans-serif",
-                padding: "10px 18px",
-                fontWeight: "500",
-                fontSize: "0.85rem",
-                zIndex: "11001" // Đảm bảo luôn trên cùng
+                padding: "12px 24px",
+                fontWeight: "600",
+                fontSize: "0.9rem",
+                zIndex: "20000" 
             }
         }).showToast();
     } else {
         console.log(`[${loai}] ${noiDung}`);
+        alert(noiDung);
     }
 };
 
-export const hienThiTaiTrang = (chuThich = "Đang xử lý...") => {
+export const hienThiTaiTrang = (chuThich = "Đang tải...") => {
     $('#chu-thich-tai-trang').text(chuThich);
-    $('#lop-phu-tai-trang').css('display', 'flex');
+    $('#lop-phu-tai-trang').css('display', 'flex').hide().fadeIn(200);
 };
 
 export const anTaiTrang = () => {
-    $('#lop-phu-tai-trang').hide();
+    $('#lop-phu-tai-trang').fadeOut(300);
 };
 
 export const dinhDangNgayHienThi = (ngay) => {
+     if(!ngay) return "--/--/----";
      const n = new Date(ngay);
      const d = String(n.getDate()).padStart(2, '0');
      const m = String(n.getMonth() + 1).padStart(2, '0');

@@ -1,4 +1,3 @@
-
 import { KHOA_BO_NHO_TAM_CUC_BO } from './config.js';
 import { hienThiThongBao, hienThiTaiTrang, anTaiTrang, dinhDangNgayHienThi, dinhDangNgayISO, trichXuatSoLieu } from './utils.js';
 import { khoiTaoGiaoDien, xayDungMenuGiaoDien } from './theme.js';
@@ -24,14 +23,12 @@ export const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
     const $chu = $('#chu-trang-thai-db');
     if (trucTuyen) {
         $cham.removeClass('offline').addClass('online');
-        $chu.text('RestDB Online');
+        $chu.text('RestDB Connected');
     } else {
         $cham.removeClass('online').addClass('offline');
         $chu.text('Offline Mode');
     }
-    if (slNv !== null) $('#so-luong-nv-db').text(`NV: ${slNv}`);
-    if (slBaoCao !== null) $('#so-luong-bao-cao-db').text(`BC: ${slBaoCao}`);
-    if (slTruyCap !== null) $('#luong-truy-cap-api').text(`(${slTruyCap})`);
+    if (slTruyCap !== null) $('#luong-truy-cap-api').text(slTruyCap);
 };
 
 export const hienThiDanhSachNhanVien = () => {
@@ -75,7 +72,7 @@ export const luuVaoBoNhoTam = () => {
 };
 
 export const taiDuLieuTuServer = async () => {
-    hienThiTaiTrang("Đang tải danh sách FOS...");
+    hienThiTaiTrang("Đang đồng bộ dữ liệu...");
     try {
         ghiNhanTuongTacApi().catch(() => {});
         const duLieuGoc = await thucHienGoiApi('nhanvien?h={"$orderby":{"Ten":1}}');
@@ -103,7 +100,7 @@ export const taiDuLieuTuServer = async () => {
         await khoiPhuPhienLamViec();
     } catch (error) {
         datCheDoUngDung('offline');
-        hienThiThongBao("Chế độ ngoại tuyến", "info");
+        hienThiThongBao("Đang ở chế độ ngoại tuyến", "info");
         anTaiTrang();
     }
 };
@@ -165,14 +162,19 @@ export const thucHienTaoBaoCao = async (chiXem = false) => {
     $('#vung-ket-qua-bao-cao').val(res);
     
     if (!chiXem && layCheDoUngDung() === 'online') {
+        $('#chi-bao-dang-luu').css('display', 'flex').hide().fadeIn();
         const cauTruc = taoCauTrucGuiBaoCao(state.danhSachNhanVien, state.baoCaoLichSuGanNhat, { tongFOS: state.danhSachNhanVien.length, tongMC: tMC, tongNTB: tNTB, nsbqNTB, tongETB: tETB, nsbqETB, tongPosThucHien: tPos, posChiTieu: state.danhSachNhanVien.length * 3, activeFOS: nvActive, tongAEPlus: tAE });
-        $('#chi-bao-dang-luu').css('display', 'flex');
         try {
             const check = await thucHienGoiApi(`report?q={"ngayBaoCao":"${cauTruc.ngayBaoCao}"}`);
             if (check.length > 0) await thucHienGoiApi(`report/${check[0]._id}`, 'PUT', cauTruc);
             else await thucHienGoiApi('report', 'POST', cauTruc);
+            hienThiThongBao("Đã lưu báo cáo lên hệ thống!");
             lamMoiThongKeCsdl(capNhatWidgetDb);
-        } catch(e) {} finally { setTimeout(() => $('#chi-bao-dang-luu').fadeOut(), 1000); }
+        } catch(e) {
+            hienThiThongBao("Lỗi khi lưu: " + e.message, "error");
+        } finally { 
+            setTimeout(() => $('#chi-bao-dang-luu').fadeOut(), 1000); 
+        }
     }
 };
 
