@@ -1,4 +1,3 @@
-
 :root {
     --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     --bg-image: none;
@@ -26,6 +25,28 @@ body.theme-ios18-dark {
     --input-bg: rgba(44, 44, 46, 0.8);
     --btn-fos-bg: #1c1c1e;
     --btn-fos-border: #3a3a3c;
+    --close-btn-filter: invert(1);
+}
+
+/* iOS 26 (Glassmorphism Concept) */
+body.theme-ios26-light {
+    --bg-gradient: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);
+    --bg-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+    --card-bg: rgba(255, 255, 255, 0.4);
+    --text-primary: #000000;
+    --accent-blue: #000000;
+    --input-bg: rgba(255, 255, 255, 0.3);
+    --btn-fos-bg: rgba(255, 255, 255, 0.5);
+}
+body.theme-ios26-dark {
+    --bg-gradient: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    --bg-image: radial-gradient(at 0% 100%, hsla(240,15%,9%,1) 0, transparent 50%), radial-gradient(at 100% 0%, hsla(240,15%,9%,1) 0, transparent 50%);
+    --card-bg: rgba(20, 20, 20, 0.3);
+    --text-primary: #ffffff;
+    --text-secondary: #888;
+    --accent-blue: #ffffff;
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --btn-fos-bg: rgba(255, 255, 255, 0.1);
     --close-btn-filter: invert(1);
 }
 
@@ -65,94 +86,23 @@ body.theme-window11-dark {
     --close-btn-filter: invert(1);
 }
 
-/* Pastel */
-body.theme-pastel-light {
-    --bg-gradient: linear-gradient(135deg, #fff5f5 0%, #f0f4ff 100%);
-    --accent-blue: #ff8080;
-    --accent-green: #4ade80;
-    --card-bg: rgba(255, 255, 255, 0.9);
-    --text-primary: #4a4a4a;
-    --btn-fos-bg: #ffffff;
-    --input-bg: #fffafa;
+/* Pixel (Material You) */
+body.theme-pixel-light {
+    --bg-gradient: linear-gradient(135deg, #fdf8f5 0%, #f6f0ea 100%);
+    --accent-blue: #6750a4;
+    --accent-green: #386a20;
+    --text-primary: #1c1b1f;
+    --card-bg: #fffbff;
+    --btn-fos-bg: #f3edf7;
+    --input-bg: #e7e0ec;
 }
-body.theme-pastel-dark {
-    --bg-gradient: linear-gradient(135deg, #2d2424 0%, #24262d 100%);
-    --card-bg: rgba(45, 36, 36, 0.9);
-    --text-primary: #ffd6d6;
-    --text-secondary: #bbaaaa;
-    --accent-blue: #ff9999;
-    --input-bg: #3d3030;
-    --close-btn-filter: invert(1);
-}
-
-/* Nature */
-body.theme-nature-light {
-    --bg-gradient: linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%);
-    --accent-blue: #059669;
-    --accent-green: #10b981;
-    --text-primary: #064e3b;
-    --card-bg: rgba(255, 255, 255, 0.9);
-}
-body.theme-nature-dark {
-    --bg-gradient: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
-    --card-bg: rgba(6, 78, 59, 0.85);
-    --text-primary: #ecfdf5;
-    --text-secondary: #34d399;
-    --accent-blue: #34d399;
-    --input-bg: #042f24;
-    --close-btn-filter: invert(1);
-}
-
-/* Carbon */
-body.theme-carbon-light {
-    --bg-gradient: linear-gradient(135deg, #f2f2f2 0%, #d9d9d9 100%);
-    --accent-blue: #333333;
-    --text-primary: #222222;
-    --card-bg: rgba(255, 255, 255, 0.9);
-}
-body.theme-carbon-dark {
-    --bg-gradient: linear-gradient(135deg, #111111 0%, #000000 100%);
-    --card-bg: rgba(20, 20, 20, 0.95);
-    --text-primary: #e5e5e5;
-    --text-secondary: #888888;
-    --accent-blue: #aaaaaa;
-    --btn-fos-bg: #1a1a1a;
-    --input-bg: #0f0f0f;
-    --close-btn-filter: invert(1);
-}
-
-/* Gaming */
-body.theme-gaming-light {
-    --bg-gradient: linear-gradient(135deg, #ff005511 0%, #00d2ff11 100%);
-    --accent-blue: #ff0055;
-    --text-primary: #333333;
-}
-body.theme-gaming-dark {
-    --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-    --accent-blue: #00d2ff;
-    --accent-green: #39ff14;
-    --accent-red: #ff0055;
-    --card-bg: rgba(10, 10, 30, 0.9);
-    --text-primary: #00ffcc;
-    --text-secondary: #008f7a;
-    --btn-fos-bg: #0a0a25;
-    --input-bg: #050515;
-    --close-btn-filter: invert(1) hue-rotate(180deg);
-}
-
-/* Chic */
-body.theme-chic-light {
-    --bg-gradient: linear-gradient(to right, #ffffff 0%, #fdfcfb 100%);
-    --accent-blue: #c5a059;
-    --text-primary: #333333;
-    --card-bg: rgba(255, 255, 255, 0.95);
-}
-body.theme-chic-dark {
-    --bg-gradient: linear-gradient(to right, #434343 0%, #000000 100%);
-    --card-bg: rgba(20, 20, 20, 0.95);
-    --text-primary: #ffffff;
-    --text-secondary: #d4af37;
-    --accent-blue: #d4af37;
-    --input-bg: #1a1a1a;
+body.theme-pixel-dark {
+    --bg-gradient: linear-gradient(135deg, #1c1b1f 0%, #141316 100%);
+    --card-bg: #1c1b1f;
+    --text-primary: #e6e1e5;
+    --text-secondary: #cac4d0;
+    --accent-blue: #d0bcff;
+    --btn-fos-bg: #49454f;
+    --input-bg: #2b2930;
     --close-btn-filter: invert(1);
 }

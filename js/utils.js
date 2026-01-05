@@ -10,8 +10,8 @@ export const hienThiThongBao = (noiDung, loai = 'success') => {
         window.Toastify({
             text: noiDung,
             duration: 3500,
-            gravity: "top",
-            position: "center",
+            gravity: "bottom", // Chuyển xuống dưới
+            position: "right", // Chuyển sang phải
             stopOnFocus: true,
             close: true,
             style: {

@@ -40,7 +40,7 @@ export const hienThiDanhSachNhanVien = () => {
         else if (nv.trangThai === 'Off') lopNut += ' nghi';
 
         html += `
-            <div class="col-6 col-md-6 col-lg-6">
+            <div class="col-6">
                 <div class="employee-item-group">
                     <button class="${lopNut}" data-nv-ten="${nv.ten}" title="${nv.ten}">${nv.ten}</button>
                     <button class="action-btn-mini btn-edit-fast nut-sua-nhanh-nv" data-nv-ten="${nv.ten}"><i class="fa-solid fa-bolt"></i></button>
@@ -53,7 +53,7 @@ export const hienThiDanhSachNhanVien = () => {
     $vungDsNv.html(html);
     
     const daBaoCao = state.danhSachNhanVien.filter(nv => nv.trangThai !== 'Chưa báo cáo').length;
-    $('#nut-tao-bao-cao').html(`TẠO & LƯU (${daBaoCao}/${state.danhSachNhanVien.length})`);
+    $('#nut-tao-bao-cao').html(`<i class="fa-solid fa-cloud-arrow-up me-1"></i>LƯU BÁO CÁO (${daBaoCao}/${state.danhSachNhanVien.length})`);
 };
 
 export const luuVaoBoNhoTam = () => {
