@@ -1,7 +1,7 @@
 
 // Daily Report Generator - Consolidated Stable v1.4.5
+// Lưu ý: Không sử dụng import từ file khác để tránh lỗi MIME type "application/octet-stream"
 
-// Add global declarations for external libraries
 declare var $: any;
 declare var bootstrap: any;
 
@@ -217,15 +217,11 @@ $(function() {
     let nhanVienHienTai = null;
     let nhanVienCanXoa = null;
     
-    // @ts-ignore
+    // Khởi tạo các Modal Bootstrap
     const modalThemNv = new bootstrap.Modal('#modal-them-nhan-vien');
-    // @ts-ignore
     const modalDanBaoCao = new bootstrap.Modal('#modal-dan-bao-cao');
-    // @ts-ignore
     const modalSuaBaoCao = new bootstrap.Modal('#modal-sua-bao-cao');
-    // @ts-ignore
     const modalDanNhieuBaoCao = new bootstrap.Modal('#modal-dan-nhieu-bao-cao');
-    // @ts-ignore
     const modalXacNhanXoa = new bootstrap.Modal('#modal-xac-nhan-xoa');
 
     const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
@@ -345,7 +341,7 @@ $(function() {
         }
     };
 
-    // --- EVENT BINDINGS (APP) ---
+    // --- EVENT BINDINGS ---
     $('#nut-tao-bao-cao').on('click', thucHienTaoBaoCao);
     $('#nut-sao-chep').on('click', () => { navigator.clipboard.writeText($('#vung-ket-qua-bao-cao').val() as string).then(() => hienThiThongBao("Đã sao chép báo cáo!")); });
     $('body').on('click', '.nut-ten-nv', function() { nhanVienHienTai = $(this).data('nv-ten'); const nv: any = danhSachNhanVien.find((n: any) => n.ten === nhanVienHienTai); if (nv) { $('#modalDanBaoCaoLabel').text(`Báo cáo: ${nhanVienHienTai}`); $('#noi-dung-bao-cao-nhap').val(nv.baoCao); modalDanBaoCao.show(); } });
@@ -360,7 +356,7 @@ $(function() {
     $('body').on('click', '.lua-chon-giao-dien', function(e) { e.preventDefault(); const lop = `theme-${$(this).data('theme')}-${$(this).data('mode')}`; apDungGiaoDien(lop); luuCauHinhGiaoDien(lop); });
     $('#nut-giao-dien-ngau-nhien').on('click', e => { e.preventDefault(); luuCauHinhGiaoDien('random'); apDungGiaoDienNgauNhien(); });
 
-    // Startup
+    // Khởi động ứng dụng
     khoiTaoGiaoDien();
     xayDungMenuGiaoDien();
     taiDuLieuTuServer();
