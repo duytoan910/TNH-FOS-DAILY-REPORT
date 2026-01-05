@@ -78,7 +78,37 @@ export const initUIHandlers = () => {
         bootstrap.Modal.getInstance('#modal-dan-nhieu-bao-cao').hide();
     });
 
-    // History Logic - Optimized: Loading first then show modal
+    // Thêm nhân viên
+    $('#nut-luu-nv-moi').on('click', async () => {
+        const ten = $('#ten-nv-moi').val().trim();
+        const gt = $('#gioi-tinh-nv-moi').val();
+        const ct = $('#chi-tieu-nv-moi').val();
+        if (!ten) return hienThiThongBao("Vui lòng nhập tên", "error");
+        
+        hienThiTaiTrang("Đang thêm nhân viên...");
+        try {
+            await thucHienGoiApi('nhanvien', 'POST', { Ten: ten, GioiTinh: gt, ChiTieu: ct });
+            hienThiThongBao("Đã thêm!");
+            location.reload(); // Cách đơn giản nhất để làm mới danh sách
+        } catch (e) {
+            hienThiThongBao("Lỗi: " + e.message, "error");
+        } finally { anTaiTrang(); }
+    });
+
+    // Xoá nhân viên
+    $('#nut-xoa-nv-dong-y').on('click', async () => {
+        if (!state.nhanVienCanXoa) return;
+        hienThiTaiTrang("Đang xoá...");
+        try {
+            await thucHienGoiApi(`nhanvien/${state.nhanVienCanXoa.id}`, 'DELETE');
+            hienThiThongBao("Đã xoá!");
+            location.reload();
+        } catch (e) {
+            hienThiThongBao("Lỗi: " + e.message, "error");
+        } finally { anTaiTrang(); }
+    });
+
+    // History Logic
     $('#nut-xem-bao-cao-cu-kich-hoat').on('click', async () => {
         hienThiTaiTrang("Đang tải danh sách báo cáo...");
         const $s = $('#chon-ngay-lich-su'); 
@@ -86,7 +116,6 @@ export const initUIHandlers = () => {
         $('#vung-ket-qua-bao-cao-cu').val("");
 
         try {
-            // Sửa lỗi gợi ý hint RestDB: Gộp các field vào một đối tượng JSON duy nhất
             const days = await thucHienGoiApi('report?h={"$fields":{"ngayBaoCao":1},"$orderby":{"ngayBaoCao":-1}}&max=30');
             if (days && days.length > 0) {
                 $s.append(days.map(d => `<option value="${d.ngayBaoCao}">${dinhDangNgayHienThi(d.ngayBaoCao)}</option>`).join(''));
