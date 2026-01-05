@@ -17,10 +17,10 @@ export const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
     const $chu = $('#chu-trang-thai-db');
     if (trucTuyen) {
         $cham.removeClass('offline').addClass('online');
-        $chu.text('RestDB: Online');
+        $chu.text('Online');
     } else {
         $cham.removeClass('online').addClass('offline');
-        $chu.text('RestDB: Offline');
+        $chu.text('Offline');
     }
     if (slTruyCap !== null) $('#luong-truy-cap-api').text(slTruyCap);
 };
@@ -28,11 +28,11 @@ export const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
 export const hienThiDanhSachNhanVien = () => {
     const $vungDsNv = $('#vung-danh-sach-nv');
     if (state.danhSachNhanVien.length === 0) {
-        $vungDsNv.html('<div class="text-center py-5 text-muted opacity-50">Chưa có dữ liệu nhân viên.</div>');
+        $vungDsNv.html('<div class="text-center py-4 text-muted opacity-50 small">Chưa có dữ liệu nhân viên.</div>');
         return;
     }
     
-    let html = '<div class="row g-2">';
+    let html = '<div class="row gx-1 gy-0">';
     state.danhSachNhanVien.forEach(nv => {
         let lopNut = 'nut-ten-nv';
         if (nv.kiemTraTen === false) lopNut += ' sai-ten';
@@ -53,7 +53,7 @@ export const hienThiDanhSachNhanVien = () => {
     $vungDsNv.html(html);
     
     const daBaoCao = state.danhSachNhanVien.filter(nv => nv.trangThai !== 'Chưa báo cáo').length;
-    $('#nut-tao-bao-cao').html(`TẠO & LƯU BÁO CÁO (${daBaoCao}/${state.danhSachNhanVien.length})`);
+    $('#nut-tao-bao-cao').html(`TẠO & LƯU (${daBaoCao}/${state.danhSachNhanVien.length})`);
 };
 
 export const luuVaoBoNhoTam = () => {
@@ -66,7 +66,7 @@ export const luuVaoBoNhoTam = () => {
 };
 
 export const taiDuLieuTuServer = async () => {
-    hienThiTaiTrang("Đang tải dữ liệu từ server...");
+    hienThiTaiTrang("Đang tải dữ liệu...");
     try {
         ghiNhanTuongTacApi().catch(() => {});
         const duLieuGoc = await thucHienGoiApi('nhanvien?h={"$orderby":{"Ten":1}}');
@@ -190,10 +190,10 @@ export const thucHienTaoBaoCao = async (chiXem = false) => {
             } else {
                 await thucHienGoiApi('report', 'POST', cauTruc);
             }
-            hienThiThongBao("Đã đồng bộ báo cáo lên hệ thống!");
+            hienThiThongBao("Đã đồng bộ báo cáo!");
             lamMoiThongKeCsdl(capNhatWidgetDb);
         } catch(e) {
-            hienThiThongBao("Lỗi lưu trữ: " + e.message, "error");
+            hienThiThongBao("Lỗi: " + e.message, "error");
         } finally { 
             setTimeout(() => $('#chi-bao-dang-luu').fadeOut(300), 1000); 
         }

@@ -29,12 +29,20 @@
         <span>Đang đồng bộ...</span>
     </div>
     
-    <!-- Status Bar -->
-    <div class="db-status-widget shadow-sm">
-        <div class="d-flex align-items-center gap-2">
+    <!-- Status Bar (Toggleable) -->
+    <div class="db-status-widget shadow-sm" id="widget-he-thong">
+        <div id="widget-toggle-btn" class="d-flex align-items-center gap-2" style="cursor: pointer;">
             <span id="cham-trang-thai-db" class="status-dot"></span>
-            <span id="chu-trang-thai-db" class="small">Checking...</span>
-            <span id="luong-truy-cap-api" class="badge bg-secondary rounded-pill">0</span>
+            <span class="small fw-bold">Trạng thái</span>
+            <i class="fa-solid fa-chevron-up ms-1" id="widget-chevron" style="font-size: 0.6rem; transition: transform 0.3s;"></i>
+        </div>
+        <div id="widget-noi-dung-mo-rong" style="display: none; padding-top: 8px; margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.05);">
+            <div class="small">Kết nối: <span id="chu-trang-thai-db">Checking...</span></div>
+            <div class="small">Truy cập: <span id="luong-truy-cap-api" class="badge bg-secondary rounded-pill">0</span></div>
+            <div class="mt-1 pt-1 border-top" style="font-size: 0.6rem; line-height: 1.2;">
+                <div class="text-muted">Build: <span class="fw-bold text-primary">v2.5.1-stable</span></div>
+                <div class="text-muted">Updated: 24/05/2024</div>
+            </div>
         </div>
     </div>
     
@@ -42,13 +50,26 @@
     <div class="settings-container">
         <div class="dropdown">
             <button class="btn btn-light shadow-sm rounded-circle p-2" type="button" id="nut-cai-dat-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fa-solid fa-palette"></i>
+                <i class="fa-solid fa-gear"></i>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="nut-cai-dat-dropdown">
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2" style="min-width: 220px;" aria-labelledby="nut-cai-dat-dropdown">
+                <li><h6 class="dropdown-header">Cài đặt & Công cụ</h6></li>
                 <li><a class="dropdown-item py-2" id="nut-giao-dien-ngau-nhien" href="#"><i class="fa-solid fa-shuffle me-2 text-primary"></i>Giao diện ngẫu nhiên</a></li>
+                
+                <!-- Submenu Giao diện -->
+                <li class="dropdown-submenu">
+                    <button class="dropdown-item dropdown-toggle py-2" id="nut-mo-submenu-giao-dien">
+                        <i class="fa-solid fa-palette me-2 text-success"></i>Đổi giao diện
+                    </button>
+                    <div id="container-submenu-giao-dien" style="display: none; background: rgba(0,0,0,0.02); border-radius: 8px; margin: 5px 10px; padding: 5px 0;">
+                        <div id="menu-giao-dien-chon"></div>
+                    </div>
+                </li>
+
                 <li><hr class="dropdown-divider"></li>
-                <li class="dropdown-header">Chọn giao diện</li>
-                <div id="menu-giao-dien-chon" class="px-2"></div>
+                <li><h6 class="dropdown-header">Liên kết ngoài</h6></li>
+                <li><a class="dropdown-item py-2" href="https://github.com/duytoan910/TNH" target="_blank"><i class="fa-brands fa-github me-2"></i>GitHub Repository</a></li>
+                <li><a class="dropdown-item py-2" href="https://aistudio.google.com/" target="_blank"><i class="fa-solid fa-robot me-2 text-warning"></i>Google AI Studio</a></li>
             </ul>
         </div>
     </div>
@@ -101,7 +122,7 @@
         </div>
     </div>
 
-    <!-- Modals -->
+    <!-- Modals (Không thay đổi cấu trúc modal cũ để giữ tính ổn định) -->
     <!-- (Modal nội dung báo cáo đơn) -->
     <div class="modal fade" id="modal-dan-bao-cao" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">

@@ -1,4 +1,3 @@
-
 import { state, hienThiDanhSachNhanVien, luuVaoBoNhoTam, reconstructReportText, thucHienTaoBaoCao } from './app.js';
 import { hienThiThongBao, trichXuatSoLieu, dinhDangNgayHienThi, hienThiTaiTrang, anTaiTrang } from './utils.js';
 import { apDungGiaoDien, luuCauHinhGiaoDien, apDungGiaoDienNgauNhien } from './theme.js';
@@ -6,14 +5,49 @@ import { thucHienGoiApi } from './api.js';
 import { kiemTraTenTrongBaoCao } from './report.js';
 
 export const initUIHandlers = () => {
-    // Themes
+    // Widget Toggle Logic
+    $('#widget-toggle-btn').on('click', function() {
+        const $noiDung = $('#widget-noi-dung-mo-rong');
+        const $chevron = $('#widget-chevron');
+        const isVisible = $noiDung.is(':visible');
+        
+        if (isVisible) {
+            $noiDung.slideUp(200);
+            $chevron.css('transform', 'rotate(0deg)');
+        } else {
+            $noiDung.slideDown(200);
+            $chevron.css('transform', 'rotate(180deg)');
+        }
+    });
+
+    // Submenu Toggle Logic
+    $('#nut-mo-submenu-giao-dien').on('click', function(e) {
+        e.stopPropagation();
+        const $container = $('#container-submenu-giao-dien');
+        const $parent = $(this).parent();
+        $container.slideToggle(200);
+        $parent.toggleClass('open');
+    });
+
+    // Ngăn dropdown đóng khi click vào bên trong submenu
+    $('#container-submenu-giao-dien').on('click', function(e) {
+        e.stopPropagation();
+    });
+
+    // Themes selection
     $('body').on('click', '.lua-chon-giao-dien', function(e) {
         e.preventDefault();
         const lop = `theme-${$(this).data('theme')}-${$(this).data('mode')}`;
-        apDungGiaoDien(lop); luuCauHinhGiaoDien(lop);
+        apDungGiaoDien(lop); 
+        luuCauHinhGiaoDien(lop);
+        hienThiThongBao(`Đã đổi sang giao diện ${lop.replace('theme-', '')}`);
     });
 
-    $('#nut-giao-dien-ngau-nhien').on('click', e => { e.preventDefault(); luuCauHinhGiaoDien('random'); apDungGiaoDienNgauNhien(); });
+    $('#nut-giao-dien-ngau-nhien').on('click', e => { 
+        e.preventDefault(); 
+        luuCauHinhGiaoDien('random'); 
+        apDungGiaoDienNgauNhien(); 
+    });
 
     // Employee List Buttons
     $('#vung-danh-sach-nv').on('click', '.nut-ten-nv', function() {
@@ -89,7 +123,7 @@ export const initUIHandlers = () => {
         try {
             await thucHienGoiApi('nhanvien', 'POST', { Ten: ten, GioiTinh: gt, ChiTieu: ct });
             hienThiThongBao("Đã thêm!");
-            location.reload(); // Cách đơn giản nhất để làm mới danh sách
+            location.reload(); 
         } catch (e) {
             hienThiThongBao("Lỗi: " + e.message, "error");
         } finally { anTaiTrang(); }
