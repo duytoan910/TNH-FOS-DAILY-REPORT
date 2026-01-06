@@ -16,7 +16,7 @@ $(function() {
     const hienThiDanhSachNhanVien = () => {
         const $vung = $('#vung-danh-sach-nv');
         if (danhSachNhanVien.length === 0) {
-            $vung.html('<div class="text-center py-4 text-muted small w-100">Không có dữ liệu nhân viên.</div>');
+            $vung.html('<div class="text-center py-5 text-muted small w-100">Không có dữ liệu nhân viên. Vui lòng kiểm tra file fos.txt hoặc kết nối mạng.</div>');
             return;
         }
 
@@ -41,17 +41,21 @@ $(function() {
 
     const taiDuLieuTuFileLocal = async () => {
         try {
-            const response = await fetch('fos.txt');
-            if (!response.ok) throw new Error("Không tìm thấy file fos.txt");
-            const text = await response.text();
+            // Thêm timestamp để tránh cache trình duyệt khi sửa file txt
+            const phienBan = new Date().getTime();
+            const response = await fetch(`fos.txt?v=${phienBan}`);
             
-            // Format: Tên|Giới tính|Chỉ tiêu
+            if (!response.ok) throw new Error("Không tìm thấy file fos.txt trên host");
+            
+            const text = await response.text();
+            if (!text.trim()) throw new Error("File fos.txt trống");
+            
             const lines = text.split('\n').filter(line => line.trim() !== '');
             const localData = lines.map((line, index) => {
                 const parts = line.split('|');
                 return {
                     _id: `local_${index}`,
-                    ten: parts[0]?.trim() || 'No Name',
+                    ten: parts[0]?.trim() || 'Fos Member',
                     gioiTinh: parts[1]?.trim() || 'Nam',
                     chiTieu: parseInt(parts[2]) || 50,
                     trangThai: 'Chưa báo cáo',
@@ -62,30 +66,36 @@ $(function() {
             if (localData.length > 0) {
                 danhSachNhanVien = localData;
                 datCheDoUngDung('offline');
-                hienThiThongBao("Đang sử dụng dữ liệu dự phòng từ fos.txt", "error");
                 khoiPhucDuLieuTam();
                 hienThiDanhSachNhanVien();
                 capNhatWidgetTrangThai(false, localData.length, 0, 0);
+                hienThiThongBao("Đã kích hoạt chế độ dự phòng (OFFLINE)", "error");
             }
         } catch (error) {
-            console.error("Lỗi tải file local:", error);
-            hienThiThongBao("Không thể tải danh sách nhân viên!", "error");
+            console.error("Lỗi Fallback:", error);
+            hienThiThongBao("Lỗi: Không thể tải danh sách nhân viên từ bất kỳ nguồn nào!", "error");
+            hienThiDanhSachNhanVien(); // Hiển thị thông báo trống
         }
     };
 
     const khoiPhucDuLieuTam = () => {
-        const tamStr = localStorage.getItem(KHOA_BO_NHO_TAM_CUC_BO);
-        if (tamStr) {
-            const tam = JSON.parse(tamStr);
-            if (tam.ngay === dinhDangNgayISO(new Date())) {
-                tam.duLieuNv?.forEach(t => {
-                    const nv = danhSachNhanVien.find(n => n.ten === t.ten); // Tìm theo tên vì ID local có thể khác ID server
-                    if (nv) {
-                        nv.trangThai = t.trangThai;
-                        nv.baoCao = t.baoCao;
-                    }
-                });
+        try {
+            const tamStr = localStorage.getItem(KHOA_BO_NHO_TAM_CUC_BO);
+            if (tamStr) {
+                const tam = JSON.parse(tamStr);
+                const homNay = dinhDangNgayISO(new Date());
+                if (tam.ngay === homNay) {
+                    tam.duLieuNv?.forEach(t => {
+                        const nv = danhSachNhanVien.find(n => n.ten.toLowerCase() === t.ten.toLowerCase());
+                        if (nv) {
+                            nv.trangThai = t.trangThai;
+                            nv.baoCao = t.baoCao;
+                        }
+                    });
+                }
             }
+        } catch (e) {
+            console.warn("Không thể khôi phục bộ nhớ tạm", e);
         }
     };
 
@@ -100,10 +110,10 @@ $(function() {
 
     const taiDuLieuServer = async () => {
         try {
-            const hint = encodeURIComponent('{"Ten":1}');
-            const data = await thucHienGoiApi(`nhanvien?h={"$orderby":${hint}}`);
+            // Thử kết nối server với timeout 5s
+            const data = await thucHienGoiApi(`nhanvien?h=${encodeURIComponent('{"$orderby":{"Ten":1}}')}`, 'GET', null, 5000);
             
-            if (data && Array.isArray(data)) {
+            if (data && Array.isArray(data) && data.length > 0) {
                 danhSachNhanVien = data.map(i => ({
                     _id: i._id,
                     ten: i.Ten,
@@ -116,22 +126,24 @@ $(function() {
                 khoiPhucDuLieuTam();
                 hienThiDanhSachNhanVien();
                 
+                // Các tác vụ thống kê không cần await để tránh làm chậm UI
                 lamMoiThongKeCsdl((ok, slNv, slBc, access) => {
                     capNhatWidgetTrangThai(ok, slNv, slBc, access);
                 });
                 ghiNhanTuongTacApi();
             } else {
-                throw new Error("Dữ liệu server trống");
+                throw new Error("Dữ liệu server không khả dụng");
             }
         } catch (e) {
-            console.warn("Server lỗi, chuyển sang chế độ dự phòng:", e);
+            console.warn("Kết nối server thất bại, đang thử đọc fos.txt...", e.message);
             await taiDuLieuTuFileLocal();
         } finally {
-            $('#lop-phu-tai-trang').fadeOut();
+            $('#lop-phu-tai-trang').fadeOut(300);
         }
     };
 
-    // Events
+    // --- Các sự kiện tương tác ---
+
     $(document).on('click', '.nut-ten-nv', function() {
         nhanVienHienTai = $(this).data('nv-ten');
         const nv = danhSachNhanVien.find(n => n.ten === nhanVienHienTai);
@@ -147,7 +159,7 @@ $(function() {
         const nv = danhSachNhanVien.find(n => n.ten === nhanVienHienTai);
         if (nv) {
             nv.baoCao = $('#noi-dung-bao-cao-nhap').val();
-            nv.trangThai = 'Đã báo cáo';
+            nv.trangThai = nv.baoCao.trim() ? 'Đã báo cáo' : 'Chưa báo cáo';
             hienThiDanhSachNhanVien();
             bootstrap.Modal.getInstance(document.getElementById('modal-dan-bao-cao')).hide();
             hienThiThongBao(`Đã cập nhật ${nv.ten}`);
@@ -162,6 +174,7 @@ $(function() {
             nv.trangThai = 'Off';
             hienThiDanhSachNhanVien();
             bootstrap.Modal.getInstance(document.getElementById('modal-dan-bao-cao')).hide();
+            hienThiThongBao(`${nv.ten} đã OFF`);
             luuTamLocalStorage();
         }
     });
@@ -211,6 +224,8 @@ $(function() {
         const val = $('#vung-ket-qua-bao-cao').val();
         if (val) {
             navigator.clipboard.writeText(val).then(() => hienThiThongBao("Đã sao chép vào bộ nhớ tạm"));
+        } else {
+            hienThiThongBao("Chưa có nội dung để sao chép", "error");
         }
     });
 
@@ -223,6 +238,6 @@ $(function() {
         luuCauHinhGiaoDien(className);
     });
 
-    // Bắt đầu quy trình tải dữ liệu
+    // Khởi động ứng dụng
     taiDuLieuServer();
 });

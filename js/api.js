@@ -12,27 +12,34 @@ export const layCheDoUngDung = () => {
     return cheDoUngDung;
 };
 
-export const thucHienGoiApi = async (diemCuoi, phuongThuc = 'GET', duLieu = null) => {
+export const thucHienGoiApi = async (diemCuoi, phuongThuc = 'GET', duLieu = null, timeout = 5000) => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+
     const tuyChon = {
         method: phuongThuc,
-        headers: TIEU_DE_TRUY_VAN
+        headers: TIEU_DE_TRUY_VAN,
+        signal: controller.signal
     };
+    
     if (duLieu) {
         tuyChon.body = JSON.stringify(duLieu);
     }
     
-    // Đảm bảo URL được xử lý các ký tự đặc biệt nếu cần
     const url = `${DUONG_DAN_CSDL}/${diemCuoi}`;
     
     try {
         const phanHoi = await fetch(url, tuyChon);
+        clearTimeout(id);
+        
         if (!phanHoi.ok) {
             const noiDungLoi = await phanHoi.text();
             throw new Error(`Lỗi API: ${phanHoi.status} - ${noiDungLoi}`);
         }
         return await phanHoi.json();
     } catch (error) {
-        console.error("Lỗi Fetch API:", error);
+        clearTimeout(id);
+        console.error("Lỗi Fetch API:", error.name === 'AbortError' ? 'Timeout kết nối' : error.message);
         throw error;
     }
 };
@@ -43,7 +50,7 @@ export const ghiNhanTuongTacApi = async () => {
     const homNayStr = dinhDangNgayISO(new Date());
     
     try {
-        const danhSachCaiDat = await thucHienGoiApi(`setting?max=1`);
+        const danhSachCaiDat = await thucHienGoiApi(`setting?max=1`, 'GET', null, 3000);
         
         if (danhSachCaiDat && danhSachCaiDat.length > 0) {
             const caiDat = danhSachCaiDat[0];
@@ -58,13 +65,13 @@ export const ghiNhanTuongTacApi = async () => {
             await thucHienGoiApi(`setting/${caiDat._id}`, 'PUT', { 
                 connectionCount: soLuotMoi,
                 date: homNayStr 
-            });
+            }, 3000);
         } else {
              if (window.$) $('#luong-truy-cap-api').text(`(1)`);
             await thucHienGoiApi('setting', 'POST', {
                 connectionCount: 1,
                 date: homNayStr
-            });
+            }, 3000);
         }
     } catch (e) {
         console.warn("Ghi nhận tương tác thất bại:", e);
@@ -73,29 +80,27 @@ export const ghiNhanTuongTacApi = async () => {
 
 export const lamMoiThongKeCsdl = async (hamCapNhatWidget) => {
     try {
+        const headers = TIEU_DE_TRUY_VAN;
         const queryReport = encodeURIComponent('{}');
-        const hintReport = encodeURIComponent('{"$fields":{"_id":1}}');
-        const phanHoiBaoCao = await fetch(`${DUONG_DAN_CSDL}/report?q=${queryReport}&h=${hintReport}`, {method: 'GET', headers: TIEU_DE_TRUY_VAN});
-        const dsIdBaoCao = await phanHoiBaoCao.json();
+        const hint = encodeURIComponent('{"$fields":{"_id":1}}');
         
-        const hintNv = encodeURIComponent('{"$fields":{"_id":1}}');
-        const phanHoiNv = await fetch(`${DUONG_DAN_CSDL}/nhanvien?q=${queryReport}&h=${hintNv}`, {method: 'GET', headers: TIEU_DE_TRUY_VAN});
-        const dsIdNv = await phanHoiNv.json();
-        
-        const phanHoiCaiDat = await fetch(`${DUONG_DAN_CSDL}/setting?max=1`, {method: 'GET', headers: TIEU_DE_TRUY_VAN});
-        const dsCaiDat = await phanHoiCaiDat.json();
+        // Sử dụng Promise.all để lấy thông số nhanh hơn
+        const [resReport, resNv, resSet] = await Promise.all([
+            fetch(`${DUONG_DAN_CSDL}/report?q=${queryReport}&h=${hint}`, { headers }).then(r => r.json()),
+            fetch(`${DUONG_DAN_CSDL}/nhanvien?q=${queryReport}&h=${hint}`, { headers }).then(r => r.json()),
+            fetch(`${DUONG_DAN_CSDL}/setting?max=1`, { headers }).then(r => r.json())
+        ]);
         
         let soLuotKetNoi = 0;
-        if(dsCaiDat && dsCaiDat.length > 0) {
-            const c = dsCaiDat[0];
-            const homNayStr = dinhDangNgayISO(new Date());
-            if (c.date === homNayStr) {
+        if(resSet && resSet.length > 0) {
+            const c = resSet[0];
+            if (c.date === dinhDangNgayISO(new Date())) {
                  soLuotKetNoi = c.connectionCount || 0;
             }
         }
         
         if (hamCapNhatWidget) {
-            hamCapNhatWidget(true, dsIdNv.length, dsIdBaoCao.length, soLuotKetNoi);
+            hamCapNhatWidget(true, resNv.length, resReport.length, soLuotKetNoi);
         }
     } catch (e) {
         console.warn("Lấy thống kê DB thất bại", e);
