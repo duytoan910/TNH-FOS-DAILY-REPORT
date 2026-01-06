@@ -1,36 +1,66 @@
-
-export const dinhDangNgayHienThi = (d) => {
-    const n = new Date(d);
-    return `${String(n.getDate()).padStart(2,'0')}/${String(n.getMonth()+1).padStart(2,'0')}/${n.getFullYear()}`;
-};
-
-export const dinhDangNgayISO = (d) => {
-    const n = new Date(d);
-    return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
-};
-
-export const trichXuatSoLieu = (nd, tk) => {
-    if (!nd) return 0;
-    const tks = Array.isArray(tk) ? tk : [tk];
-    for (const t of tks) {
-        const r = new RegExp(t.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '\\s*[: ]\\s*(\\d+)', 'i');
-        const m = nd.match(r);
-        if (m) return parseInt(m[1]);
-    }
-    return 0;
-};
-
 export const hienThiThongBao = (noiDung, loai = 'success') => {
+    let mauNen = "linear-gradient(to right, #00b09b, #96c93d)"; // Thành công
+    if (loai === 'danger' || loai === 'error') {
+        mauNen = "linear-gradient(to right, #ff5f6d, #ffc371)"; // Lỗi
+    } else if (loai === 'info') {
+        mauNen = "linear-gradient(to right, #2193b0, #6dd5ed)"; // Thông tin
+    }
+
     if (window.Toastify) {
         window.Toastify({
             text: noiDung,
             duration: 3000,
             gravity: "bottom",
             position: "right",
-            style: { 
-                background: loai === 'error' ? "linear-gradient(to right, #ff5f6d, #ffc371)" : "linear-gradient(to right, #00b09b, #96c93d)",
-                borderRadius: "10px" 
+            stopOnFocus: true,
+            style: {
+                background: mauNen,
+                borderRadius: "12px",
+                boxShadow: "0 5px 15px rgba(0,0,0,0.15)",
+                fontFamily: "'Poppins', sans-serif",
+                padding: "12px 20px",
+                fontWeight: "500",
+                fontSize: "0.9rem"
             }
         }).showToast();
+    } else {
+        console.log(`[${loai}] ${noiDung}`);
     }
+};
+
+export const hienThiTaiTrang = (chuThich = "Đang xử lý...") => {
+    $('#chu-thich-tai-trang').text(chuThich);
+    $('#lop-phu-tai-trang').css('display', 'flex');
+};
+
+export const anTaiTrang = () => {
+    $('#lop-phu-tai-trang').hide();
+};
+
+export const dinhDangNgayHienThi = (ngay) => {
+     const n = new Date(ngay);
+     const d = String(n.getDate()).padStart(2, '0');
+     const m = String(n.getMonth() + 1).padStart(2, '0');
+     const y = n.getFullYear();
+     return `${d}/${m}/${y}`;
+};
+
+export const dinhDangNgayISO = (ngay) => {
+    const n = new Date(ngay);
+    const y = n.getFullYear();
+    const m = String(n.getMonth() + 1).padStart(2, '0');
+    const d = String(n.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+};
+
+export const trichXuatSoLieu = (noiDung, tuKhoa) => {
+    if (!noiDung) return 0;
+    const danhSachTuKhoa = Array.isArray(tuKhoa) ? tuKhoa : [tuKhoa];
+    for (const tu of danhSachTuKhoa) {
+        const tuDaEscape = tu.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const bieuThuc = new RegExp(tuDaEscape + '\\s*[: ]\\s*(\\d+)', 'i');
+        const khop = noiDung.match(bieuThuc);
+        if (khop) return parseInt(khop[1], 10);
+    }
+    return 0;
 };
