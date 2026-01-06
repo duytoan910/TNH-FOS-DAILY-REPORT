@@ -24,7 +24,7 @@ $(function() {
 
     // --- CẬP NHẬT THÔNG TIN BUILD ---
     const phienBanBuild = "v1.5.0-stable";
-    const thoiGianBuildStr = "2026.01.06 17:01"; 
+    const thoiGianBuildStr = "2026.01.06 17:10"; 
     $('#thoi-gian-build').text(thoiGianBuildStr);
     $('.build-version').text(phienBanBuild);
 
@@ -215,10 +215,6 @@ $(function() {
                     ten: item.tenNhanVien, 
                     mtdMC: item.chiSoHieuSuat.saleTrongThang
                 }));
-
-                let txt = `Chốt mốc ngày ${dinhDangNgayHienThi(ngayBaoCaoLichSu)}:\n`;
-                baoCaoLichSuGanNhat.duLieuNvLichSu.forEach(n => txt += `${n.ten}: MTD ${n.mtdMC}\n`);
-                $('#vung-ket-qua-bao-cao-cu').val(txt);
                 thucHienTaoBaoCao(null, true);
             }
         } catch (e) {}
@@ -279,6 +275,44 @@ $(function() {
             const thongKe = { tongFOS: danhSachNhanVien.length, tongMC: tMC, tongNTB: tNTB, nsbqNTB, tongETB: tETB, nsbqETB, tongPosThucHien: tPos, posChiTieu: danhSachNhanVien.length * 3, activeFOS: nvActive, tongAEPlus: tAE };
             luuBaoCaoLenServer(taoCauTrucGuiBaoCao(danhSachNhanVien, baoCaoLichSuGanNhat, thongKe), true);
         }
+    };
+
+    // --- HELPER TẠO BÁO CÁO TỪ DB OBJECT ---
+    const taiTaoNoiDungBaoCao = (bc) => {
+        const ngayHienThi = dinhDangNgayHienThi(bc.ngayBaoCao);
+        const thongKe = bc.tongKetToanDoi;
+        const dsNv = bc.baoCaoFOS;
+        
+        let ketQua = `--- BÁO CÁO LƯU TRỮ NGÀY ${ngayHienThi} ---\n\n`;
+        
+        if (thongKe) {
+            ketQua += `🔥${thongKe.tongSoFOS} FOS – ${thongKe.tongSoMC} MC\n`;
+            ketQua += `✅NTB: ${thongKe.tongSoNTB} (BQ: ${thongKe.NSBQ_NTB})\n`;
+            ketQua += `✅ETB: ${thongKe.tongSoETB} (BQ: ${thongKe.NSBQ_ETB})\n`;
+            ketQua += `✅AE+: ${thongKe.tongSoAEPlus}\n`;
+            ketQua += `✅Pos: ${thongKe.tyLePOS}\n`;
+            ketQua += `⭐️Active: ${thongKe.tyLeActiveFOS}\n\n`;
+        }
+
+        if (dsNv && dsNv.length > 0) {
+            dsNv.forEach(n => {
+                 const nvHienTai = danhSachNhanVien.find(nv => nv.ten === n.tenNhanVien);
+                 const icon = nvHienTai ? (nvHienTai.gioiTinh === 'Nữ' ? '👵' : '👨') : '👤';
+                 
+                 const sale = n.chiSoHieuSuat?.saleHomNay || 0;
+                 const mtd = n.chiSoHieuSuat?.saleTrongThang || 0;
+                 const chiTieu = n.chiSoHieuSuat?.chiTieu || 0;
+                 
+                 let statusStr = `${sale}/${mtd}/${chiTieu}`;
+                 if (n.OFF !== 0 && n.OFF !== '0') {
+                     const lyDo = n.OFF === 1 ? 'OFF' : n.OFF;
+                     statusStr = `${lyDo}/${mtd}/${chiTieu}`;
+                 }
+                 
+                 ketQua += `${icon}${n.tenNhanVien}: ${statusStr}\n`;
+            });
+        }
+        return ketQua;
     };
 
     // --- SỰ KIỆN GIAO DIỆN ---
@@ -404,7 +438,27 @@ $(function() {
             setTimeout(() => $btn.html('<i class="fa-regular fa-copy"></i> Sao chép').removeClass('btn-success').addClass('btn-primary'), 2000);
         });
     });
-    $('#nut-xem-bao-cao-cu').on('click', () => modalXemBaoCaoCu.show());
+    
+    // --- XỬ LÝ SỰ KIỆN XEM BÁO CÁO CŨ (MỚI) ---
+    $('#nut-xem-bao-cao-cu').on('click', async () => {
+        hienThiTaiTrang("Đang tải báo cáo cũ...");
+        try {
+            const homNayStr = dinhDangNgayISO(new Date());
+            const truyVan = `q={"ngayBaoCao": {"$lt": "${homNayStr}"}}&h={"$orderby": {"ngayBaoCao": -1}}&max=1`;
+            const duLieu = await thucHienGoiApi(`report?${truyVan}`);
+            
+            if (duLieu.length > 0) {
+                $('#vung-ket-qua-bao-cao-cu').val(taiTaoNoiDungBaoCao(duLieu[0]));
+            } else {
+                $('#vung-ket-qua-bao-cao-cu').val("Không tìm thấy dữ liệu báo cáo trước ngày hôm nay.");
+            }
+            modalXemBaoCaoCu.show();
+        } catch (e) {
+            hienThiThongBao("Lỗi tải lịch sử: " + e.message, "error");
+        } finally {
+            anTaiTrang();
+        }
+    });
     
     // KHỞI CHẠY
     khoiTaoGiaoDien(); 
