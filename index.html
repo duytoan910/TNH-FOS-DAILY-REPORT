@@ -28,13 +28,18 @@
                 <h1 class="h4 fw-bold mb-0">Báo Cáo FOS</h1>
                 <div class="small opacity-75" id="hien-thi-ngay"></div>
             </div>
-            <div class="dropdown">
-                <button class="btn btn-light rounded-circle shadow-sm" data-bs-toggle="dropdown">
-                    <i class="fa-solid fa-palette"></i>
+            <div class="d-flex gap-2">
+                <button class="btn btn-light rounded-circle shadow-sm" data-bs-toggle="modal" data-bs-target="#modal-tinh-tuoi" title="Tính tuổi">
+                    <i class="fa-solid fa-calculator"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end p-2" id="menu-giao-dien-chon" style="min-width: 200px;">
-                    <!-- Menu giao diện sẽ được render ở đây -->
-                </ul>
+                <div class="dropdown">
+                    <button class="btn btn-light rounded-circle shadow-sm" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-palette"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end p-2" id="menu-giao-dien-chon" style="min-width: 200px;">
+                        <!-- Menu giao diện sẽ được render ở đây -->
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -79,7 +84,7 @@
                     </button>
                 </div>
             </div>
-            <textarea id="vung-ket-qua-bao-cao" class="form-control mb-3" rows="10" placeholder="Báo cáo sẽ xuất hiện ở đây..."></textarea>
+            <textarea id="vung-ket-qua-bao-cao" class="form-control mb-3" rows="10"></textarea>
             <div class="d-grid gap-2">
                 <button id="nut-tao-bao-cao" class="btn btn-primary py-3 fw-bold rounded-4 shadow">
                     TẠO & LƯU BÁO CÁO
@@ -101,7 +106,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <textarea id="noi-dung-bao-cao-nhap" class="form-control" rows="5" placeholder="Dán nội dung báo cáo cá nhân vào đây..."></textarea>
+                    <textarea id="noi-dung-bao-cao-nhap" class="form-control" rows="5"></textarea>
                 </div>
                 <div class="modal-footer border-0">
                     <button id="nut-danh-dau-off" class="btn btn-outline-danger me-auto">OFF</button>
@@ -119,7 +124,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <textarea id="noi-dung-nhieu-bao-cao-nhap" class="form-control" rows="15" placeholder="Dán toàn bộ tin nhắn chat vào đây..."></textarea>
+                    <textarea id="noi-dung-nhieu-bao-cao-nhap" class="form-control" rows="15"></textarea>
                 </div>
                 <div class="modal-footer border-0">
                     <button id="nut-xu-ly-nhieu-bao-cao" class="btn btn-primary w-100">Xử lý hàng loạt</button>
@@ -127,7 +132,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
