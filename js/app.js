@@ -23,8 +23,8 @@ $(function() {
     const modalXemBaoCaoCu = new bootstrap.Modal('#modal-xem-bao-cao-cu');
 
     // --- CẬP NHẬT THÔNG TIN BUILD ---
-    const phienBanBuild = "v1.6.0-beta";
-    const thoiGianBuildStr = "2026.01.06 17:15"; 
+    const phienBanBuild = "v1.7.0-beta";
+    const thoiGianBuildStr = "2026.01.06 17:45"; 
     $('#thoi-gian-build').text(thoiGianBuildStr);
     $('.build-version').text(phienBanBuild);
 
@@ -282,30 +282,49 @@ $(function() {
         const ngayHienThi = dinhDangNgayHienThi(bc.ngayBaoCao);
         const thongKe = bc.tongKetToanDoi;
         const dsNv = bc.baoCaoFOS;
+        const quanLy = 'TNH'; // Tên quản lý mặc định
         
-        let ketQua = `--- BÁO CÁO LƯU TRỮ NGÀY ${ngayHienThi} ---\n\n`;
+        // Tái tạo phần Header
+        let ketQua = `${quanLy} ngày ${ngayHienThi}\n`;
         
         if (thongKe) {
-            ketQua += `🔥${thongKe.tongSoFOS} FOS – ${thongKe.tongSoMC} MC\n`;
-            ketQua += `✅NTB: ${thongKe.tongSoNTB} (BQ: ${thongKe.NSBQ_NTB})\n`;
-            ketQua += `✅ETB: ${thongKe.tongSoETB} (BQ: ${thongKe.NSBQ_ETB})\n`;
-            ketQua += `✅AE+: ${thongKe.tongSoAEPlus}\n`;
-            ketQua += `✅Pos: ${thongKe.tyLePOS}\n`;
-            ketQua += `⭐️Active: ${thongKe.tyLeActiveFOS}\n\n`;
+            const tMC = thongKe.tongSoMC || 0;
+            const tFOS = thongKe.tongSoFOS || 0;
+            const tNTB = thongKe.tongSoNTB || 0;
+            const nsbqNTB = (thongKe.NSBQ_NTB !== undefined && thongKe.NSBQ_NTB !== null) ? Number(thongKe.NSBQ_NTB).toFixed(2) : '0.00';
+            const tETB = thongKe.tongSoETB || 0;
+            const nsbqETB = (thongKe.NSBQ_ETB !== undefined && thongKe.NSBQ_ETB !== null) ? Number(thongKe.NSBQ_ETB).toFixed(2) : '0.00';
+            const tAE = thongKe.tongSoAEPlus || 0;
+            const tPos = thongKe.tyLePOS || "0/0";
+            const tActive = thongKe.tyLeActiveFOS || "0/0";
+
+            ketQua += `🔥${tFOS} FOS – ${tMC} MC\n`;
+            ketQua += `✅NTB: ${tNTB}\n`;
+            ketQua += `✅NSBQ NTB: ${nsbqNTB}\n`;
+            ketQua += `✅ETB: ${tETB}\n`;
+            ketQua += `✅NSBQ ETB: ${nsbqETB}\n`;
+            ketQua += `✅AE+: ${tAE}\n`;
+            ketQua += `✅Pos: ${tPos}\n\n`;
+            ketQua += `⭐️Active ${tActive}\n`;
         }
 
+        // Tái tạo danh sách nhân viên
         if (dsNv && dsNv.length > 0) {
             dsNv.forEach(n => {
+                 // Tìm nhân viên trong danh sách hiện tại để lấy giới tính (icon)
                  const nvHienTai = danhSachNhanVien.find(nv => nv.ten === n.tenNhanVien);
-                 const icon = nvHienTai ? (nvHienTai.gioiTinh === 'Nữ' ? '👵' : '👨') : '👤';
+                 // Mặc định icon Nam nếu không tìm thấy hoặc chưa load
+                 const icon = nvHienTai ? (nvHienTai.gioiTinh === 'Nữ' ? '👵' : '👨') : '👨';
                  
                  const sale = n.chiSoHieuSuat?.saleHomNay || 0;
                  const mtd = n.chiSoHieuSuat?.saleTrongThang || 0;
                  const chiTieu = n.chiSoHieuSuat?.chiTieu || 0;
                  
                  let statusStr = `${sale}/${mtd}/${chiTieu}`;
-                 if (n.OFF !== 0 && n.OFF !== '0') {
-                     const lyDo = n.OFF === 1 ? 'OFF' : n.OFF;
+                 
+                 // Xử lý logic hiển thị OFF (tương tự như thucHienTaoBaoCao)
+                 if (n.OFF && n.OFF !== 0 && n.OFF !== '0') {
+                     const lyDo = (n.OFF === 1 || n.OFF === '1') ? 'OFF' : n.OFF;
                      statusStr = `${lyDo}/${mtd}/${chiTieu}`;
                  }
                  
@@ -313,6 +332,13 @@ $(function() {
             });
         }
         return ketQua;
+    };
+    
+    // --- HELPER LẤY MTD LỊCH SỬ ---
+    const layMtdLichSu = (tenNv) => {
+        if (!baoCaoLichSuGanNhat || !baoCaoLichSuGanNhat.duLieuNvLichSu) return 0;
+        const nvCu = baoCaoLichSuGanNhat.duLieuNvLichSu.find(n => n.ten === tenNv);
+        return nvCu ? (nvCu.mtdMC || 0) : 0;
     };
 
     // --- SỰ KIỆN GIAO DIỆN ---
@@ -368,19 +394,46 @@ $(function() {
         const nv = danhSachNhanVien.find(n => n.ten === nhanVienHienTai);
         if (nv) {
             const nd = $('#noi-dung-bao-cao-nhap').val();
-            nv.baoCao = nd; nv.trangThai = 'Đã báo cáo'; kiemTraTenTrongBaoCao(nv, nd);
+            nv.baoCao = nd; 
+            
+            // Logic thông minh để xác định trạng thái
+            // Nếu dòng đầu tiên có chứa "OFF" (hoặc lý do) sau tên Fos, thì giữ nguyên trạng thái là Off
+            // Ví dụ: "Fos Toan OFF" hoặc "Fos Toan Nghỉ phép"
+            const dongDau = nd.trim().split('\n')[0];
+            const tenEscape = nv.ten.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const regexLyDo = new RegExp(`^Fos\\s+${tenEscape}\\s+(.+)$`, 'i');
+            const match = dongDau.match(regexLyDo);
+
+            if (match && match[1].trim()) {
+                 nv.trangThai = 'Off';
+            } else {
+                 nv.trangThai = 'Đã báo cáo';
+            }
+            
+            kiemTraTenTrongBaoCao(nv, nd);
             hienThiDanhSachNhanVien(); luuVaoBoNhoTam(); modalDanBaoCao.hide();
         }
     });
 
     $('#nut-danh-dau-off').on('click', () => {
         const nv = danhSachNhanVien.find(n => n.ten === nhanVienHienTai);
-        if (nv) { nv.baoCao = `Fos ${nv.ten} OFF`; nv.trangThai = 'Off'; hienThiDanhSachNhanVien(); luuVaoBoNhoTam(); modalDanBaoCao.hide(); }
+        if (nv) { 
+            const mtdCu = layMtdLichSu(nv.ten);
+            nv.baoCao = `Fos ${nv.ten} OFF\nMTD MC: ${mtdCu}`; 
+            nv.trangThai = 'Off'; 
+            hienThiDanhSachNhanVien(); luuVaoBoNhoTam(); modalDanBaoCao.hide(); 
+        }
     });
 
     $('#nut-xac-nhan-off-co-ly-do').on('click', () => {
         const nv = danhSachNhanVien.find(n => n.ten === nhanVienHienTai);
-        if (nv) { nv.baoCao = `Fos ${nv.ten} ${$('#ly-do-off-nhap').val().trim() || 'OFF'}`; nv.trangThai = 'Off'; hienThiDanhSachNhanVien(); luuVaoBoNhoTam(); modalDanBaoCao.hide(); }
+        if (nv) { 
+            const mtdCu = layMtdLichSu(nv.ten);
+            const lyDo = $('#ly-do-off-nhap').val().trim() || 'OFF';
+            nv.baoCao = `Fos ${nv.ten} ${lyDo}\nMTD MC: ${mtdCu}`; 
+            nv.trangThai = 'Off'; 
+            hienThiDanhSachNhanVien(); luuVaoBoNhoTam(); modalDanBaoCao.hide(); 
+        }
     });
 
     $vungDsNv.on('click', '.nut-sua-nhanh-nv', function() {
@@ -444,6 +497,7 @@ $(function() {
         hienThiTaiTrang("Đang tải báo cáo cũ...");
         try {
             const homNayStr = dinhDangNgayISO(new Date());
+            // Lấy báo cáo có ngày < ngày hôm nay, sắp xếp giảm dần, lấy 1
             const truyVan = `q={"ngayBaoCao": {"$lt": "${homNayStr}"}}&h={"$orderby": {"ngayBaoCao": -1}}&max=1`;
             const duLieu = await thucHienGoiApi(`report?${truyVan}`);
             
