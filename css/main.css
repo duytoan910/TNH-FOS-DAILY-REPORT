@@ -1,283 +1,258 @@
 
-
 /* --- HỆ THỐNG GIAO DIỆN SỬ DỤNG BIẾN CSS --- */
 
 :root {
-    --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    /* Mặc định (Fallback) */
+    --bg-gradient: #f2f2f7;
     --bg-image: none;
-    --card-bg: rgba(255, 255, 255, 0.8);
-    --text-primary: #1c1c1e;
-    --text-secondary: #636366;
-    --main-title-color: #1c1c1e;
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --text-primary: #000000;
+    --text-secondary: #3C3C4399; /* System Gray 2 */
+    --main-title-color: #000000;
     --accent-blue: #007AFF;
     --accent-green: #34C759;
     --accent-red: #FF3B30;
     --accent-gray: #8E8E93;
-    --input-bg: #F2F2F7;
-    --input-border: rgba(0, 0, 0, 0.1);
-    --btn-fos-bg: #ffffff;
-    --btn-fos-border: #e0e0e0;
-    --scrollbar-thumb: var(--accent-gray);
-    --scrollbar-track: rgba(0, 0, 0, 0.05);
+    --input-bg: rgba(118, 118, 128, 0.12);
+    --input-border: rgba(0, 0, 0, 0);
+    --btn-fos-bg: rgba(255, 255, 255, 1);
+    --btn-fos-border: rgba(0, 0, 0, 0);
+    --card-radius: 18px;
+    --btn-radius: 12px;
+    --backdrop-blur: 20px;
+    --shadow-soft: 0 4px 24px rgba(0,0,0,0.06);
 }
 
-/* --- THEMES DEFINITIONS (16 variations) --- */
-
-/* iOS 18 */
-body.theme-ios18-light { }
-body.theme-ios18-dark {
-    --bg-gradient: linear-gradient(135deg, #000000 0%, #1c1c1e 100%);
-    --card-bg: rgba(28, 28, 30, 0.95);
-    --text-primary: #ffffff;
-    --text-secondary: #a0a0a5;
-    --main-title-color: #ffffff;
-    --input-bg: #2c2c2e;
-    --btn-fos-bg: #1c1c1e;
-    --btn-fos-border: #3a3a3c;
-}
-
-/* OneUI Samsung */
-body.theme-oneui-light {
-    --bg-gradient: linear-gradient(180deg, #f2f2f2 0%, #ffffff 100%);
-    --card-bg: rgba(255, 255, 255, 0.98);
-    --accent-blue: #0381fe;
-    --btn-fos-bg: #f8f9fa;
-    --btn-fos-border: #dee2e6;
-}
-body.theme-oneui-dark {
-    --bg-gradient: linear-gradient(180deg, #121212 0%, #212121 100%);
-    --card-bg: rgba(33, 33, 33, 0.98);
-    --text-primary: #e0e0e0;
-    --accent-blue: #3d5afe;
-    --btn-fos-bg: #2a2a2a;
-    --btn-fos-border: #333;
-}
-
-/* Window 11 */
-body.theme-window11-light {
-    --bg-gradient: linear-gradient(135deg, #eeefff 0%, #d9e2ff 100%);
-    --card-bg: rgba(255, 255, 255, 0.7);
-    --accent-blue: #0067c0;
-}
-body.theme-window11-dark {
-    --bg-gradient: linear-gradient(135deg, #202020 0%, #1c1c1c 100%);
-    --card-bg: rgba(32, 32, 32, 0.9);
-    --text-primary: #ffffff;
-    --accent-blue: #4cc2ff;
-    --btn-fos-bg: #2d2d2d;
-    --btn-fos-border: #444;
-}
-
-/* Pastel Dream */
-body.theme-pastel-light {
-    --bg-gradient: linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%);
-    --card-bg: rgba(255, 255, 255, 0.6);
-    --accent-blue: #6c5ce7;
-    --text-primary: #2d3436;
-}
-body.theme-pastel-dark {
-    --bg-gradient: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
-    --card-bg: rgba(45, 52, 54, 0.85);
-    --text-primary: #fab1a0;
-    --accent-blue: #a29bfe;
-}
-
-/* Serene Nature */
-body.theme-nature-light {
-    --bg-gradient: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-    --accent-blue: #2e7d32;
+/* --- 1. iOS 18 (Apple Design Resources) --- */
+body.theme-ios18-light {
+    --bg-gradient: #F2F2F7; /* System Grouped Background */
     --card-bg: rgba(255, 255, 255, 0.85);
-}
-body.theme-nature-dark {
-    --bg-gradient: linear-gradient(135deg, #1b5e20 0%, #000000 100%);
-    --card-bg: rgba(27, 94, 32, 0.9);
-    --text-primary: #c8e6c9;
-    --accent-blue: #81c784;
-}
-
-/* Gaming Zone */
-body.theme-gaming-light {
-    --bg-gradient: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
-    --accent-blue: #000000;
-    --card-bg: rgba(255, 255, 255, 0.9);
-}
-body.theme-gaming-dark {
-    --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-    --accent-blue: #00d2ff;
-    --accent-green: #39ff14;
-    --accent-red: #ff0055;
-    --card-bg: rgba(0, 0, 0, 0.85);
-    --text-primary: #00ffcc;
+    --text-primary: #000000;
+    --text-secondary: rgba(60, 60, 67, 0.6);
+    --accent-blue: #007AFF;
+    --input-bg: rgba(118, 118, 128, 0.12);
+    --btn-fos-bg: #FFFFFF;
+    --card-radius: 20px;
+    --backdrop-blur: 30px;
 }
 
-/* Carbon Fiber */
-body.theme-carbon-light {
-    --bg-gradient: linear-gradient(135deg, #e0e0e0 0%, #ffffff 100%);
-    --accent-blue: #333;
-    --card-bg: rgba(255, 255, 255, 0.95);
-}
-body.theme-carbon-dark {
-    --bg-gradient: radial-gradient(circle, #2c3e50 0%, #000000 100%);
-    --card-bg: rgba(30, 30, 30, 0.95);
-    --text-primary: #ecf0f1;
-    --accent-blue: #bdc3c7;
-    --btn-fos-bg: #222;
+body.theme-ios18-dark {
+    --bg-gradient: #000000; /* True Black */
+    --card-bg: rgba(28, 28, 30, 0.85); /* System Gray 6 */
+    --text-primary: #FFFFFF;
+    --text-secondary: rgba(235, 235, 245, 0.6);
+    --accent-blue: #0A84FF;
+    --input-bg: rgba(118, 118, 128, 0.24);
+    --btn-fos-bg: #1C1C1E; /* System Gray 5 */
+    --btn-fos-border: rgba(255, 255, 255, 0.05);
+    --card-radius: 20px;
+    --backdrop-blur: 30px;
 }
 
-/* Chic & Modern */
-body.theme-chic-light {
-    --bg-gradient: linear-gradient(to right, #fdfbfb 0%, #ebedee 100%);
-    --accent-blue: #2c3e50;
-    --card-bg: #ffffff;
+/* --- 2. OneUI (Samsung Design) --- */
+body.theme-oneui-light {
+    --bg-gradient: #F7F7F7;
+    --card-bg: #FFFFFF; /* OneUI Cards are solid usually */
+    --text-primary: #000000;
+    --text-secondary: #585858;
+    --accent-blue: #0072DE; /* Samsung Blue */
+    --input-bg: #F0F0F0;
+    --btn-fos-bg: #FFFFFF;
+    --btn-fos-border: #E0E0E0;
+    --card-radius: 26px; /* Super rounded */
+    --btn-radius: 24px;
+    --backdrop-blur: 0px; /* OneUI uses less glass, more solid */
+    --shadow-soft: 0 2px 10px rgba(0,0,0,0.03);
 }
-body.theme-chic-dark {
-    --bg-gradient: linear-gradient(to right, #434343 0%, #000000 100%);
-    --card-bg: #1a1a1a;
-    --text-primary: #ffffff;
-    --accent-blue: #d4af37;
+
+body.theme-oneui-dark {
+    --bg-gradient: #000000; /* AMOLED Black */
+    --card-bg: #1E1E1E; /* Dark Gray Cards */
+    --text-primary: #FFFFFF;
+    --text-secondary: #999999;
+    --accent-blue: #3E91FF;
+    --input-bg: #2C2C2C;
+    --btn-fos-bg: #252525;
+    --btn-fos-border: transparent;
+    --card-radius: 26px;
+    --btn-radius: 24px;
+    --backdrop-blur: 0px;
 }
+
+/* --- 3. Windows 11 (Fluent Design) --- */
+body.theme-window11-light {
+    /* Mica Effect Simulation */
+    --bg-gradient: linear-gradient(135deg, #F3F3F3 0%, #E8F2FC 100%); 
+    --card-bg: rgba(255, 255, 255, 0.75);
+    --text-primary: #1A1A1A;
+    --text-secondary: #5D5D5D;
+    --accent-blue: #0067C0;
+    --input-bg: rgba(255, 255, 255, 0.7);
+    --input-border: rgba(0, 0, 0, 0.06);
+    --btn-fos-bg: rgba(255, 255, 255, 0.8);
+    --btn-fos-border: rgba(0, 0, 0, 0.06);
+    --card-radius: 8px; /* Distinctive small radius */
+    --btn-radius: 6px;
+    --backdrop-blur: 20px; /* Acrylic */
+    --shadow-soft: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+body.theme-window11-dark {
+    --bg-gradient: linear-gradient(135deg, #202020 0%, #1A1A1A 100%);
+    --card-bg: rgba(32, 32, 32, 0.85); /* Acrylic Dark */
+    --text-primary: #FFFFFF;
+    --text-secondary: #A0A0A0;
+    --accent-blue: #4CC2FF;
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --input-border: rgba(255, 255, 255, 0.08);
+    --btn-fos-bg: rgba(255, 255, 255, 0.06);
+    --btn-fos-border: rgba(255, 255, 255, 0.05);
+    --card-radius: 8px;
+    --btn-radius: 6px;
+    --backdrop-blur: 25px;
+}
+
+/* --- 4. iOS 26 (Futuristic Concept) --- */
+body.theme-ios26-light {
+    /* Titanium / Holographic Feel */
+    --bg-gradient: radial-gradient(circle at top left, #eef2f3, #d9e4f5, #eef2f3);
+    --card-bg: rgba(255, 255, 255, 0.45); /* Hyper Glass */
+    --text-primary: #1d1d1f;
+    --text-secondary: rgba(29, 29, 31, 0.6);
+    --accent-blue: #00C7BE; /* Cyan/Teal futuristic accent */
+    --input-bg: rgba(255, 255, 255, 0.4);
+    --btn-fos-bg: rgba(255, 255, 255, 0.3);
+    --btn-fos-border: rgba(255, 255, 255, 0.6);
+    --card-radius: 32px; /* Ultra smooth */
+    --btn-radius: 16px;
+    --backdrop-blur: 50px;
+    --shadow-soft: 0 10px 40px rgba(0, 199, 190, 0.15); /* Colored shadow */
+}
+
+body.theme-ios26-dark {
+    /* Deep Space */
+    --bg-gradient: radial-gradient(circle at bottom right, #2b1055, #000000);
+    --card-bg: rgba(30, 30, 40, 0.35);
+    --text-primary: #FFFFFF;
+    --text-secondary: rgba(255, 255, 255, 0.5);
+    --accent-blue: #D65DB1; /* Neon Violet/Pink */
+    --input-bg: rgba(255, 255, 255, 0.1);
+    --btn-fos-bg: rgba(255, 255, 255, 0.05);
+    --btn-fos-border: rgba(255, 255, 255, 0.15);
+    --card-radius: 32px;
+    --btn-radius: 16px;
+    --backdrop-blur: 60px;
+    --shadow-soft: 0 10px 40px rgba(214, 93, 177, 0.2);
+}
+
 
 /* --- BASE UI STYLES --- */
 
 #lop-phu-tai-trang {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(10px);
-    display: none; 
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    color: white;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);
+    display: none; flex-direction: column; justify-content: center; align-items: center;
+    z-index: 9999; color: white;
 }
 
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: var(--bg-gradient);
-    background-image: var(--bg-image), var(--bg-gradient);
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+    background: var(--bg-gradient);
+    background-size: cover; background-attachment: fixed;
     color: var(--text-primary);
-    transition: background 0.4s ease, color 0.4s ease;
+    transition: background 0.5s ease, color 0.3s ease;
     min-height: 100vh;
 }
 
 /* Settings Button */
-.settings-container {
-    position: fixed;
-    top: 25px;
-    right: 25px;
-    z-index: 1100;
-}
+.settings-container { position: fixed; top: 25px; right: 25px; z-index: 1100; }
 
 #nut-cai-dat {
-    cursor: pointer;
-    font-size: 1.5rem;
-    color: var(--accent-blue);
-    background: var(--card-bg);
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    cursor: pointer; font-size: 1.5rem; color: var(--accent-blue);
+    background: var(--card-bg); width: 50px; height: 50px;
+    display: flex; align-items: center; justify-content: center;
     border-radius: 50%;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    box-shadow: var(--shadow-soft);
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.3s ease;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(var(--backdrop-blur));
     border: 1px solid rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
 }
-#nut-cai-dat:hover { transform: rotate(90deg) scale(1.1); background: rgba(255,255,255,0.9); }
+#nut-cai-dat:hover { transform: rotate(90deg) scale(1.1); }
 
-/* Fix Dropdown & Submenu Disappearing Bug */
+/* Dropdowns */
 .dropdown-menu {
-    border-radius: 1rem;
+    border-radius: var(--btn-radius);
     padding: 0.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(128, 128, 128, 0.1);
     background: var(--card-bg);
-    backdrop-filter: blur(25px);
-    box-shadow: 0 15px 45px rgba(0,0,0,0.2) !important;
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+    box-shadow: var(--shadow-soft) !important;
 }
 
 .dropdown-item {
-    border-radius: 0.6rem;
-    padding: 0.6rem 1rem;
+    border-radius: calc(var(--btn-radius) - 4px);
     color: var(--text-primary);
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
+    font-size: 0.9rem;
 }
 .dropdown-item:hover {
-    background-color: rgba(0, 122, 255, 0.1);
-    color: var(--accent-blue);
+    background-color: var(--accent-blue);
+    color: #fff !important;
 }
+.dropdown-item:hover i { color: #fff !important; }
 
-.dropdown-submenu {
-    position: relative;
-}
-
-/* CRITICAL: Fix disappearing on hover */
+/* Submenu Fix */
+.dropdown-submenu { position: relative; }
 .dropdown-submenu > .dropdown-menu {
-    top: 0;
-    left: auto;
-    right: 100%;
-    margin-top: -5px;
-    margin-right: 0px; /* Bridge will handle the gap */
-    display: none;
+    top: 0; left: auto; right: 100%;
+    margin-top: -5px; margin-right: 0px; display: none;
 }
-
-/* The 'Bridge' pseudo-element to prevent closing when moving mouse to submenu */
-.dropdown-submenu:hover > .dropdown-menu {
-    display: block;
-}
+.dropdown-submenu:hover > .dropdown-menu { display: block; }
 .dropdown-submenu:hover > .dropdown-menu::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: -20px;
-    width: 25px;
-    height: 100%;
-    background: transparent;
-    z-index: -1;
-}
-
-.dropdown-toggle::after {
-    display: inline-block;
-    margin-left: 0.5em;
-    vertical-align: 0.255em;
-    content: "";
-    border-top: 0.3em solid;
-    border-right: 0.3em solid transparent;
-    border-bottom: 0;
-    border-left: 0.3em solid transparent;
-}
-
-.dropdown-submenu > .dropdown-toggle::after {
-    transform: rotate(90deg);
-    float: left;
-    margin-top: 0.5rem;
-    margin-right: 0.5rem;
-    margin-left: 0;
+    content: ""; position: absolute; top: 0; right: -20px;
+    width: 25px; height: 100%; background: transparent; z-index: -1;
 }
 
 /* Layout Elements */
-.main-title { font-weight: 700; color: var(--main-title-color); letter-spacing: -1px; }
+.main-title { font-weight: 700; color: var(--main-title-color); letter-spacing: -0.5px; }
 
 .card, .modal-content, .glass-card {
     background: var(--card-bg);
-    backdrop-filter: blur(25px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 1.5rem;
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow-soft);
 }
 
+.modal-header { border-bottom: 1px solid rgba(128, 128, 128, 0.1); }
+.modal-footer { border-top: 1px solid rgba(128, 128, 128, 0.1); }
+
+/* Form Controls */
+.form-control, .form-select {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-primary);
+    border-radius: var(--btn-radius);
+}
+.form-control:focus, .form-select:focus {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 0.25rem rgba(0, 122, 255, 0.25);
+}
+
+/* Buttons */
+.btn { border-radius: var(--btn-radius); font-weight: 500; }
+.btn-primary { background-color: var(--accent-blue); border-color: var(--accent-blue); }
+.btn-primary:hover { opacity: 0.9; }
+
+/* Employee List */
 #vung-danh-sach-nv {
-    max-height: 420px;
-    overflow-y: auto;
-    padding: 12px;
-    margin-bottom: 20px;
-    border-radius: 1.25rem;
+    max-height: 420px; overflow-y: auto;
+    padding: 12px; margin-bottom: 20px;
+    border-radius: var(--card-radius);
     background: rgba(0,0,0,0.03);
 }
 
@@ -285,21 +260,19 @@ body {
     background-color: var(--btn-fos-bg);
     border: 1px solid var(--btn-fos-border);
     color: var(--text-primary);
-    flex: 1;
-    text-align: left;
-    font-weight: 600;
-    border-radius: 0.75rem 0 0 0.75rem !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    flex: 1; text-align: left; font-weight: 600;
+    border-radius: var(--btn-radius) 0 0 var(--btn-radius) !important;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     padding: 10px 15px;
+    transition: all 0.2s;
 }
+.nut-ten-nv:hover { opacity: 0.8; }
 .nut-ten-nv.da-bao-cao { background-color: var(--accent-green) !important; color: white !important; border-color: var(--accent-green); }
 .nut-ten-nv.nghi { background-color: var(--accent-gray) !important; color: white !important; text-decoration: line-through; opacity: 0.8; }
 .nut-ten-nv.sai-ten { background-color: var(--accent-red) !important; color: white !important; }
 
 .nut-sua-nv { background-color: var(--accent-blue); color: white; width: 44px; border: none; }
-.nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 0.75rem 0.75rem 0 !important; width: 44px; border: none; }
+.nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 var(--btn-radius) var(--btn-radius) 0 !important; width: 44px; border: none; }
 
 #chi-bao-dang-luu {
     position: fixed; bottom: 75px; right: 20px;
@@ -309,19 +282,14 @@ body {
     font-size: 0.9rem; font-weight: 500;
 }
 
-/* System Monitor Widget Styles */
-#system-monitor-panel.show {
-    opacity: 1 !important;
-    transform: scale(1) translateY(0) !important;
-    display: block !important;
-}
-
-.status-dot {
-    height: 8px; width: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 0;
-}
+/* System Monitor */
+#system-monitor-panel.show { opacity: 1 !important; transform: scale(1) translateY(0) !important; display: block !important; }
+.status-dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 0; }
 .status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
 .status-dot.offline { background-color: var(--accent-red); }
 
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--accent-gray); border-radius: 10px; opacity: 0.5; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }

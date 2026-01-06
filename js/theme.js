@@ -1,12 +1,9 @@
+
 const DANH_SACH_GIAO_DIEN = {
-    'ios18': 'iOS 18',
-    'oneui': 'OneUI',
-    'window11': 'Window 11',
-    'pastel': 'Pastel Dream',
-    'nature': 'Serene Nature',
-    'gaming': 'Gaming Zone',
-    'carbon': 'Carbon Fiber',
-    'chic': 'Chic & Modern',
+    'ios18': 'iOS 18 (Apple)',
+    'ios26': 'iOS 26 (Futuristic)',
+    'oneui': 'OneUI (Samsung)',
+    'window11': 'Windows 11 (Microsoft)'
 };
 
 export const xayDungMenuGiaoDien = () => {

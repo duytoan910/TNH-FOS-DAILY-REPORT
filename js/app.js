@@ -23,8 +23,8 @@ $(function() {
     const modalXemBaoCaoCu = new bootstrap.Modal('#modal-xem-bao-cao-cu');
 
     // --- CẬP NHẬT THÔNG TIN BUILD ---
-    const phienBanBuild = "v1.5.0-stable";
-    const thoiGianBuildStr = "2026.01.06 17:10"; 
+    const phienBanBuild = "v1.6.0-beta";
+    const thoiGianBuildStr = "2026.01.06 17:15"; 
     $('#thoi-gian-build').text(thoiGianBuildStr);
     $('.build-version').text(phienBanBuild);
 
@@ -84,7 +84,7 @@ $(function() {
 
             html += `
                 <div class="col-6">
-                    <div class="input-group shadow-sm" style="border-radius: 0.75rem; overflow: hidden;">
+                    <div class="input-group shadow-sm" style="border-radius: var(--btn-radius); overflow: hidden;">
                         <button class="${lopNut}" data-nv-ten="${nv.ten}" title="${nv.ten}">
                             ${nv.ten}
                         </button>
