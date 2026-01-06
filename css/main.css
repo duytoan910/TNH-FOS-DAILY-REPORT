@@ -1,4 +1,5 @@
 
+
 /* --- HỆ THỐNG GIAO DIỆN SỬ DỤNG BIẾN CSS --- */
 
 :root {
@@ -264,7 +265,7 @@ body {
 /* Layout Elements */
 .main-title { font-weight: 700; color: var(--main-title-color); letter-spacing: -1px; }
 
-.card, .modal-content {
+.card, .modal-content, .glass-card {
     background: var(--card-bg);
     backdrop-filter: blur(25px) saturate(200%);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -300,15 +301,6 @@ body {
 .nut-sua-nv { background-color: var(--accent-blue); color: white; width: 44px; border: none; }
 .nut-xoa-nv { background-color: var(--accent-red); color: white; border-radius: 0 0.75rem 0.75rem 0 !important; width: 44px; border: none; }
 
-.db-status-widget, .build-info-widget {
-    position: fixed; bottom: 15px;
-    background: var(--card-bg); padding: 8px 15px; border-radius: 14px;
-    font-size: 0.7rem; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1);
-}
-.db-status-widget { left: 15px; }
-.build-info-widget { right: 15px; }
-
 #chi-bao-dang-luu {
     position: fixed; bottom: 75px; right: 20px;
     z-index: 2000; background: var(--accent-blue); padding: 12px 24px;
@@ -316,3 +308,20 @@ body {
     display: none; align-items: center; gap: 10px; color: white;
     font-size: 0.9rem; font-weight: 500;
 }
+
+/* System Monitor Widget Styles */
+#system-monitor-panel.show {
+    opacity: 1 !important;
+    transform: scale(1) translateY(0) !important;
+    display: block !important;
+}
+
+.status-dot {
+    height: 8px; width: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0;
+}
+.status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+.status-dot.offline { background-color: var(--accent-red); }
+

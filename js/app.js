@@ -25,8 +25,21 @@ $(function() {
     // --- CẬP NHẬT THÔNG TIN BUILD ---
     const phienBanBuild = "v1.5.0-stable";
     const thoiGianBuildStr = "2026.01.06 17:01"; 
-    $('#thoi-gian-build').html(`Build: ${thoiGianBuildStr}`);
-    $('.build-info-widget .fw-bold').text(phienBanBuild);
+    $('#thoi-gian-build').text(thoiGianBuildStr);
+    $('.build-version').text(phienBanBuild);
+
+    // --- SYSTEM MONITOR WIDGET ---
+    $('#btn-toggle-monitor').on('click', function() {
+        const $panel = $('#system-monitor-panel');
+        if ($panel.hasClass('show')) {
+            $panel.removeClass('show');
+            setTimeout(() => $panel.hide(), 300); // Wait for transition
+        } else {
+            $panel.show();
+            // Small delay to allow display:block to apply before transition
+            setTimeout(() => $panel.addClass('show'), 10);
+        }
+    });
 
     const capNhatWidgetDb = (trucTuyen, slNv, slBaoCao, slTruyCap) => {
         const $cham = $('#cham-trang-thai-db');
@@ -37,14 +50,14 @@ $(function() {
         
         if (trucTuyen) {
             $cham.removeClass('offline').addClass('online');
-            $chu.text('RestDB Online');
+            $chu.text('Online');
         } else {
             $cham.removeClass('online').addClass('offline');
-            $chu.text('Chế độ Offline');
+            $chu.text('Offline');
         }
-        if (slNv !== null) $nv.text(`NV: ${slNv}`);
-        if (slBaoCao !== null) $bc.text(`Rpt: ${slBaoCao}`);
-        if (slTruyCap !== null) $luong.text(`(${slTruyCap})`);
+        if (slNv !== null) $nv.text(`${slNv} NV`);
+        if (slBaoCao !== null) $bc.text(`${slBaoCao} Rpt`);
+        if (slTruyCap !== null) $luong.text(`${slTruyCap}`);
     }
 
     const $vungDsNv = $('#vung-danh-sach-nv');

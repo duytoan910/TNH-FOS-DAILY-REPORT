@@ -38,21 +38,43 @@
         <span>Đang lưu...</span>
     </div>
     
-    <!-- Widget trạng thái DB (Góc trái) -->
-    <div class="db-status-widget">
-        <div class="status-header">
-            <span id="cham-trang-thai-db" class="status-dot"></span>
-            <span id="chu-trang-thai-db">Đang kết nối...</span>
+    <!-- Widget System Monitor (Góc phải dưới) -->
+    <div id="system-monitor-widget" class="fixed-bottom d-flex flex-column align-items-end gap-2" style="right: 15px; bottom: 15px; left: auto; z-index: 1000; pointer-events: none;">
+        
+        <!-- Bảng thông tin chi tiết (Mặc định ẩn) -->
+        <div id="system-monitor-panel" class="glass-card p-2 px-3 shadow-sm" style="pointer-events: auto; transform-origin: bottom right; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; transform: scale(0.9) translateY(10px); display: none;">
+            <div class="d-flex align-items-center gap-3">
+                <!-- Status Section -->
+                <div class="d-flex align-items-center gap-2">
+                    <span id="cham-trang-thai-db" class="status-dot"></span>
+                    <div class="d-flex flex-column" style="line-height: 1.2;">
+                        <span id="chu-trang-thai-db" class="fw-bold text-nowrap" style="font-size: 0.75rem;">Connecting...</span>
+                        <span class="text-muted text-nowrap" style="font-size: 0.65rem;">API: <span id="luong-truy-cap-api">-</span></span>
+                    </div>
+                </div>
+                
+                <div class="vr opacity-25"></div>
+                
+                <!-- Data Counts -->
+                <div class="d-flex flex-column text-end" style="line-height: 1.2; font-size: 0.7rem;">
+                    <span id="so-luong-nv-db" class="fw-bold text-nowrap">- NV</span>
+                    <span id="so-luong-bao-cao-db" class="fw-bold text-nowrap">- Rpt</span>
+                </div>
+                
+                <div class="vr opacity-25"></div>
+                
+                <!-- Build Info -->
+                <div class="text-end opacity-75" style="line-height: 1.2; font-size: 0.65rem;">
+                    <div class="fw-bold build-version">v1.5.0</div>
+                    <div id="thoi-gian-build" class="text-nowrap">...</div>
+                </div>
+            </div>
         </div>
-        <div class="status-detail">
-            <span id="so-luong-nv-db">NV: -</span> | <span id="so-luong-bao-cao-db">Rpt: -</span>
-            <span id="luong-truy-cap-api" class="ms-1 text-muted small" title="Số lần gọi API hôm nay">(-)</span>
-        </div>
-    </div>
 
-    <!-- Widget Phiên bản (Góc phải) -->
-    <div class="build-info-widget">
-        <span class="fw-bold">v1.5.0-stable</span> | <span id="thoi-gian-build">Build: ...</span>
+        <!-- Nút Toggle -->
+        <button id="btn-toggle-monitor" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; pointer-events: auto; border: 1px solid rgba(0,0,0,0.05);">
+            <i class="fa-solid fa-server text-secondary" style="font-size: 0.9rem;"></i>
+        </button>
     </div>
     
     <!-- Menu cài đặt & Công cụ -->
