@@ -23,8 +23,8 @@ $(function() {
     const modalXemBaoCaoCu = new bootstrap.Modal('#modal-xem-bao-cao-cu');
 
     // --- CẬP NHẬT THÔNG TIN BUILD ---
-    const phienBanBuild = "v1.7.0-beta";
-    const thoiGianBuildStr = "2026.01.06 17:45"; 
+    const phienBanBuild = "v1.7.1-patch";
+    const thoiGianBuildStr = "2026.01.06 17:55"; 
     $('#thoi-gian-build').text(thoiGianBuildStr);
     $('.build-version').text(phienBanBuild);
 
@@ -463,7 +463,15 @@ $(function() {
     });
 
     $('#nut-dan-hang-loat').on('click', async () => {
-        try { const t = await navigator.clipboard.readText(); if (t) $('#noi-dung-nhieu-bao-cao-nhap').val(t); } catch(e) {}
+        try { 
+            const t = await navigator.clipboard.readText(); 
+            if (t) {
+                const hienTai = $('#noi-dung-nhieu-bao-cao-nhap').val();
+                // Nếu đã có nội dung thì xuống dòng trước khi dán tiếp
+                const moi = hienTai ? (hienTai + '\n\n' + t) : t;
+                $('#noi-dung-nhieu-bao-cao-nhap').val(moi); 
+            }
+        } catch(e) {}
     });
 
     $('#nut-xu-ly-nhieu-bao-cao').on('click', () => {
